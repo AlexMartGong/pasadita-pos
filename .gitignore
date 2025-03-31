@@ -1,0 +1,62 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+
+/cypress/videos/
+/cypress/screenshots/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
+
+# Archivos de entorno (excepto ejemplos)
+.env
+.env.*
+!.env.example
+
+# Archivos de Vite generados
+.vite/
+
+# Almacenamiento en caché de Vue
+.vue-ssr-*
+
+# Directorios temporales
+.temp
+.tmp
+
+# Archivos de almacenamiento en caché
+.cache/
+
+# Vercel
+.vercel
+
+# PWA
+**/public/workbox-*.js
+**/public/sw.js
+
+# Firebase
+.firebase/
+
+# Webpack stats
+stats.html
+stats.json
