@@ -89,16 +89,12 @@ function initSidebar(activeItemId, containerId = 'sidebarContainer') {
     let userRole = 'ROLE_ADMIN'; // Por defecto
 
     try {
-        // En una implementación real, obtendríamos el rol del token JWT o de una variable global
-        // Para este ejemplo, simplemente usamos el rol de administrador
         const sidebar = renderSidebar(activeItemId, userRole);
 
-        // Si existe un contenedor específico, insertarlo ahí
         const container = document.getElementById(containerId);
         if (container) {
             container.appendChild(sidebar);
         } else {
-            // Si no existe el contenedor, buscar el primer elemento de la fila
             const rowElement = document.querySelector('.row');
             if (rowElement) {
                 rowElement.insertBefore(sidebar, rowElement.firstChild);

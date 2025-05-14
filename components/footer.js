@@ -16,7 +16,7 @@ function renderFooter() {
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <p class="mb-0 text-muted">&copy; ${currentYear} La Pasadita. Todos los derechos reservados.</p>
+                    <p class="col-md-9 col-lg-10 ms-sm-auto px-md-4">&copy; ${currentYear} La Pasadita. Todos los derechos reservados.</p>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <span class="text-muted">Versión 1.0.0</span>

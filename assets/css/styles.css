@@ -32,6 +32,7 @@ body {
 
 main {
     padding-top: 1.5rem;
+    min-height: calc(100vh - 60px);
 }
 
 .card {
@@ -65,6 +66,10 @@ main {
     .sidebar {
         position: static;
         height: auto;
-        padding-top: 0;
+        width: 100%;
+    }
+    main {
+        width: 100%;
+        margin-left: 0;
     }
 }
