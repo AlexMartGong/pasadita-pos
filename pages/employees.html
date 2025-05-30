@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empleados - La Pasadita POS</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div id="sidebarContainer" class="col-md-3 col-lg-2 p-0"></div>
+
+        <!-- Main content -->
+        <main class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
+            <!-- Header -->
+            <div id="headerContainer"></div>
+
+            <!-- Contenido principal -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2>Gestión de Empleados</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#employeeModal"
+                                onclick="openEmployeeModal()">
+                            <i class="bi bi-plus-circle me-2"></i>Nuevo Empleado
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta con la tabla -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Lista de Empleados</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Loading spinner -->
+                    <div id="loadingSpinner" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando empleados...</p>
+                    </div>
+
+                    <!-- Contenedor de la tabla -->
+                    <div id="employeesTableContainer" style="display: none;"></div>
+
+                    <!-- Error message -->
+                    <div id="errorMessage" class="alert alert-danger d-none">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <span id="errorText">Error al cargar los empleados</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar empleado -->
+<div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="employeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="employeeModalLabel">Nuevo Empleado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="employeeForm">
+                <div class="modal-body">
+                    <input type="hidden" id="employeeId">
+
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Nombre Completo *</label>
+                        <input type="text" class="form-control" id="fullName" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Usuario *</label>
+                        <input type="text" class="form-control" id="username" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña *</label>
+                        <input type="password" class="form-control" id="password" required>
+                        <div class="form-text">Mínimo 6 caracteres</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="position" class="form-label">Posición *</label>
+                        <select class="form-select" id="position" required>
+                            <option value="">Seleccionar posición</option>
+                            <option value="ROLE_ADMIN">Administrador</option>
+                            <option value="ROLE_CAJERO">Cajero</option>
+                            <option value="ROLE_PEDIDOS">Pedidos</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Teléfono *</label>
+                        <input type="tel" class="form-control" id="phone" required>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="active" checked>
+                        <label class="form-check-label" for="active">
+                            Empleado activo
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="spinner-border spinner-border-sm d-none me-2" id="saveSpinner"></span>
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div id="footerContainer"></div>
+
+<!-- Scripts -->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
+        crossorigin="anonymous"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+
+<!-- Scripts de la aplicación -->
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../components/dataTable.js"></script>
+<script src="../components/header.js"></script>
+<script src="../components/sidebar.js"></script>
+<script src="../components/footer.js"></script>
+<script src="../assets/js/app.js"></script>
+
+<!-- Script específico de empleados -->
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        // Verificar autenticación
+        if (!isAuthenticated()) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Cargar empleados
+        await loadEmployees();
+    });
+
+    // Variables globales
+    let employeesTable = null;
+    let isEditMode = false;
+
+    /**
+     * Carga y muestra los empleados
+     */
+    async function loadEmployees() {
+        try {
+            showLoading();
+
+            const employees = await api.getAllEmployees();
+
+            if (employees && employees.length > 0) {
+                // Renderizar tabla
+                window.PasaditaPOS.TableUtils.renderEmployeesTable(employees, 'employeesTableContainer');
+
+                // Inicializar DataTable
+                const config = window.PasaditaPOS.DataTable.getEmployeesConfig();
+                employeesTable = window.PasaditaPOS.DataTable.initTable('#employeesTable', config);
+
+                showTable();
+            } else {
+                showNoData();
+            }
+
+        } catch (error) {
+            console.error('Error al cargar empleados:', error);
+            showError('Error al cargar los empleados. Intente nuevamente.');
+        }
+    }
+
+    /**
+     * Abre el modal para nuevo empleado
+     */
+    function openEmployeeModal() {
+        isEditMode = false;
+        document.getElementById('employeeModalLabel').textContent = 'Nuevo Empleado';
+        document.getElementById('employeeForm').reset();
+        document.getElementById('employeeId').value = '';
+        document.getElementById('password').required = true;
+    }
+
+    /**
+     * Edita un empleado
+     */
+    function editEmployee(id) {
+        isEditMode = true;
+        document.getElementById('employeeModalLabel').textContent = 'Editar Empleado';
+        document.getElementById('employeeId').value = id;
+        document.getElementById('password').required = false;
+
+        // Aquí cargarías los datos del empleado para editar
+        // Por ahora, solo abrimos el modal
+        const modal = new bootstrap.Modal(document.getElementById('employeeModal'));
+        modal.show();
+    }
+
+    /**
+     * Elimina un empleado
+     */
+    async function deleteEmployee(id) {
+        if (confirm('¿Está seguro de que desea eliminar este empleado?')) {
+            try {
+                // Aquí llamarías a la API para eliminar
+                console.log('Eliminando empleado:', id);
+                // await api.deleteEmployee(id);
+                // await loadEmployees(); // Recargar tabla
+            } catch (error) {
+                console.error('Error al eliminar empleado:', error);
+                alert('Error al eliminar el empleado');
+            }
+        }
+    }
+
+    /**
+     * Maneja el envío del formulario
+     */
+    document.getElementById('employeeForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const saveButton = e.target.querySelector('button[type="submit"]');
+        const spinner = document.getElementById('saveSpinner');
+
+        try {
+            // Mostrar spinner
+            saveButton.disabled = true;
+            spinner.classList.remove('d-none');
+
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                position: document.getElementById('position').value,
+                phone: document.getElementById('phone').value,
+                active: document.getElementById('active').checked
+            };
+
+            if (isEditMode) {
+                formData.id = document.getElementById('employeeId').value;
+                // await api.updateEmployee(formData);
+            } else {
+                // await api.saveEmployee(formData);
+            }
+
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('employeeModal'));
+            modal.hide();
+
+            // Recargar tabla
+            await loadEmployees();
+
+            console.log('Empleado guardado correctamente');
+
+        } catch (error) {
+            console.error('Error al guardar empleado:', error);
+            alert('Error al guardar el empleado');
+        } finally {
+            // Ocultar spinner
+            saveButton.disabled = false;
+            spinner.classList.add('d-none');
+        }
+    });
+
+    /**
+     * Funciones de utilidad para mostrar/ocultar elementos
+     */
+    function showLoading() {
+        document.getElementById('loadingSpinner').style.display = 'block';
+        document.getElementById('employeesTableContainer').style.display = 'none';
+        document.getElementById('errorMessage').classList.add('d-none');
+    }
+
+    function showTable() {
+        document.getElementById('loadingSpinner').style.display = 'none';
+        document.getElementById('employeesTableContainer').style.display = 'block';
+        document.getElementById('errorMessage').classList.add('d-none');
+    }
+
+    function showError(message) {
+        document.getElementById('loadingSpinner').style.display = 'none';
+        document.getElementById('employeesTableContainer').style.display = 'none';
+        document.getElementById('errorText').textContent = message;
+        document.getElementById('errorMessage').classList.remove('d-none');
+    }
+
+    function showNoData() {
+        const container = document.getElementById('employeesTableContainer');
+        container.innerHTML = `
+        <div class="text-center py-5">
+            <i class="bi bi-people fs-1 text-muted"></i>
+            <h4 class="mt-3">No hay empleados registrados</h4>
+            <p class="text-muted">Comience agregando un nuevo empleado</p>
+        </div>
+    `;
+        showTable();
+    }
+</script>
+</body>
+</html>
