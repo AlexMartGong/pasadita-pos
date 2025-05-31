@@ -59,7 +59,7 @@ class ApiService {
                 try {
                     errorData = await response.json();
                 } catch (e) {
-                    errorData = { message: `HTTP Error ${response.status}` };
+                    errorData = {message: `HTTP Error ${response.status}`};
                 }
                 throw new Error(errorData.message || `HTTP Error ${response.status}`);
             }
@@ -122,6 +122,20 @@ class ApiService {
         } catch (error) {
             return false; // Si hay error 404, el usuario no existe
         }
+    }
+
+    /**
+     * Cabia el password de un empleado
+     */
+    async changePassword(employeeId, newPassword) {
+        return this.request(`employees/change-password/${employeeId}`, 'PUT', {password: newPassword});
+    }
+
+    /**
+     * Cambia el estado de un empleado
+     */
+    async changeEmployeeStatus(employeeId, active) {
+        return this.request(`employees/change-status/${employeeId}`, 'PUT', {active: active});
     }
 
     // =========================
@@ -193,15 +207,15 @@ class ApiService {
                     console.error(`HTTP Error ${status}:`, message);
             }
 
-            return { status, message };
+            return {status, message};
         } else if (error.request) {
             // La petición se hizo pero no se recibió respuesta
             console.error('Network Error:', error.message);
-            return { status: 0, message: 'Error de conexión' };
+            return {status: 0, message: 'Error de conexión'};
         } else {
             // Algo más causó el error
             console.error('Error:', error.message);
-            return { status: -1, message: error.message };
+            return {status: -1, message: error.message};
         }
     }
 }

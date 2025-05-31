@@ -247,7 +247,7 @@ const TableUtils = {
         const container = document.getElementById(containerId);
         if (!container) return;
 
-        const tableHTML = `
+        container.innerHTML = `
             <div class="table-responsive">
                 <table id="employeesTable" class="table table-striped table-hover">
                     <thead class="table-dark">
@@ -257,6 +257,7 @@ const TableUtils = {
                             <th>Usuario</th>
                             <th>Posición</th>
                             <th>Teléfono</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -273,9 +274,22 @@ const TableUtils = {
                                 </td>
                                 <td>${emp.phone}</td>
                                 <td>
+                                    <span class="badge ${emp.active ? 'bg-success' : 'bg-danger'}">
+                                        ${emp.active ? 'Activo' : 'Inactivo'}
+                                    </span>
+                                </td>
+                                <td>
                                     <div class="btn-group btn-group-sm">
                                         <button class="btn btn-outline-primary" onclick="editEmployee(${emp.id})" title="Editar">
                                             <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning" onclick="changeEmployeePassword(${emp.id})" title="Cambiar contraseña">
+                                            <i class="bi bi-key"></i>
+                                        </button>
+                                        <button class="btn btn-outline-${emp.active ? 'secondary' : 'success'}" 
+                                                onclick="toggleEmployeeStatus(${emp.id}, ${emp.active})" 
+                                                title="${emp.active ? 'Desactivar' : 'Activar'}">
+                                            <i class="bi bi-${emp.active ? 'x-circle' : 'check-circle'}"></i>
                                         </button>
                                         <button class="btn btn-outline-danger" onclick="deleteEmployee(${emp.id})" title="Eliminar">
                                             <i class="bi bi-trash"></i>
@@ -288,8 +302,6 @@ const TableUtils = {
                 </table>
             </div>
         `;
-
-        container.innerHTML = tableHTML;
     },
 
     getPositionBadgeClass(position) {

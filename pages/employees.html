@@ -229,10 +229,27 @@
         document.getElementById('employeeId').value = id;
         document.getElementById('password').required = false;
 
-        // Aquí cargarías los datos del empleado para editar
-        // Por ahora, solo abrimos el modal
-        const modal = new bootstrap.Modal(document.getElementById('employeeModal'));
-        modal.show();
+        try {
+            // Aquí llamarías a la API para obtener los datos del empleado
+            const employee = api.getEmployee(id);
+            if (employee) {
+                document.getElementById('fullName').value = employee.fullName;
+                document.getElementById('username').value = employee.username;
+                document.getElementById('position').value = employee.position;
+                document.getElementById('phone').value = employee.phone;
+                document.getElementById('active').checked = employee.active;
+
+                // Mostrar modal
+                const modal = new bootstrap.Modal(document.getElementById('employeeModal'));
+                modal.show();
+            } else {
+                alert('Empleado no encontrado');
+            }
+        } catch (error) {
+            console.error('Error al cargar empleado:', error);
+            alert('Error al cargar los datos del empleado');
+        }
+
     }
 
     /**
@@ -241,13 +258,56 @@
     async function deleteEmployee(id) {
         if (confirm('¿Está seguro de que desea eliminar este empleado?')) {
             try {
-                // Aquí llamarías a la API para eliminar
-                console.log('Eliminando empleado:', id);
-                // await api.deleteEmployee(id);
-                // await loadEmployees(); // Recargar tabla
+                await api.deleteEmployee(id);
+                await loadEmployees();
+
+                console.log('Empleado eliminado correctamente');
             } catch (error) {
                 console.error('Error al eliminar empleado:', error);
                 alert('Error al eliminar el empleado');
+            }
+        }
+    }
+
+    /**
+     * Cambia la contraseña de un empleado
+     */
+    async function changeEmployeePassword(id) {
+        const newPassword = prompt('Ingrese la nueva contraseña (mínimo 6 caracteres):');
+
+        if (newPassword) {
+            if (newPassword.length < 6) {
+                alert('La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+
+            try {
+                await api.changePassword(id, newPassword);
+                console.log('Contraseña cambiada correctamente');
+            } catch (error) {
+                console.error('Error al cambiar contraseña:', error);
+                alert('Error al cambiar la contraseña');
+            }
+        }
+    }
+
+    /**
+     * Cambia el estado de un empleado
+     */
+    async function toggleEmployeeStatus(id, currentStatus) {
+        const newStatus = !currentStatus;
+        const action = newStatus ? 'activar' : 'desactivar';
+
+        if (confirm(`¿Está seguro de que desea ${action} este empleado?`)) {
+            try {
+                console.log(`Cambiando estado del empleado ${id} a ${newStatus}`);
+                const result = await api.changeEmployeeStatus(id, newStatus);
+                console.log('Resultado:', result);
+
+                await loadEmployees();
+            } catch (error) {
+                console.error('Error al cambiar estado:', error);
+                alert('Error al cambiar el estado del empleado: ' + error.message);
             }
         }
     }
@@ -277,9 +337,9 @@
 
             if (isEditMode) {
                 formData.id = document.getElementById('employeeId').value;
-                // await api.updateEmployee(formData);
+                await api.updateEmployee(formData.id, formData);
             } else {
-                // await api.saveEmployee(formData);
+                await api.saveEmployee(formData);
             }
 
             // Cerrar modal

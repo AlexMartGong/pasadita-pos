@@ -58,7 +58,7 @@
                     throw new Error('Login failed');
                 }
             })
-            .catch(error => {
+            .catch(() => {
                 document.getElementById('loginError').classList.remove('d-none');
             });
     });
