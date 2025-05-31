@@ -4,34 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Empleados - La Pasadita POS</title>
-
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-
-    <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <!-- Estilos personalizados -->
     <link rel="stylesheet" href="../assets/css/styles.css">
 </head>
 <body class="d-flex flex-column min-vh-100">
 <div class="container-fluid">
     <div class="row">
-        <!-- Sidebar -->
+
         <div id="sidebarContainer" class="col-md-3 col-lg-2 p-0"></div>
 
-        <!-- Main content -->
         <main class="col-md-9 col-lg-10 ms-sm-auto px-md-4">
-            <!-- Header -->
+
             <div id="headerContainer"></div>
 
-            <!-- Contenido principal -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center">
@@ -44,13 +34,11 @@
                 </div>
             </div>
 
-            <!-- Tarjeta con la tabla -->
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Lista de Empleados</h5>
                 </div>
                 <div class="card-body">
-                    <!-- Loading spinner -->
                     <div id="loadingSpinner" class="text-center py-5">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Cargando...</span>
@@ -58,10 +46,8 @@
                         <p class="mt-2">Cargando empleados...</p>
                     </div>
 
-                    <!-- Contenedor de la tabla -->
                     <div id="employeesTableContainer" style="display: none;"></div>
 
-                    <!-- Error message -->
                     <div id="errorMessage" class="alert alert-danger d-none">
                         <i class="bi bi-exclamation-triangle me-2"></i>
                         <span id="errorText">Error al cargar los empleados</span>
@@ -72,7 +58,6 @@
     </div>
 </div>
 
-<!-- Modal para agregar/editar empleado -->
 <div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="employeeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -87,17 +72,20 @@
                     <div class="mb-3">
                         <label for="fullName" class="form-label">Nombre Completo *</label>
                         <input type="text" class="form-control" id="fullName" required>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="mb-3">
                         <label for="username" class="form-label">Usuario *</label>
                         <input type="text" class="form-control" id="username" required>
+                        <div class="invalid-feedback"></div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3" id="passwordGroup">
                         <label for="password" class="form-label">Contraseña *</label>
                         <input type="password" class="form-control" id="password" required>
                         <div class="form-text">Mínimo 6 caracteres</div>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="mb-3">
@@ -108,25 +96,33 @@
                             <option value="ROLE_CAJERO">Cajero</option>
                             <option value="ROLE_PEDIDOS">Pedidos</option>
                         </select>
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="mb-3">
                         <label for="phone" class="form-label">Teléfono *</label>
                         <input type="tel" class="form-control" id="phone" required>
+                        <div class="invalid-feedback"></div>
                     </div>
 
-                    <div class="mb-3 form-check">
+                    <div class="mb-3 form-check" id="activeGroup">
                         <input type="checkbox" class="form-check-input" id="active" checked>
                         <label class="form-check-label" for="active">
                             Empleado activo
                         </label>
+                    </div>
+
+                    <div class="alert alert-info d-none" id="editModeInfo">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Para cambiar la contraseña o el estado del empleado, utilice las opciones correspondientes en la
+                        tabla.
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">
                         <span class="spinner-border spinner-border-sm d-none me-2" id="saveSpinner"></span>
-                        Guardar
+                        <span id="saveButtonText">Guardar</span>
                     </button>
                 </div>
             </form>
@@ -134,19 +130,11 @@
     </div>
 </div>
 
-<!-- Footer -->
 <div id="footerContainer"></div>
-
-<!-- Scripts -->
-<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
-
-<!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
@@ -154,8 +142,6 @@
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-
-<!-- Scripts de la aplicación -->
 <script src="../assets/js/auth.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../components/dataTable.js"></script>
@@ -164,16 +150,13 @@
 <script src="../components/footer.js"></script>
 <script src="../assets/js/app.js"></script>
 
-<!-- Script específico de empleados -->
 <script>
     document.addEventListener('DOMContentLoaded', async function () {
-        // Verificar autenticación
         if (!isAuthenticated()) {
             window.location.href = 'login.html';
             return;
         }
 
-        // Cargar empleados
         await loadEmployees();
     });
 
@@ -217,29 +200,50 @@
         document.getElementById('employeeModalLabel').textContent = 'Nuevo Empleado';
         document.getElementById('employeeForm').reset();
         document.getElementById('employeeId').value = '';
+        document.getElementById('saveButtonText').textContent = 'Guardar';
+
+        // Mostrar campos que se ocultan en modo edición
+        showPasswordField(true);
+        showActiveCheckbox(true);
+        showEditModeInfo(false);
+
+        // Hacer campos requeridos para nuevo empleado
         document.getElementById('password').required = true;
+
+        // Limpiar validaciones
+        clearValidationErrors();
     }
 
     /**
      * Edita un empleado
+     * @param {string} id - ID del empleado a editar
+     *
      */
-    function editEmployee(id) {
-        isEditMode = true;
-        document.getElementById('employeeModalLabel').textContent = 'Editar Empleado';
-        document.getElementById('employeeId').value = id;
-        document.getElementById('password').required = false;
-
+    async function editEmployee(id) {
         try {
-            // Aquí llamarías a la API para obtener los datos del empleado
-            const employee = api.getEmployee(id);
-            if (employee) {
-                document.getElementById('fullName').value = employee.fullName;
-                document.getElementById('username').value = employee.username;
-                document.getElementById('position').value = employee.position;
-                document.getElementById('phone').value = employee.phone;
-                document.getElementById('active').checked = employee.active;
+            isEditMode = true;
+            document.getElementById('employeeModalLabel').textContent = 'Editar Empleado';
+            document.getElementById('employeeId').value = id;
+            document.getElementById('saveButtonText').textContent = 'Actualizar';
 
-                // Mostrar modal
+            showPasswordField(false);
+            showActiveCheckbox(false);
+            showEditModeInfo(true);
+
+            document.getElementById('password').required = false;
+
+            clearValidationErrors();
+
+            const employee = await api.getEmployee(id);
+
+            if (employee) {
+                document.getElementById('fullName').value = employee.fullName || '';
+                document.getElementById('username').value = employee.username || '';
+                document.getElementById('position').value = employee.position || '';
+                document.getElementById('phone').value = employee.phone || '';
+
+                document.getElementById('active').checked = employee.active || false;
+
                 const modal = new bootstrap.Modal(document.getElementById('employeeModal'));
                 modal.show();
             } else {
@@ -247,13 +251,14 @@
             }
         } catch (error) {
             console.error('Error al cargar empleado:', error);
-            alert('Error al cargar los datos del empleado');
+            alert('Error al cargar los datos del empleado: ' + error.message);
         }
-
     }
+
 
     /**
      * Elimina un empleado
+     * @param {string} id - ID del empleado a eliminar
      */
     async function deleteEmployee(id) {
         if (confirm('¿Está seguro de que desea eliminar este empleado?')) {
@@ -271,6 +276,7 @@
 
     /**
      * Cambia la contraseña de un empleado
+     * @param {string} id - ID del empleado
      */
     async function changeEmployeePassword(id) {
         const newPassword = prompt('Ingrese la nueva contraseña (mínimo 6 caracteres):');
@@ -293,6 +299,8 @@
 
     /**
      * Cambia el estado de un empleado
+     * @param {string} id - ID del empleado
+     * @param {boolean} currentStatus - Estado actual del empleado
      */
     async function toggleEmployeeStatus(id, currentStatus) {
         const newStatus = !currentStatus;
@@ -310,6 +318,55 @@
                 alert('Error al cambiar el estado del empleado: ' + error.message);
             }
         }
+    }
+
+    /**
+     * Muestra u oculta el campo de contraseña
+     * @param {boolean} show - Si se debe mostrar el campo de contraseña
+     */
+    function showPasswordField(show) {
+        const passwordGroup = document.getElementById('passwordGroup');
+        if (passwordGroup) {
+            passwordGroup.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    /**
+     * Muestra u oculta el checkbox de activo
+     * @param {boolean} show - Si se debe mostrar el checkbox de activo
+     */
+    function showActiveCheckbox(show) {
+        const activeGroup = document.getElementById('activeGroup');
+        if (activeGroup) {
+            activeGroup.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    /**
+     * Muestra u oculta el mensaje informativo del modo edición
+     * @param {boolean} show - Si se debe mostrar el mensaje informativo
+     */
+    function showEditModeInfo(show) {
+        const infoElement = document.getElementById('editModeInfo');
+        if (infoElement) {
+            if (show) {
+                infoElement.classList.remove('d-none');
+            } else {
+                infoElement.classList.add('d-none');
+            }
+        }
+    }
+
+    /**
+     * Limpia los errores de validación del formulario
+     */
+    function clearValidationErrors() {
+        const form = document.getElementById('employeeForm');
+        const invalidInputs = form.querySelectorAll('.is-invalid');
+        const feedbacks = form.querySelectorAll('.invalid-feedback');
+
+        invalidInputs.forEach(input => input.classList.remove('is-invalid'));
+        feedbacks.forEach(feedback => feedback.textContent = '');
     }
 
     /**
@@ -370,12 +427,19 @@
         document.getElementById('errorMessage').classList.add('d-none');
     }
 
+    /**
+     * Muestra la tabla de empleados
+     */
     function showTable() {
         document.getElementById('loadingSpinner').style.display = 'none';
         document.getElementById('employeesTableContainer').style.display = 'block';
         document.getElementById('errorMessage').classList.add('d-none');
     }
 
+    /**
+     * Muestra un mensaje de error
+     * @param {string} message - Mensaje de error a mostrar
+     */
     function showError(message) {
         document.getElementById('loadingSpinner').style.display = 'none';
         document.getElementById('employeesTableContainer').style.display = 'none';
@@ -383,6 +447,9 @@
         document.getElementById('errorMessage').classList.remove('d-none');
     }
 
+    /**
+     * Muestra un mensaje cuando no hay datos
+     */
     function showNoData() {
         const container = document.getElementById('employeesTableContainer');
         container.innerHTML = `
