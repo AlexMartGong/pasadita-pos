@@ -25,7 +25,6 @@
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h2>Gestión de Empleados</h2>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#employeeModal"
                                 onclick="openEmployeeModal()">
                             <i class="bi bi-plus-circle me-2"></i>Nuevo Empleado
@@ -81,6 +80,8 @@
                                 <i class="bi bi-person"></i>
                             </span>
                             <input type="text"
+                                   minlength="3"
+                                   maxlength="100"
                                    class="form-control"
                                    id="fullName"
                                    placeholder="Ej: Juan Pérez García"
@@ -101,6 +102,8 @@
                                 <i class="bi bi-at"></i>
                             </span>
                             <input type="text"
+                                   minlength="3"
+                                   maxlength="50"
                                    class="form-control"
                                    id="username"
                                    placeholder="Ej: jperez"
@@ -111,7 +114,7 @@
                         <div class="form-text">Nombre único para iniciar sesión</div>
                     </div>
 
-                    <!-- Contraseña -->
+                    <!-- password -->
                     <div class="mb-3" id="passwordGroup">
                         <label for="password" class="form-label fw-bold" data-required="*">
                             Contraseña
@@ -121,6 +124,8 @@
                                 <i class="bi bi-key"></i>
                             </span>
                             <input type="password"
+                                   minlength="6"
+                                   maxlength="100"
                                    class="form-control"
                                    id="password"
                                    placeholder="••••••••"
@@ -172,6 +177,7 @@
                                 <i class="bi bi-telephone"></i>
                             </span>
                             <input type="tel"
+                                   pattern="/^[0-9]{10}$/"
                                    class="form-control"
                                    id="phone"
                                    placeholder="Ej: 3331234567"
@@ -243,6 +249,7 @@
 <script src="../components/sidebar.js"></script>
 <script src="../components/footer.js"></script>
 <script src="../assets/js/app.js"></script>
+<script src="../assets/js/employeeValidation.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', async function () {
@@ -257,6 +264,74 @@
     // Variables globales
     let employeesTable = null;
     let isEditMode = false;
+
+    document.getElementById('password')?.addEventListener('input', function (e) {
+        const password = e.target.value;
+        const strengthBar = document.getElementById('passwordStrength');
+        let strength = 0;
+        let strengthClass = '';
+        let strengthWidth = '0%';
+
+        if (password.length >= 6) strength += 25;
+        if (password.length >= 8) strength += 25;
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 25;
+        if (/\d/.test(password)) strength += 25;
+
+        if (strength <= 25) {
+            strengthClass = 'bg-danger';
+            strengthWidth = '25%';
+        } else if (strength <= 50) {
+            strengthClass = 'bg-warning';
+            strengthWidth = '50%';
+        } else if (strength <= 75) {
+            strengthClass = 'bg-info';
+            strengthWidth = '75%';
+        } else {
+            strengthClass = 'bg-success';
+            strengthWidth = '100%';
+        }
+
+        strengthBar.className = 'progress-bar ' + strengthClass;
+        strengthBar.style.width = strengthWidth;
+    });
+
+    // Formateo automático del nombre completo
+    document.getElementById('fullName')?.addEventListener('blur', function (e) {
+        const value = e.target.value.trim();
+        if (value) {
+            // Capitalizar primera letra de cada palabra
+            e.target.value = value.replace(/\b\w/g, l => l.toUpperCase());
+        }
+    });
+
+    // Limpiar el formulario cuando se cierre el modal
+    document.getElementById('employeeModal')?.addEventListener('hidden.bs.modal', function () {
+        // Resetear el formulario
+        document.getElementById('employeeForm').reset();
+
+        // Limpiar todas las validaciones
+        document.querySelectorAll('.is-invalid, .is-valid').forEach(field => {
+            field.classList.remove('is-invalid', 'is-valid');
+        });
+
+        // Limpiar mensajes de feedback
+        document.querySelectorAll('.invalid-feedback').forEach(feedback => {
+            feedback.textContent = '';
+        });
+
+        // Resetear barra de fuerza de contraseña
+        const strengthBar = document.getElementById('passwordStrength');
+        if (strengthBar) {
+            strengthBar.className = 'progress-bar';
+            strengthBar.style.width = '0%';
+        }
+
+        // Ocultar resumen de validación
+        document.getElementById('validationSummary')?.classList.add('d-none');
+
+        // Remover iconos de campo
+        document.querySelectorAll('.field-icon').forEach(icon => icon.remove());
+    });
 
     /**
      * Carga y muestra los empleados
