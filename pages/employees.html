@@ -59,52 +59,131 @@
 </div>
 
 <div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="employeeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="employeeModalLabel">Nuevo Empleado</h5>
+                <h5 class="modal-title" id="employeeModalLabel">
+                    <i class="bi bi-person-plus me-2"></i>Nuevo Empleado
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="employeeForm">
+            <form id="employeeForm" novalidate>
                 <div class="modal-body">
                     <input type="hidden" id="employeeId">
 
+                    <!-- Nombre Completo -->
                     <div class="mb-3">
-                        <label for="fullName" class="form-label">Nombre Completo *</label>
-                        <input type="text" class="form-control" id="fullName" required>
+                        <label for="fullName" class="form-label fw-bold" data-required="*">
+                            Nombre Completo
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-person"></i>
+                            </span>
+                            <input type="text"
+                                   class="form-control"
+                                   id="fullName"
+                                   placeholder="Ej: Juan Pérez García"
+                                   required
+                                   autocomplete="off">
+                        </div>
                         <div class="invalid-feedback"></div>
+                        <div class="form-text">Ingrese el nombre completo del empleado</div>
                     </div>
 
+                    <!-- Usuario -->
                     <div class="mb-3">
-                        <label for="username" class="form-label">Usuario *</label>
-                        <input type="text" class="form-control" id="username" required>
+                        <label for="username" class="form-label fw-bold" data-required="*">
+                            Usuario
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-at"></i>
+                            </span>
+                            <input type="text"
+                                   class="form-control"
+                                   id="username"
+                                   placeholder="Ej: jperez"
+                                   required
+                                   autocomplete="off">
+                        </div>
                         <div class="invalid-feedback"></div>
+                        <div class="form-text">Nombre único para iniciar sesión</div>
                     </div>
 
+                    <!-- Contraseña -->
                     <div class="mb-3" id="passwordGroup">
-                        <label for="password" class="form-label">Contraseña *</label>
-                        <input type="password" class="form-control" id="password" required>
-                        <div class="form-text">Mínimo 6 caracteres</div>
+                        <label for="password" class="form-label fw-bold" data-required="*">
+                            Contraseña
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-key"></i>
+                            </span>
+                            <input type="password"
+                                   class="form-control"
+                                   id="password"
+                                   placeholder="••••••••"
+                                   required
+                                   autocomplete="new-password">
+                            <button class="btn btn-outline-secondary"
+                                    type="button"
+                                    id="togglePassword"
+                                    title="Mostrar/Ocultar contraseña">
+                                <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                            </button>
+                        </div>
                         <div class="invalid-feedback"></div>
+                        <div class="form-text">
+                            Mínimo 6 caracteres. Debe incluir mayúsculas, minúsculas y números.
+                        </div>
+                        <div class="progress mt-2" style="height: 5px;">
+                            <div class="progress-bar" role="progressbar" id="passwordStrength"></div>
+                        </div>
                     </div>
 
+                    <!-- Posición -->
                     <div class="mb-3">
-                        <label for="position" class="form-label">Posición *</label>
-                        <select class="form-select" id="position" required>
-                            <option value="">Seleccionar posición</option>
-                            <option value="ROLE_ADMIN">Administrador</option>
-                            <option value="ROLE_CAJERO">Cajero</option>
-                            <option value="ROLE_PEDIDOS">Pedidos</option>
-                        </select>
+                        <label for="position" class="form-label fw-bold" data-required="*">
+                            Posición
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-briefcase"></i>
+                            </span>
+                            <select class="form-select" id="position" required>
+                                <option value="">-- Seleccionar posición --</option>
+                                <option value="ROLE_ADMIN">Administrador</option>
+                                <option value="ROLE_CAJERO">Cajero</option>
+                                <option value="ROLE_PEDIDOS">Pedidos</option>
+                            </select>
+                        </div>
                         <div class="invalid-feedback"></div>
+                        <div class="form-text">Rol del empleado en el sistema</div>
                     </div>
 
+                    <!-- Teléfono -->
                     <div class="mb-3">
-                        <label for="phone" class="form-label">Teléfono *</label>
-                        <input type="tel" class="form-control" id="phone" required>
+                        <label for="phone" class="form-label fw-bold" data-required="*">
+                            Teléfono
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-telephone"></i>
+                            </span>
+                            <input type="tel"
+                                   class="form-control"
+                                   id="phone"
+                                   placeholder="Ej: 3331234567"
+                                   maxlength="10"
+                                   required
+                                   autocomplete="off">
+                        </div>
                         <div class="invalid-feedback"></div>
+                        <div class="form-text">Número de teléfono a 10 dígitos</div>
                     </div>
 
+                    <!-- Activo -->
                     <div class="mb-3 form-check" id="activeGroup">
                         <input type="checkbox" class="form-check-input" id="active" checked>
                         <label class="form-check-label" for="active">
@@ -112,16 +191,29 @@
                         </label>
                     </div>
 
+                    <!-- Mensaje informativo para modo edición -->
                     <div class="alert alert-info d-none" id="editModeInfo">
                         <i class="bi bi-info-circle me-2"></i>
-                        Para cambiar la contraseña o el estado del empleado, utilice las opciones correspondientes en la
-                        tabla.
+                        <strong>Modo edición:</strong> Para cambiar la contraseña o el estado del empleado,
+                        utilice los botones de acción en la tabla.
+                    </div>
+
+                    <!-- Resumen de validación -->
+                    <div class="alert alert-danger d-none" id="validationSummary">
+                        <h6 class="alert-heading">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Por favor, corrija los siguientes errores:
+                        </h6>
+                        <ul class="mb-0" id="validationErrors"></ul>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="saveButton">
                         <span class="spinner-border spinner-border-sm d-none me-2" id="saveSpinner"></span>
+                        <i class="bi bi-save me-2" id="saveIcon"></i>
                         <span id="saveButtonText">Guardar</span>
                     </button>
                 </div>
@@ -129,6 +221,8 @@
         </div>
     </div>
 </div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
 
 <div id="footerContainer"></div>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

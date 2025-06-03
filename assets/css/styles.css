@@ -602,3 +602,255 @@ main {
         padding: 0.5rem 0.25rem;
     }
 }
+
+/* ===== ESTILOS DE VALIDACIÓN ===== */
+
+/* Iconos de validación */
+.field-icon {
+    right: 12px;
+    top: 38px;
+    font-size: 1.2rem;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Ajuste para campos con icono */
+.form-control.is-valid,
+.form-control.is-invalid,
+.form-select.is-valid,
+.form-select.is-invalid {
+    padding-right: 2.5rem;
+}
+
+/* Animación para los iconos */
+.field-icon {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Mejoras en los bordes de validación */
+.form-control.is-valid {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.1rem rgba(25, 135, 84, 0.25);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.1rem rgba(220, 53, 69, 0.25);
+}
+
+/* Mejoras en los mensajes de feedback */
+.invalid-feedback,
+.valid-feedback {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilos para el formulario en el modal */
+#employeeModal .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Indicador de campo requerido */
+.form-label::after {
+    content: attr(data-required);
+    color: #dc3545;
+    margin-left: 2px;
+}
+
+/* Toast personalizados */
+.toast {
+    min-width: 300px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.toast-container {
+    z-index: 1055;
+}
+
+/* Animación de entrada para toasts */
+.toast {
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Spinner en botón de guardar */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}
+
+/* Transición suave para campos */
+.form-control,
+.form-select {
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Mejora visual para campos deshabilitados */
+.form-control:disabled,
+.form-select:disabled {
+    background-color: #e9ecef;
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+/* Estilos para el mensaje informativo */
+#editModeInfo {
+    font-size: 0.875rem;
+    border-left: 4px solid #0dcaf0;
+}
+
+/* Mejora en el diseño del checkbox */
+.form-check {
+    padding-left: 1.5rem;
+}
+
+.form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 0.15em;
+    cursor: pointer;
+}
+
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Hover effects para botones en la tabla */
+.btn-group-sm .btn {
+    transition: all 0.2s ease;
+}
+
+.btn-group-sm .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para el select de posición */
+#position option {
+    padding: 0.5rem;
+}
+
+/* Placeholder personalizado */
+.form-control::placeholder,
+.form-select::placeholder {
+    color: #6c757d;
+    opacity: 0.6;
+}
+
+/* Focus mejorado */
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Ajustes para móviles */
+@media (max-width: 576px) {
+    .field-icon {
+        right: 8px;
+        top: 36px;
+        font-size: 1rem;
+    }
+
+    .toast {
+        min-width: 250px;
+        font-size: 0.875rem;
+    }
+
+    #employeeModal .modal-dialog {
+        margin: 0.5rem;
+    }
+}
+
+/* Indicador de carga para validación async */
+.validating::after {
+    content: '';
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: translateY(-50%) rotate(0deg);
+    }
+    100% {
+        transform: translateY(-50%) rotate(360deg);
+    }
+}
+
+/* Tooltip para ayuda */
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* Mejora visual para el modal header */
+#employeeModal .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+#employeeModal .modal-header .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+}
+
+#employeeModal .modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+/* Badge de posición en el formulario */
+#position option[value="ROLE_ADMIN"]::before {
+    content: "👑 ";
+}
+
+#position option[value="ROLE_CAJERO"]::before {
+    content: "💰 ";
+}
+
+#position option[value="ROLE_PEDIDOS"]::before {
+    content: "📋 ";
+}
