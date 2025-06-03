@@ -265,6 +265,89 @@
     let employeesTable = null;
     let isEditMode = false;
 
+    // Script para mostrar/ocultar contraseña
+    document.addEventListener('DOMContentLoaded', function () {
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('password');
+        const toggleIcon = document.getElementById('togglePasswordIcon');
+
+        if (togglePassword && passwordField && toggleIcon) {
+            togglePassword.addEventListener('click', function () {
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+
+                if (type === 'password') {
+                    toggleIcon.className = 'bi bi-eye';
+                } else {
+                    toggleIcon.className = 'bi bi-eye-slash';
+                }
+            });
+        }
+
+        // Formatear nombre completo al escribir
+        const fullNameField = document.getElementById('fullName');
+        if (fullNameField) {
+            fullNameField.addEventListener('input', function (e) {
+                // Eliminar caracteres no permitidos
+                e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+            });
+
+            fullNameField.addEventListener('blur', function (e) {
+                // Capitalizar primera letra de cada palabra
+                const value = e.target.value.trim();
+                if (value) {
+                    e.target.value = value.replace(/\b\w/g, l => l.toUpperCase());
+                }
+            });
+        }
+
+        // Formatear username al escribir
+        const usernameField = document.getElementById('username');
+        if (usernameField) {
+            usernameField.addEventListener('input', function (e) {
+                // Solo permitir letras, números, guiones y guiones bajos
+                e.target.value = e.target.value.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
+            });
+        }
+
+        // Limpiar el formulario cuando se cierre el modal
+        const employeeModal = document.getElementById('employeeModal');
+        if (employeeModal) {
+            employeeModal.addEventListener('hidden.bs.modal', function () {
+                const form = document.getElementById('employeeForm');
+                if (form) {
+                    form.reset();
+
+                    // Limpiar todas las validaciones
+                    form.querySelectorAll('.is-invalid, .is-valid').forEach(field => {
+                        field.classList.remove('is-invalid', 'is-valid');
+                    });
+
+                    // Limpiar mensajes de feedback
+                    form.querySelectorAll('.invalid-feedback').forEach(feedback => {
+                        feedback.textContent = '';
+                        feedback.style.display = 'none';
+                    });
+
+                    // Resetear barra de fuerza de contraseña
+                    const strengthBar = document.getElementById('passwordStrength');
+                    if (strengthBar) {
+                        strengthBar.className = 'progress-bar';
+                        strengthBar.style.width = '0%';
+                        strengthBar.textContent = '';
+                    }
+
+                    // Remover iconos de validación
+                    form.querySelectorAll('.field-validation-icon').forEach(icon => icon.remove());
+
+                    // Ocultar alertas
+                    document.getElementById('validationSummary')?.classList.add('d-none');
+                    document.getElementById('editModeInfo')?.classList.add('d-none');
+                }
+            });
+        }
+    });
+
     document.getElementById('password')?.addEventListener('input', function (e) {
         const password = e.target.value;
         const strengthBar = document.getElementById('passwordStrength');
@@ -293,44 +376,6 @@
 
         strengthBar.className = 'progress-bar ' + strengthClass;
         strengthBar.style.width = strengthWidth;
-    });
-
-    // Formateo automático del nombre completo
-    document.getElementById('fullName')?.addEventListener('blur', function (e) {
-        const value = e.target.value.trim();
-        if (value) {
-            // Capitalizar primera letra de cada palabra
-            e.target.value = value.replace(/\b\w/g, l => l.toUpperCase());
-        }
-    });
-
-    // Limpiar el formulario cuando se cierre el modal
-    document.getElementById('employeeModal')?.addEventListener('hidden.bs.modal', function () {
-        // Resetear el formulario
-        document.getElementById('employeeForm').reset();
-
-        // Limpiar todas las validaciones
-        document.querySelectorAll('.is-invalid, .is-valid').forEach(field => {
-            field.classList.remove('is-invalid', 'is-valid');
-        });
-
-        // Limpiar mensajes de feedback
-        document.querySelectorAll('.invalid-feedback').forEach(feedback => {
-            feedback.textContent = '';
-        });
-
-        // Resetear barra de fuerza de contraseña
-        const strengthBar = document.getElementById('passwordStrength');
-        if (strengthBar) {
-            strengthBar.className = 'progress-bar';
-            strengthBar.style.width = '0%';
-        }
-
-        // Ocultar resumen de validación
-        document.getElementById('validationSummary')?.classList.add('d-none');
-
-        // Remover iconos de campo
-        document.querySelectorAll('.field-icon').forEach(icon => icon.remove());
     });
 
     /**

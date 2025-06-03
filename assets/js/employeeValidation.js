@@ -84,7 +84,7 @@ class EmployeeValidator {
 
             // Validar al perder el foco
             field.addEventListener('blur', () => {
-                this.validateField(fieldName);
+                this.validateField(fieldName).then(r => fieldName);
             });
 
             // Validar mientras escribe (con debounce para username)
@@ -93,7 +93,7 @@ class EmployeeValidator {
                 field.addEventListener('input', () => {
                     clearTimeout(timeout);
                     timeout = setTimeout(() => {
-                        this.validateField(fieldName);
+                        this.validateField(fieldName).then(r => fieldName);
                     }, 500);
                 });
             } else {
