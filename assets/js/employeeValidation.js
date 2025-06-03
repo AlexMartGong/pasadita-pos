@@ -1,6 +1,12 @@
 class EmployeeValidator {
     constructor() {
         this.form = document.getElementById('employeeForm');
+        this.saveButton = document.getElementById('saveButton');
+        this.originalFormData = {}; // Estado original del formulario
+        this.currentFormData = {}; // Estado actual del formulario
+        this.isFormValid = false; // Estado de validación del formulario
+        this.hasChanges = false; // Si hay cambios en el formulario
+
         this.validationRules = {
             fullName: {
                 required: true,
@@ -60,10 +66,16 @@ class EmployeeValidator {
     }
 
     init() {
-        if (!this.form) return;
+        if (!this.form || !this.saveButton) return;
+
+        // Desactivar botón por defecto
+        this.disableSaveButton();
 
         // Agregar listeners para validación en tiempo real
         this.addRealTimeValidation();
+
+        // Agregar listeners para detectar cambios
+        this.addChangeDetection();
 
         // Override del submit
         this.form.addEventListener('submit', async (e) => {
@@ -76,6 +88,73 @@ class EmployeeValidator {
         });
     }
 
+    /**
+     * Captura el estado original del formulario
+     */
+    captureOriginalFormData() {
+        this.originalFormData = this.getCurrentFormData();
+        this.hasChanges = false;
+        this.updateButtonState();
+    }
+
+    /**
+     * Obtiene los datos actuales del formulario
+     */
+    getCurrentFormData() {
+        return {
+            fullName: (document.getElementById('fullName')?.value || '').trim(),
+            username: (document.getElementById('username')?.value || '').trim(),
+            password: document.getElementById('password')?.value || '',
+            position: document.getElementById('position')?.value || '',
+            phone: (document.getElementById('phone')?.value || '').replace(/\D/g, ''),
+            active: document.getElementById('active')?.checked || false
+        };
+    }
+
+    /**
+     * Detecta si hay cambios en el formulario
+     */
+    detectChanges() {
+        this.currentFormData = this.getCurrentFormData();
+
+        // En modo nuevo empleado, cualquier dato es un cambio
+        if (!isEditMode) {
+            this.hasChanges = Object.values(this.currentFormData).some(value => {
+                if (typeof value === 'boolean') return value;
+                return value.toString().trim() !== '';
+            });
+        } else {
+            // En modo edición, comparar con datos originales
+            this.hasChanges = Object.keys(this.currentFormData).some(key => {
+                // Saltar password en modo edición si está vacío
+                if (key === 'password' && !this.currentFormData[key]) {
+                    return false;
+                }
+                return this.currentFormData[key] !== this.originalFormData[key];
+            });
+        }
+
+        this.updateButtonState();
+    }
+
+    /**
+     * Agrega detección de cambios a todos los campos
+     */
+    addChangeDetection() {
+        const fieldsToWatch = ['fullName', 'username', 'password', 'position', 'phone', 'active'];
+
+        fieldsToWatch.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (!field) return;
+
+            if (field.type === 'checkbox') {
+                field.addEventListener('change', () => this.detectChanges());
+            } else {
+                field.addEventListener('input', () => this.detectChanges());
+            }
+        });
+    }
+
     addRealTimeValidation() {
         // Validación en tiempo real para todos los campos
         Object.keys(this.validationRules).forEach(fieldName => {
@@ -83,8 +162,9 @@ class EmployeeValidator {
             if (!field) return;
 
             // Validar al perder el foco
-            field.addEventListener('blur', () => {
-                this.validateField(fieldName).then(r => fieldName);
+            field.addEventListener('blur', async () => {
+                await this.validateField(fieldName);
+                this.checkFormValidity();
             });
 
             // Validar mientras escribe (con debounce para username)
@@ -92,16 +172,20 @@ class EmployeeValidator {
                 let timeout;
                 field.addEventListener('input', () => {
                     clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                        this.validateField(fieldName).then(r => fieldName);
+                    timeout = setTimeout(async () => {
+                        await this.validateField(fieldName);
+                        this.checkFormValidity();
                     }, 500);
                 });
             } else {
-                field.addEventListener('input', () => {
+                field.addEventListener('input', async () => {
                     // Limpiar error si el campo ya es válido
                     if (field.value.trim()) {
                         this.clearFieldError(fieldName);
                     }
+
+                    // Verificar validez del formulario después de un pequeño delay
+                    setTimeout(() => this.checkFormValidity(), 100);
                 });
             }
         });
@@ -112,6 +196,73 @@ class EmployeeValidator {
             phoneField.addEventListener('input', (e) => {
                 e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
             });
+        }
+    }
+
+    /**
+     * Verifica si el formulario completo es válido
+     */
+    async checkFormValidity() {
+        const fieldNames = Object.keys(this.validationRules);
+        let isValid = true;
+
+        for (const fieldName of fieldNames) {
+            const field = document.getElementById(fieldName);
+            if (!field) continue;
+
+            // Saltar validación de password en modo edición si está vacío
+            if (fieldName === 'password' && isEditMode && !field.value) {
+                continue;
+            }
+
+            // Verificar si el campo tiene la clase is-invalid
+            if (field.classList.contains('is-invalid')) {
+                isValid = false;
+                break;
+            }
+
+            // Verificar si el campo requerido está vacío
+            const rules = this.validationRules[fieldName];
+            if (rules.required && !field.value.trim()) {
+                if (!(fieldName === 'password' && isEditMode)) {
+                    isValid = false;
+                    break;
+                }
+            }
+        }
+
+        this.isFormValid = isValid;
+        this.updateButtonState();
+    }
+
+    /**
+     * Actualiza el estado del botón de guardar
+     */
+    updateButtonState() {
+        const shouldEnable = this.isFormValid && this.hasChanges;
+
+        if (shouldEnable) {
+            this.enableSaveButton();
+        } else {
+            this.disableSaveButton();
+        }
+    }
+
+    /**
+     * Habilita el botón de guardar
+     */
+    enableSaveButton() {
+        if (this.saveButton) {
+            this.saveButton.disabled = false;
+        }
+    }
+
+    /**
+     * Deshabilita el botón de guardar
+     */
+    disableSaveButton() {
+        if (this.saveButton) {
+            this.saveButton.disabled = true;
         }
     }
 
@@ -134,6 +285,7 @@ class EmployeeValidator {
         const results = await Promise.all(promises);
         isValid = results.every(result => result);
 
+        this.isFormValid = isValid;
         return isValid;
     }
 
@@ -332,6 +484,29 @@ class EmployeeValidator {
         }
     }
 
+    /**
+     * Resetea el estado del formulario
+     */
+    resetFormState() {
+        this.originalFormData = {};
+        this.currentFormData = {};
+        this.isFormValid = false;
+        this.hasChanges = false;
+        this.disableSaveButton();
+
+        // Limpiar todas las validaciones
+        this.clearAllValidations();
+    }
+
+    /**
+     * Limpia todas las validaciones del formulario
+     */
+    clearAllValidations() {
+        Object.keys(this.validationRules).forEach(fieldName => {
+            this.clearFieldError(fieldName);
+        });
+    }
+
     showSuccessMessage(message) {
         // Crear toast de éxito
         const toastHtml = `
@@ -390,7 +565,30 @@ class EmployeeValidator {
     }
 }
 
+// Variable global para acceder al validador
+let employeeValidator;
+
 // Inicializar validador cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    new EmployeeValidator();
+    employeeValidator = new EmployeeValidator();
 });
+
+// Funciones globales para ser llamadas desde employees.html
+window.initializeValidatorForNewEmployee = function () {
+    if (employeeValidator) {
+        employeeValidator.resetFormState();
+        // En modo nuevo, cualquier cambio cuenta
+        setTimeout(() => {
+            employeeValidator.detectChanges();
+        }, 100);
+    }
+};
+
+window.initializeValidatorForEditEmployee = function (employeeData) {
+    if (employeeValidator) {
+        // Establecer datos originales después de cargar el empleado
+        setTimeout(() => {
+            employeeValidator.captureOriginalFormData();
+        }, 100);
+    }
+};

@@ -411,7 +411,7 @@
      */
     function openEmployeeModal() {
         isEditMode = false;
-        document.getElementById('employeeModalLabel').textContent = 'Nuevo Empleado';
+        document.getElementById('employeeModalLabel').innerHTML = '<i class="bi bi-person-plus me-2"></i>Nuevo Empleado';
         document.getElementById('employeeForm').reset();
         document.getElementById('employeeId').value = '';
         document.getElementById('saveButtonText').textContent = 'Guardar';
@@ -426,17 +426,21 @@
 
         // Limpiar validaciones
         clearValidationErrors();
+
+        // Inicializar validador para nuevo empleado
+        if (window.initializeValidatorForNewEmployee) {
+            window.initializeValidatorForNewEmployee();
+        }
     }
 
     /**
      * Edita un empleado
      * @param {string} id - ID del empleado a editar
-     *
      */
     async function editEmployee(id) {
         try {
             isEditMode = true;
-            document.getElementById('employeeModalLabel').textContent = 'Editar Empleado';
+            document.getElementById('employeeModalLabel').innerHTML = '<i class="bi bi-pencil me-2"></i>Editar Empleado';
             document.getElementById('employeeId').value = id;
             document.getElementById('saveButtonText').textContent = 'Actualizar';
 
@@ -455,8 +459,12 @@
                 document.getElementById('username').value = employee.username || '';
                 document.getElementById('position').value = employee.position || '';
                 document.getElementById('phone').value = employee.phone || '';
-
                 document.getElementById('active').checked = employee.active || false;
+
+                // Inicializar validador para edición después de cargar los datos
+                if (window.initializeValidatorForEditEmployee) {
+                    window.initializeValidatorForEditEmployee(employee);
+                }
 
                 const modal = new bootstrap.Modal(document.getElementById('employeeModal'));
                 modal.show();
@@ -576,59 +584,60 @@
      */
     function clearValidationErrors() {
         const form = document.getElementById('employeeForm');
-        const invalidInputs = form.querySelectorAll('.is-invalid');
-        const feedbacks = form.querySelectorAll('.invalid-feedback');
+        if (!form) return;
 
-        invalidInputs.forEach(input => input.classList.remove('is-invalid'));
-        feedbacks.forEach(feedback => feedback.textContent = '');
+        const invalidInputs = form.querySelectorAll('.is-invalid, .is-valid');
+        const feedbacks = form.querySelectorAll('.invalid-feedback');
+        const icons = form.querySelectorAll('.field-icon');
+
+        invalidInputs.forEach(input => input.classList.remove('is-invalid', 'is-valid'));
+        feedbacks.forEach(feedback => {
+            feedback.textContent = '';
+            feedback.style.display = 'none';
+        });
+        icons.forEach(icon => icon.remove());
     }
 
     /**
      * Maneja el envío del formulario
      */
-    document.getElementById('employeeForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
+    document.addEventListener('DOMContentLoaded', function () {
+        const employeeModal = document.getElementById('employeeModal');
+        if (employeeModal) {
+            employeeModal.addEventListener('hidden.bs.modal', function () {
+                const form = document.getElementById('employeeForm');
+                if (form) {
+                    form.reset();
 
-        const saveButton = e.target.querySelector('button[type="submit"]');
-        const spinner = document.getElementById('saveSpinner');
+                    // Resetear el validador
+                    if (employeeValidator) {
+                        employeeValidator.resetFormState();
+                    }
 
-        try {
-            // Mostrar spinner
-            saveButton.disabled = true;
-            spinner.classList.remove('d-none');
+                    // Limpiar todas las validaciones
+                    clearValidationErrors();
 
-            const formData = {
-                fullName: document.getElementById('fullName').value,
-                username: document.getElementById('username').value,
-                password: document.getElementById('password').value,
-                position: document.getElementById('position').value,
-                phone: document.getElementById('phone').value,
-                active: document.getElementById('active').checked
-            };
+                    // Resetear barra de fuerza de contraseña
+                    const strengthBar = document.getElementById('passwordStrength');
+                    if (strengthBar) {
+                        strengthBar.className = 'progress-bar';
+                        strengthBar.style.width = '0%';
+                        strengthBar.textContent = '';
+                    }
 
-            if (isEditMode) {
-                formData.id = document.getElementById('employeeId').value;
-                await api.updateEmployee(formData.id, formData);
-            } else {
-                await api.saveEmployee(formData);
-            }
+                    // Ocultar alertas
+                    document.getElementById('validationSummary')?.classList.add('d-none');
+                    document.getElementById('editModeInfo')?.classList.add('d-none');
 
-            // Cerrar modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('employeeModal'));
-            modal.hide();
-
-            // Recargar tabla
-            await loadEmployees();
-
-            console.log('Empleado guardado correctamente');
-
-        } catch (error) {
-            console.error('Error al guardar empleado:', error);
-            alert('Error al guardar el empleado');
-        } finally {
-            // Ocultar spinner
-            saveButton.disabled = false;
-            spinner.classList.add('d-none');
+                    // Resetear icono de password toggle
+                    const toggleIcon = document.getElementById('togglePasswordIcon');
+                    const passwordField = document.getElementById('password');
+                    if (toggleIcon && passwordField) {
+                        toggleIcon.className = 'bi bi-eye';
+                        passwordField.setAttribute('type', 'password');
+                    }
+                }
+            });
         }
     });
 
