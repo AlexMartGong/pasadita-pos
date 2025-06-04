@@ -89,7 +89,7 @@
                                    autocomplete="off">
                         </div>
                         <div class="invalid-feedback"></div>
-                        <div class="form-text">Ingrese el nombre completo del empleado</div>
+                        <div class="form-text">Solamente se permiten letras y espacios</div>
                     </div>
 
                     <!-- Usuario -->
@@ -111,7 +111,7 @@
                                    autocomplete="off">
                         </div>
                         <div class="invalid-feedback"></div>
-                        <div class="form-text">Nombre único para iniciar sesión</div>
+                        <div class="form-text">El username debe de ser unico</div>
                     </div>
 
                     <!-- password -->
@@ -352,8 +352,8 @@
         const password = e.target.value;
         const strengthBar = document.getElementById('passwordStrength');
         let strength = 0;
-        let strengthClass = '';
-        let strengthWidth = '0%';
+        let strengthClass;
+        let strengthWidth;
 
         if (password.length >= 6) strength += 25;
         if (password.length >= 8) strength += 25;
@@ -463,7 +463,7 @@
 
                 // Inicializar validador para edición después de cargar los datos
                 if (window.initializeValidatorForEditEmployee) {
-                    window.initializeValidatorForEditEmployee(employee);
+                    window.initializeValidatorForEditEmployee();
                 }
 
                 const modal = new bootstrap.Modal(document.getElementById('employeeModal'));

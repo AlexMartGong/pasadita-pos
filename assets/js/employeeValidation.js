@@ -2,10 +2,10 @@ class EmployeeValidator {
     constructor() {
         this.form = document.getElementById('employeeForm');
         this.saveButton = document.getElementById('saveButton');
-        this.originalFormData = {}; // Estado original del formulario
-        this.currentFormData = {}; // Estado actual del formulario
-        this.isFormValid = false; // Estado de validación del formulario
-        this.hasChanges = false; // Si hay cambios en el formulario
+        this.originalFormData = {};
+        this.currentFormData = {};
+        this.isFormValid = false;
+        this.hasChanges = false;
 
         this.validationRules = {
             fullName: {
@@ -83,7 +83,7 @@ class EmployeeValidator {
 
             if (await this.validateForm()) {
                 // Si la validación es exitosa, continuar con el guardado
-                this.submitForm();
+                await this.submitForm();
             }
         });
     }
@@ -164,7 +164,7 @@ class EmployeeValidator {
             // Validar al perder el foco
             field.addEventListener('blur', async () => {
                 await this.validateField(fieldName);
-                this.checkFormValidity();
+                await this.checkFormValidity();
             });
 
             // Validar mientras escribe (con debounce para username)
@@ -174,7 +174,7 @@ class EmployeeValidator {
                     clearTimeout(timeout);
                     timeout = setTimeout(async () => {
                         await this.validateField(fieldName);
-                        this.checkFormValidity();
+                        await this.checkFormValidity();
                     }, 500);
                 });
             } else {
@@ -267,7 +267,7 @@ class EmployeeValidator {
     }
 
     async validateForm() {
-        let isValid = true;
+        let isValid;
         const promises = [];
 
         for (const fieldName of Object.keys(this.validationRules)) {
@@ -300,7 +300,6 @@ class EmployeeValidator {
         // Limpiar errores previos
         this.clearFieldError(fieldName);
 
-        // Validación requerido
         if (rules.required && !value) {
             // Saltar validación de password en modo edición
             if (fieldName === 'password' && isEditMode) {
@@ -339,7 +338,7 @@ class EmployeeValidator {
             }
         }
 
-        // Si todo está bien, mostrar indicador de éxito
+        // Si todas las validaciones pasan, mostrar éxito
         if (isValid) {
             this.showFieldSuccess(fieldName);
         }
@@ -455,13 +454,11 @@ class EmployeeValidator {
             if (passwordValue) {
                 formData.password = passwordValue;
             }
-
-            let result;
             if (isEditMode) {
                 formData.id = document.getElementById('employeeId').value;
-                result = await api.updateEmployee(formData.id, formData);
+                await api.updateEmployee(formData.id, formData);
             } else {
-                result = await api.saveEmployee(formData);
+                await api.saveEmployee(formData);
             }
 
             // Mostrar mensaje de éxito
@@ -584,7 +581,7 @@ window.initializeValidatorForNewEmployee = function () {
     }
 };
 
-window.initializeValidatorForEditEmployee = function (employeeData) {
+window.initializeValidatorForEditEmployee = function () {
     if (employeeValidator) {
         // Establecer datos originales después de cargar el empleado
         setTimeout(() => {
