@@ -57,6 +57,111 @@
     </div>
 </div>
 
+<!-- Modal para cambio de contraseña (agregar antes del cierre del body en employees.html) -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">
+                    <i class="bi bi-key me-2"></i>Cambiar Contraseña
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="changePasswordForm" novalidate>
+                <div class="modal-body">
+                    <input type="hidden" id="changePasswordEmployeeId">
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Empleado:</strong> <span id="changePasswordEmployeeName"></span>
+                    </div>
+
+                    <!-- Nueva Contraseña -->
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label fw-bold" data-required="*">
+                            Nueva Contraseña
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-key"></i>
+                            </span>
+                            <input type="password"
+                                   minlength="6"
+                                   maxlength="100"
+                                   class="form-control"
+                                   id="newPassword"
+                                   placeholder="••••••••"
+                                   required
+                                   autocomplete="new-password">
+                            <button class="btn btn-outline-secondary"
+                                    type="button"
+                                    id="toggleNewPassword"
+                                    title="Mostrar/Ocultar contraseña">
+                                <i class="bi bi-eye" id="toggleNewPasswordIcon"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback"></div>
+                        <div class="form-text">
+                            Mínimo 6 caracteres. Debe incluir mayúsculas, minúsculas y números.
+                        </div>
+                        <div class="progress mt-2" style="height: 5px;">
+                            <div class="progress-bar" role="progressbar" id="newPasswordStrength"></div>
+                        </div>
+                    </div>
+
+                    <!-- Confirmar Contraseña -->
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label fw-bold" data-required="*">
+                            Confirmar Contraseña
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-shield-check"></i>
+                            </span>
+                            <input type="password"
+                                   class="form-control"
+                                   id="confirmPassword"
+                                   placeholder="••••••••"
+                                   required
+                                   autocomplete="new-password">
+                            <button class="btn btn-outline-secondary"
+                                    type="button"
+                                    id="toggleConfirmPassword"
+                                    title="Mostrar/Ocultar contraseña">
+                                <i class="bi bi-eye" id="toggleConfirmPasswordIcon"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback"></div>
+                        <div class="form-text">
+                            Debe coincidir con la nueva contraseña.
+                        </div>
+                    </div>
+
+                    <!-- Resumen de validación -->
+                    <div class="alert alert-danger d-none" id="passwordValidationSummary">
+                        <h6 class="alert-heading">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Por favor, corrija los siguientes errores:
+                        </h6>
+                        <ul class="mb-0" id="passwordValidationErrors"></ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="changePasswordButton" disabled>
+                        <span class="spinner-border spinner-border-sm d-none me-2" id="changePasswordSpinner"></span>
+                        <i class="bi bi-save me-2" id="changePasswordIcon"></i>
+                        <span>Cambiar Contraseña</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="employeeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -250,6 +355,7 @@
 <script src="../components/footer.js"></script>
 <script src="../assets/js/app.js"></script>
 <script src="../assets/js/employeeValidation.js"></script>
+<script src="../assets/js/passwordChange.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', async function () {
@@ -501,22 +607,7 @@
      * @param {string} id - ID del empleado
      */
     async function changeEmployeePassword(id) {
-        const newPassword = prompt('Ingrese la nueva contraseña (mínimo 6 caracteres):');
-
-        if (newPassword) {
-            if (newPassword.length < 6) {
-                alert('La contraseña debe tener al menos 6 caracteres');
-                return;
-            }
-
-            try {
-                await api.changePassword(id, newPassword);
-                console.log('Contraseña cambiada correctamente');
-            } catch (error) {
-                console.error('Error al cambiar contraseña:', error);
-                alert('Error al cambiar la contraseña');
-            }
-        }
+        await openChangePasswordModal(id);
     }
 
     /**
