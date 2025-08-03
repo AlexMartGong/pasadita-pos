@@ -17,12 +17,6 @@ export const useAuth = () => {
             const token = response.data.token;
             const isAdmin = response.data.authorities?.some(auth => auth.authority === "ROLE_ADMIN") || false;
 
-            if (response.theError) {
-                toast.error("Credenciales incorrectas. Por favor, verifica tu usuario y contraseña.");
-                dispatch(onLogout());
-                return;
-            }
-
             const login = {
                 isAuth: true,
                 isAdmin: isAdmin,
@@ -34,18 +28,26 @@ export const useAuth = () => {
             sessionStorage.setItem("token", `Bearer ${token}`);
 
             toast.success(`¡Bienvenido ${response.data.username}!`);
-            navigate("/");
+            navigate("/dashboard");
 
         } catch (error) {
-            toast.error("Error de conexión. Inténtalo de nuevo.");
-            dispatch(onLogout());
             console.error("Error in handlerLogin:", error);
+
+            if (error.response?.status === 401) {
+                toast.error("Usuario o contraseña incorrectos. Por favor, intenta nuevamente.");
+            } else {
+                toast.error("Ocurrió un error inesperado. Por favor, intenta nuevamente más tarde.");
+            }
+
+            dispatch(onLogout());
         }
     };
 
     const handlerLogout = () => {
         dispatch(onLogout());
         sessionStorage.removeItem("login");
+        sessionStorage.removeItem("token");
+        sessionStorage.clear();
         toast.info("Has cerrado sesión correctamente");
         navigate("/login");
     };
