@@ -1,6 +1,6 @@
 import {useDispatch, useSelector} from "react-redux";
 import {useCallback} from "react";
-import {setUsers} from "../stores/user/userSlice.js";
+import {setUsers, initialUserForm} from "../stores/user/userSlice.js";
 import {getAllEmployees} from "../services/userSevice.js";
 import {toast} from "react-toastify";
 
@@ -36,6 +36,7 @@ export const useUser = () => {
     }, [dispatch]);
 
     return {
+        initialUserForm,
         users,
         userSelected,
         getAllUsers,

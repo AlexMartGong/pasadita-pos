@@ -22,9 +22,6 @@ export const RegisterUserPage = () => {
     return (
         <>
             <div className="container my-4">
-                <h2 className="text-center mb-4">
-                    {id ? 'Editar Usuario' : 'Nuevo Usuario'}
-                </h2>
                 <div className="row justify-content-center">
                     <UserForm userSelected={userSelected}/>
                 </div>
