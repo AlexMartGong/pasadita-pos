@@ -1,40 +1,64 @@
-import {useEffect, useState} from "react";
+import {useEffect, useState, useMemo, useCallback} from "react";
 import {DataGrid} from "@mui/x-data-grid";
 import {TextField, Box, Paper, IconButton, Tooltip} from "@mui/material";
 import {Edit, ToggleOn, ToggleOff} from "@mui/icons-material";
 import {useUser} from "../../hooks/useUser.js";
 
+// Debounce hook
+const useDebounce = (value, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+};
+
 export const UserTable = () => {
     const {users, getAllUsers} = useUser();
     const [searchText, setSearchText] = useState("");
-    const [filteredUsers, setFilteredUsers] = useState([]);
+    const debouncedSearchText = useDebounce(searchText, 300);
 
     useEffect(() => {
         getAllUsers();
-    }, [getAllUsers]);
+    }, []); // Remove getAllUsers dependency if it's stable
 
-    useEffect(() => {
-        if (users) {
-            const filtered = users.filter((user) =>
-                Object.values(user).some((value) =>
-                    value?.toString().toLowerCase().includes(searchText.toLowerCase())
-                )
+    // Memoize filtered users
+    const filteredUsers = useMemo(() => {
+        if (!users || !debouncedSearchText) return users || [];
+
+        const searchLower = debouncedSearchText.toLowerCase();
+        return users.filter((user) => {
+            // Only search specific fields instead of all values
+            return (
+                user.fullName?.toLowerCase().includes(searchLower) ||
+                user.position?.toLowerCase().includes(searchLower) ||
+                user.phone?.toLowerCase().includes(searchLower) ||
+                user.id?.toString().includes(searchLower)
             );
-            setFilteredUsers(filtered);
-        }
-    }, [users, searchText]);
+        });
+    }, [users, debouncedSearchText]);
 
-    const handleEdit = (userId) => {
+    // Memoize event handlers
+    const handleEdit = useCallback((userId) => {
         console.log("Editar usuario:", userId);
         // TODO: Implementar lógica de edición
-    };
+    }, []);
 
-    const handleToggleStatus = (userId, currentStatus) => {
+    const handleToggleStatus = useCallback((userId, currentStatus) => {
         console.log("Cambiar estado del usuario:", userId, "Estado actual:", currentStatus);
         // TODO: Implementar lógica de cambio de estado
-    };
+    }, []);
 
-    const columns = [
+    // Memoize columns to prevent re-creation
+    const columns = useMemo(() => [
         {
             field: "id",
             headerName: "ID",
@@ -80,7 +104,6 @@ export const UserTable = () => {
                             onClick={() => handleEdit(params.row.id)}>
                             <Edit/>
                         </IconButton>
-                        Editar
                     </Tooltip>
                     <Tooltip title={params.row.active ? "Desactivar" : "Activar"}>
                         <IconButton
@@ -90,12 +113,11 @@ export const UserTable = () => {
                         >
                             {params.row.active ? <ToggleOn/> : <ToggleOff/>}
                         </IconButton>
-                        Estado
                     </Tooltip>
                 </Box>
             ),
         },
-    ];
+    ], [handleEdit, handleToggleStatus]);
 
     return (
         <Paper sx={{p: 2, height: "100%"}}>
@@ -110,12 +132,15 @@ export const UserTable = () => {
             </Box>
             <Box sx={{height: 600, width: "100%"}}>
                 <DataGrid
-                    rows={filteredUsers || []}
+                    rows={filteredUsers}
                     columns={columns}
-                    pageSize={10}
-                    rowsPerPageOptions={[5, 10, 25, 50]}
-                    pagination
-                    disableSelectionOnClick
+                    initialState={{
+                        pagination: {
+                            paginationModel: {pageSize: 10},
+                        },
+                    }}
+                    pageSizeOptions={[5, 10, 25, 50]}
+                    disableRowSelectionOnClick
                     loading={!users}
                     sx={{
                         "& .MuiDataGrid-root": {
