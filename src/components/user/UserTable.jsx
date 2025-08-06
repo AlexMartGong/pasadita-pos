@@ -1,63 +1,24 @@
-import {useEffect, useState, useMemo, useCallback} from "react";
+import {useEffect, useMemo} from "react";
 import {DataGrid} from "@mui/x-data-grid";
 import {TextField, Box, Paper, IconButton, Tooltip} from "@mui/material";
 import {Edit, ToggleOn, ToggleOff} from "@mui/icons-material";
 import {useUser} from "../../hooks/useUser.js";
-
-// Debounce hook
-const useDebounce = (value, delay) => {
-    const [debouncedValue, setDebouncedValue] = useState(value);
-
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delay);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [value, delay]);
-
-    return debouncedValue;
-};
+import {useUserTable} from "../../hooks/useUserTable.js";
+import {useNavigate} from "react-router-dom";
 
 export const UserTable = () => {
-    const {users, getAllUsers} = useUser();
-    const [searchText, setSearchText] = useState("");
-    const debouncedSearchText = useDebounce(searchText, 300);
+    const {users, getAllUsers, handleEdit, handleToggleStatus} = useUser();
+    const {searchText, setSearchText, filteredUsers} = useUserTable(users);
+    const navigate = useNavigate();
 
     useEffect(() => {
         getAllUsers();
-    }, []); // Remove getAllUsers dependency if it's stable
+    }, [getAllUsers]);
 
-    // Memoize filtered users
-    const filteredUsers = useMemo(() => {
-        if (!users || !debouncedSearchText) return users || [];
+    const handleEditRow = (id) => {
+        navigate(`/users/edit/${id}`);
+    }
 
-        const searchLower = debouncedSearchText.toLowerCase();
-        return users.filter((user) => {
-            // Only search specific fields instead of all values
-            return (
-                user.fullName?.toLowerCase().includes(searchLower) ||
-                user.position?.toLowerCase().includes(searchLower) ||
-                user.phone?.toLowerCase().includes(searchLower) ||
-                user.id?.toString().includes(searchLower)
-            );
-        });
-    }, [users, debouncedSearchText]);
-
-    // Memoize event handlers
-    const handleEdit = useCallback((userId) => {
-        console.log("Editar usuario:", userId);
-        // TODO: Implementar lógica de edición
-    }, []);
-
-    const handleToggleStatus = useCallback((userId, currentStatus) => {
-        console.log("Cambiar estado del usuario:", userId, "Estado actual:", currentStatus);
-        // TODO: Implementar lógica de cambio de estado
-    }, []);
-
-    // Memoize columns to prevent re-creation
     const columns = useMemo(() => [
         {
             field: "id",
@@ -101,7 +62,7 @@ export const UserTable = () => {
                         <IconButton
                             size="small"
                             color="primary"
-                            onClick={() => handleEdit(params.row.id)}>
+                            onClick={() => handleEditRow(params.row.id)}>
                             <Edit/>
                         </IconButton>
                     </Tooltip>

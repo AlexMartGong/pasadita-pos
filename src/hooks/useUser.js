@@ -23,9 +23,24 @@ export const useUser = () => {
         }
     }, [dispatch]);
 
+    const handleAddUser = useCallback(() => {
+        console.log("Agregar nuevo usuario");
+    }, [dispatch]);
+
+    const handleEdit = useCallback((userId) => {
+        console.log("Editar usuario:", userId);
+    }, [dispatch]);
+
+    const handleToggleStatus = useCallback((userId, currentStatus) => {
+        console.log("Cambiar estado del usuario:", userId, "Estado actual:", currentStatus);
+    }, [dispatch]);
+
     return {
         users,
         userSelected,
-        getAllUsers
+        getAllUsers,
+        handleAddUser,
+        handleEdit,
+        handleToggleStatus,
     }
 }
