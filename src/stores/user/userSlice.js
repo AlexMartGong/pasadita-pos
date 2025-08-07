@@ -26,10 +26,18 @@ export const userSlice = createSlice({
             });
             state.userSelected = initialUserForm;
         },
+        onUserUpdated: (state, action) => {
+            state.users = state.users.map(user => {
+                return (user.id === action.payload.id) ? {
+                    ...action.payload,
+                } : user;
+            })
+        }
     }
 });
 
 export const {
     setUsers,
     onUserAdded,
+    onUserUpdated,
 } = userSlice.actions;

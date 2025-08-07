@@ -4,20 +4,16 @@ import {TextField, Box, Paper, IconButton, Tooltip} from "@mui/material";
 import {Edit, ToggleOn, ToggleOff} from "@mui/icons-material";
 import {useUser} from "../../hooks/useUser.js";
 import {useUserTable} from "../../hooks/useUserTable.js";
-import {useNavigate} from "react-router-dom";
 
 export const UserTable = () => {
-    const {users, getAllUsers, handleEdit, handleToggleStatus} = useUser();
+    const {users, getAllUsers, handleToggleStatus, handleEditRow} = useUser();
     const {searchText, setSearchText, filteredUsers} = useUserTable(users);
-    const navigate = useNavigate();
+
 
     useEffect(() => {
         getAllUsers();
     }, [getAllUsers]);
 
-    const handleEditRow = (id) => {
-        navigate(`/users/edit/${id}`);
-    }
 
     const columns = useMemo(() => [
         {
@@ -78,7 +74,7 @@ export const UserTable = () => {
                 </Box>
             ),
         },
-    ], [handleEdit, handleToggleStatus]);
+    ], [handleEditRow, handleToggleStatus]);
 
     return (
         <Paper sx={{p: 2, height: "100%"}}>

@@ -39,10 +39,15 @@ export const saveEmployee = async ({username, phone, active, fullName, password,
 };
 
 // Update employee
-export const updateEmployee = async (id, employee) => {
+export const updateEmployee = async ({id, username, phone, active, fullName, position}) => {
     try {
-        const response = await userApi.put(`/${id}`, employee);
-        return response.data;
+        return await userApi.put(`/${id}`, {
+            username,
+            phone,
+            active,
+            fullName,
+            position,
+        });
     } catch (error) {
         console.error('Error updating employee:', error);
         throw error;
