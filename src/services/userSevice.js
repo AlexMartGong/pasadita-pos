@@ -22,10 +22,16 @@ export const getEmployeeById = async (id) => {
 };
 
 // Save new employee
-export const saveEmployee = async (employee) => {
+export const saveEmployee = async ({username, phone, active, fullName, password, position}) => {
     try {
-        const response = await userApi.post('/save', employee);
-        return response.data;
+        return await userApi.post('/save', {
+            username,
+            phone,
+            active,
+            fullName,
+            password,
+            position,
+        });
     } catch (error) {
         console.error('Error saving employee:', error);
         throw error;

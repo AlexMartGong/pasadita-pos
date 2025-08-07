@@ -20,9 +20,16 @@ export const userSlice = createSlice({
         setUsers: (state, action) => {
             state.users = action.payload;
         },
+        onUserAdded: (state, action) => {
+            state.users.push({
+                ...action.payload,
+            });
+            state.userSelected = initialUserForm;
+        },
     }
 });
 
 export const {
-    setUsers
+    setUsers,
+    onUserAdded,
 } = userSlice.actions;
