@@ -32,6 +32,14 @@ export const userSlice = createSlice({
                     ...action.payload,
                 } : user;
             })
+        },
+        onUserChangeStatus: (state, action) => {
+            state.users = state.users.map(user => {
+                return (user.id === action.payload.id) ? {
+                    ...user,
+                    active: action.payload.active,
+                } : user;
+            });
         }
     }
 });
@@ -40,4 +48,5 @@ export const {
     setUsers,
     onUserAdded,
     onUserUpdated,
+    onUserChangeStatus,
 } = userSlice.actions;

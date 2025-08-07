@@ -92,8 +92,7 @@ export const changePassword = async (id, passwordData) => {
 // Change employee status
 export const changeStatus = async (id, statusData) => {
     try {
-        const response = await userApi.put(`/change-status/${id}`, statusData);
-        return response.data;
+        return await userApi.put(`/change-status/${id}`, statusData);
     } catch (error) {
         console.error('Error changing status:', error);
         throw error;

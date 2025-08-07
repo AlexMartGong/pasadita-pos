@@ -22,7 +22,7 @@ export const UserForm = ({userSelected}) => {
                 id: userSelected.id || 0,
                 fullName: userSelected.fullName || '',
                 username: userSelected.username || '',
-                password: '', // Don't populate password for security
+                password: '',
                 position: userSelected.position || '',
                 phone: userSelected.phone || '',
                 active: userSelected.active !== undefined ? userSelected.active : true
