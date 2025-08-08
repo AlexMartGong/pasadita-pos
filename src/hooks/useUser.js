@@ -65,6 +65,10 @@ export const useUser = () => {
         }
     }, [dispatch]);
 
+    const handleEditPassword = useCallback((UserId, password) => {
+        console.log(UserId, password);
+    }, []);
+
     const handleEditRow = (id) => {
         navigate(`/users/edit/${id}`);
     }
@@ -77,5 +81,6 @@ export const useUser = () => {
         getAllUsers,
         handleAddUser,
         handleToggleStatus,
+        handleEditPassword,
     }
 }

@@ -9,7 +9,6 @@ export const UserForm = ({userSelected}) => {
     const [formData, setFormData] = useState(initialUserForm);
     const [errors, setErrors] = useState({});
 
-    // Position options based on the enum
     const positionOptions = [
         {value: 'ROLE_ADMIN', label: 'Administrador'},
         {value: 'ROLE_CAJERO', label: 'Cajero'},
