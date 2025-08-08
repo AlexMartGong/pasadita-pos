@@ -141,31 +141,33 @@ export const UserForm = ({userSelected}) => {
                                         )}
                                     </div>
 
-                                    <div className="col-md-6">
-                                        <label htmlFor="password" className="form-label">
-                                            {isEditMode ? "Nueva Contraseña (opcional)" : "Contraseña"}
-                                            {!isEditMode && <span className="text-danger">*</span>}
-                                        </label>
-                                        <input
-                                            type="password"
-                                            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                                            id="password"
-                                            name="password"
-                                            value={formData.password}
-                                            onChange={handleInputChange}
-                                            required={!isEditMode}
-                                        />
-                                        {errors.password && (
-                                            <div className="invalid-feedback">
-                                                {errors.password}
-                                            </div>
-                                        )}
-                                        {isEditMode && !errors.password && (
-                                            <div className="form-text">
-                                                Dejar vacío para mantener la actual
-                                            </div>
-                                        )}
-                                    </div>
+                                    {formData.id > 0 || (
+                                        <div className="col-md-6">
+                                            <label htmlFor="password" className="form-label">
+                                                {isEditMode ? "Nueva Contraseña (opcional)" : "Contraseña"}
+                                                {!isEditMode && <span className="text-danger">*</span>}
+                                            </label>
+                                            <input
+                                                type="password"
+                                                className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                                                id="password"
+                                                name="password"
+                                                value={formData.password}
+                                                onChange={handleInputChange}
+                                                required={!isEditMode}
+                                            />
+                                            {errors.password && (
+                                                <div className="invalid-feedback">
+                                                    {errors.password}
+                                                </div>
+                                            )}
+                                            {isEditMode && !errors.password && (
+                                                <div className="form-text">
+                                                    Dejar vacío para mantener la actual
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
 
                                     <div className="col-md-6">
                                         <label htmlFor="position" className="form-label">

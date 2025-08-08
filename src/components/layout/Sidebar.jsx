@@ -4,12 +4,12 @@ import '../../styles/Sidebar.css';
 
 export const Sidebar = () => {
     const location = useLocation();
-    const {user, handlerLogout} = useAuth();
+    const {user, isAdmin, handlerLogout} = useAuth();
 
     const menuItems = [
         {path: '/dashboard', icon: 'bi-speedometer2', label: 'Dashboard'},
         {path: '/products', icon: 'bi-box-seam', label: 'Products'},
-        {path: '/users', icon: 'bi bi-people', label: 'Users'},
+        ...(isAdmin ? [{path: '/users', icon: 'bi bi-people', label: 'Users'}] : []),
         {path: '/settings', icon: 'bi-gear', label: 'Settings'}
     ];
 
