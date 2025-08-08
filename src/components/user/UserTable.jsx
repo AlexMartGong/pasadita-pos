@@ -1,7 +1,7 @@
 import {useEffect, useMemo} from "react";
 import {DataGrid} from "@mui/x-data-grid";
 import {TextField, Box, Paper, IconButton, Tooltip} from "@mui/material";
-import {Edit, ToggleOn, ToggleOff} from "@mui/icons-material";
+import {Edit, ToggleOn, ToggleOff, Password} from "@mui/icons-material";
 import {useUser} from "../../hooks/useUser.js";
 import {useUserTable} from "../../hooks/useUserTable.js";
 
@@ -49,7 +49,7 @@ export const UserTable = () => {
         {
             field: "actions",
             headerName: "Acciones",
-            width: 300,
+            width: 400,
             sortable: false,
             filterable: false,
             renderCell: (params) => (
@@ -59,16 +59,23 @@ export const UserTable = () => {
                             size="small"
                             color="primary"
                             onClick={() => handleEditRow(params.row.id)}>
-                            <Edit/>
+                            <Edit/> Editar
                         </IconButton>
                     </Tooltip>
                     <Tooltip title={params.row.active ? "Desactivar" : "Activar"}>
                         <IconButton
                             size="small"
                             color={params.row.active ? "success" : "default"}
-                            onClick={() => handleToggleStatus(params.row.id, params.row.active)}
-                        >
-                            {params.row.active ? <ToggleOn/> : <ToggleOff/>}
+                            onClick={() => handleToggleStatus(params.row.id, params.row.active)}>
+                            {params.row.active ? <ToggleOn/> : <ToggleOff/>} Estado
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Editar contraseña">
+                        <IconButton
+                            size="small"
+                            color="secondary"
+                            onClick={() => handleEditRow(params.row.id)}>
+                            <Password/> Editar contraseña
                         </IconButton>
                     </Tooltip>
                 </Box>
