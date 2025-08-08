@@ -1,7 +1,7 @@
 import {useDispatch, useSelector} from "react-redux";
 import {useCallback} from "react";
 import {setUsers, initialUserForm, onUserAdded, onUserUpdated, onUserChangeStatus} from "../stores/slices/user/userSlice.js";
-import {changeStatus, getAllEmployees, saveEmployee, updateEmployee} from "../services/userSevice.js";
+import {changeStatus, getAllEmployees, saveEmployee, updateEmployee} from "../services/userService.js";
 import {toast} from "react-toastify";
 import {useNavigate} from "react-router-dom";
 
