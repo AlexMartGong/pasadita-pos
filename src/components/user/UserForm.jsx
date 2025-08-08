@@ -1,13 +1,15 @@
 import {useState, useEffect} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useLocation} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {useUser} from "../../hooks/useUser.js";
 
 export const UserForm = ({userSelected}) => {
     const {handleAddUser, initialUserForm} = useUser();
     const navigate = useNavigate();
+    const location = useLocation();
     const [formData, setFormData] = useState(initialUserForm);
     const [errors, setErrors] = useState({});
+    const isPasswordEditMode = location.pathname.includes('/edit-password/');
 
     const positionOptions = [
         {value: 'ROLE_ADMIN', label: 'Administrador'},
@@ -47,24 +49,32 @@ export const UserForm = ({userSelected}) => {
     const validateForm = () => {
         const newErrors = {};
 
-        if (!formData.fullName.trim()) {
-            newErrors.fullName = 'El nombre completo es requerido';
-        }
+        if (isPasswordEditMode) {
+            // In password edit mode, only validate password
+            if (!formData.password.trim()) {
+                newErrors.password = 'La nueva contraseña es requerida';
+            }
+        } else {
+            // Normal validation for other modes
+            if (!formData.fullName.trim()) {
+                newErrors.fullName = 'El nombre completo es requerido';
+            }
 
-        if (!formData.username.trim()) {
-            newErrors.username = 'El nombre de usuario es requerido';
-        }
+            if (!formData.username.trim()) {
+                newErrors.username = 'El nombre de usuario es requerido';
+            }
 
-        if ((!userSelected || !userSelected.id) && !formData.password.trim()) {
-            newErrors.password = 'La contraseña es requerida';
-        }
+            if ((!userSelected || !userSelected.id) && !formData.password.trim()) {
+                newErrors.password = 'La contraseña es requerida';
+            }
 
-        if (!formData.position) {
-            newErrors.position = 'La posición es requerida';
-        }
+            if (!formData.position) {
+                newErrors.position = 'La posición es requerida';
+            }
 
-        if (!formData.phone.trim()) {
-            newErrors.phone = 'El teléfono es requerido';
+            if (!formData.phone.trim()) {
+                newErrors.phone = 'El teléfono es requerido';
+            }
         }
 
         setErrors(newErrors);
@@ -94,57 +104,62 @@ export const UserForm = ({userSelected}) => {
                     <div className="card shadow">
                         <div className="card-header bg-primary text-white">
                             <h5 className="card-title mb-0 fw-bold">
-                                {isEditMode ? 'Editar Usuario' : 'Registrar Nuevo Usuario'}
+                                {isPasswordEditMode ? 'Editar Contraseña' : (isEditMode ? 'Editar Usuario' : 'Registrar Nuevo Usuario')}
                             </h5>
                         </div>
                         <div className="card-body p-4">
                             <form onSubmit={handleSubmit} noValidate>
                                 <div className="row g-3">
-                                    <div className="col-12">
-                                        <label htmlFor="fullName" className="form-label">
-                                            Nombre Completo <span className="text-danger">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className={`form-control ${errors.fullName ? 'is-invalid' : ''}`}
-                                            id="fullName"
-                                            name="fullName"
-                                            value={formData.fullName}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                        {errors.fullName && (
-                                            <div className="invalid-feedback">
-                                                {errors.fullName}
-                                            </div>
-                                        )}
-                                    </div>
+                                    {!isPasswordEditMode && (
+                                        <div className="col-12">
+                                            <label htmlFor="fullName" className="form-label">
+                                                Nombre Completo <span className="text-danger">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className={`form-control ${errors.fullName ? 'is-invalid' : ''}`}
+                                                id="fullName"
+                                                name="fullName"
+                                                value={formData.fullName}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                            {errors.fullName && (
+                                                <div className="invalid-feedback">
+                                                    {errors.fullName}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
 
-                                    <div className="col-md-6">
-                                        <label htmlFor="username" className="form-label">
-                                            Nombre de Usuario <span className="text-danger">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className={`form-control ${errors.username ? 'is-invalid' : ''}`}
-                                            id="username"
-                                            name="username"
-                                            value={formData.username}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                        {errors.username && (
-                                            <div className="invalid-feedback">
-                                                {errors.username}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {formData.id > 0 || (
+                                    {!isPasswordEditMode && (
                                         <div className="col-md-6">
+                                            <label htmlFor="username" className="form-label">
+                                                Nombre de Usuario <span className="text-danger">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+                                                id="username"
+                                                name="username"
+                                                value={formData.username}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                            {errors.username && (
+                                                <div className="invalid-feedback">
+                                                    {errors.username}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {(isPasswordEditMode || formData.id === 0) && (
+                                        <div className={isPasswordEditMode ? "col-12" : "col-md-6"}>
                                             <label htmlFor="password" className="form-label">
-                                                {isEditMode ? "Nueva Contraseña (opcional)" : "Contraseña"}
-                                                {!isEditMode && <span className="text-danger">*</span>}
+                                                {isPasswordEditMode ? "Nueva Contraseña" : (isEditMode ? "Nueva Contraseña (opcional)" : "Contraseña")}
+                                                {(isPasswordEditMode || !isEditMode) &&
+                                                    <span className="text-danger">*</span>}
                                             </label>
                                             <input
                                                 type="password"
@@ -153,14 +168,14 @@ export const UserForm = ({userSelected}) => {
                                                 name="password"
                                                 value={formData.password}
                                                 onChange={handleInputChange}
-                                                required={!isEditMode}
+                                                required={isPasswordEditMode || !isEditMode}
                                             />
                                             {errors.password && (
                                                 <div className="invalid-feedback">
                                                     {errors.password}
                                                 </div>
                                             )}
-                                            {isEditMode && !errors.password && (
+                                            {!isPasswordEditMode && isEditMode && !errors.password && (
                                                 <div className="form-text">
                                                     Dejar vacío para mantener la actual
                                                 </div>
@@ -168,67 +183,73 @@ export const UserForm = ({userSelected}) => {
                                         </div>
                                     )}
 
-                                    <div className="col-md-6">
-                                        <label htmlFor="position" className="form-label">
-                                            Posición <span className="text-danger">*</span>
-                                        </label>
-                                        <select
-                                            className={`form-select ${errors.position ? 'is-invalid' : ''}`}
-                                            id="position"
-                                            name="position"
-                                            value={formData.position}
-                                            onChange={handleInputChange}
-                                            required
-                                        >
-                                            <option value="">Seleccionar posición</option>
-                                            {positionOptions.map((option) => (
-                                                <option key={option.value} value={option.value}>
-                                                    {option.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.position && (
-                                            <div className="invalid-feedback">
-                                                {errors.position}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <label htmlFor="phone" className="form-label">
-                                            Teléfono <span className="text-danger">*</span>
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
-                                            id="phone"
-                                            name="phone"
-                                            value={formData.phone}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                        {errors.phone && (
-                                            <div className="invalid-feedback">
-                                                {errors.phone}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="col-12">
-                                        <div className="form-check form-switch">
-                                            <input
-                                                className="form-check-input"
-                                                type="checkbox"
-                                                id="active"
-                                                name="active"
-                                                checked={formData.active}
-                                                onChange={handleInputChange}
-                                            />
-                                            <label className="form-check-label" htmlFor="active">
-                                                Usuario Activo
+                                    {!isPasswordEditMode && (
+                                        <div className="col-md-6">
+                                            <label htmlFor="position" className="form-label">
+                                                Posición <span className="text-danger">*</span>
                                             </label>
+                                            <select
+                                                className={`form-select ${errors.position ? 'is-invalid' : ''}`}
+                                                id="position"
+                                                name="position"
+                                                value={formData.position}
+                                                onChange={handleInputChange}
+                                                required
+                                            >
+                                                <option value="">Seleccionar posición</option>
+                                                {positionOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.position && (
+                                                <div className="invalid-feedback">
+                                                    {errors.position}
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
+                                    )}
+
+                                    {!isPasswordEditMode && (
+                                        <div className="col-md-6">
+                                            <label htmlFor="phone" className="form-label">
+                                                Teléfono <span className="text-danger">*</span>
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
+                                                id="phone"
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                            {errors.phone && (
+                                                <div className="invalid-feedback">
+                                                    {errors.phone}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {!isPasswordEditMode && (
+                                        <div className="col-12">
+                                            <div className="form-check form-switch">
+                                                <input
+                                                    className="form-check-input"
+                                                    type="checkbox"
+                                                    id="active"
+                                                    name="active"
+                                                    checked={formData.active}
+                                                    onChange={handleInputChange}
+                                                />
+                                                <label className="form-check-label" htmlFor="active">
+                                                    Usuario Activo
+                                                </label>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <input type="hidden" name="id" value={formData.id}/>
 
@@ -249,7 +270,7 @@ export const UserForm = ({userSelected}) => {
                                                 style={{minWidth: '120px'}}
                                             >
                                                 <i className="fas fa-save me-2"></i>
-                                                {isEditMode ? 'Actualizar' : 'Guardar'}
+                                                {isPasswordEditMode ? 'Actualizar Contraseña' : (isEditMode ? 'Actualizar' : 'Guardar')}
                                             </button>
                                         </div>
                                     </div>

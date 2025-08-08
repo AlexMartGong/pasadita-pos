@@ -6,7 +6,7 @@ import {useUser} from "../../hooks/useUser.js";
 import {useUserTable} from "../../hooks/useUserTable.js";
 
 export const UserTable = () => {
-    const {users, getAllUsers, handleToggleStatus, handleEditRow} = useUser();
+    const {users, getAllUsers, handleToggleStatus, handleEditRow, handleEditPassword} = useUser();
     const {searchText, setSearchText, filteredUsers} = useUserTable(users);
 
 
@@ -74,14 +74,14 @@ export const UserTable = () => {
                         <IconButton
                             size="small"
                             color="secondary"
-                            onClick={() => handleEditRow(params.row.id)}>
+                            onClick={() => handleEditPassword(params.row.id)}>
                             <Password/> Editar contraseña
                         </IconButton>
                     </Tooltip>
                 </Box>
             ),
         },
-    ], [handleEditRow, handleToggleStatus]);
+    ], [handleEditRow, handleToggleStatus, handleEditPassword]);
 
     return (
         <Paper sx={{p: 2, height: "100%"}}>

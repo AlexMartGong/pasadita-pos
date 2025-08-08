@@ -29,6 +29,11 @@ export const FruitRoute = () => {
                             <RegisterUserPage/>
                         </AdminRoute>
                     }/>
+                    <Route path="users/edit-password/:id" element={
+                        <AdminRoute>
+                            <RegisterUserPage/>
+                        </AdminRoute>
+                    }/>
                 </Routes>
             </main>
         </>

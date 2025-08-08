@@ -65,9 +65,9 @@ export const useUser = () => {
         }
     }, [dispatch]);
 
-    const handleEditPassword = useCallback((UserId, password) => {
-        console.log(UserId, password);
-    }, []);
+    const handleEditPassword = useCallback((userId) => {
+        navigate(`/users/edit-password/${userId}`);
+    }, [navigate]);
 
     const handleEditRow = (id) => {
         navigate(`/users/edit/${id}`);
