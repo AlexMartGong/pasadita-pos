@@ -5,7 +5,7 @@ import {onInitLogin, onLogin, onLogout} from "../../stores/slices/auth/authSlice
 import {loginValidation} from "../services/authService.js";
 
 export const useAuth = () => {
-    const {isAuth, user, isAdmin, isLoginLoading} = useSelector(state => state.auth);
+    const {isAuth, user, isAdmin, isLoginLoading, role} = useSelector(state => state.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -16,10 +16,12 @@ export const useAuth = () => {
             const response = await loginValidation({username, password});
             const token = response.data.token;
             const isAdmin = response.data.authorities?.some(auth => auth.authority === "ROLE_ADMIN") || false;
+            const role = response.data.authorities?.map(auth => auth.authority).join(", ") || "";
 
             const login = {
                 isAuth: true,
                 isAdmin: isAdmin,
+                role: role,
                 user: response.data.username
             };
 
@@ -56,6 +58,7 @@ export const useAuth = () => {
         isAuth,
         user,
         isAdmin,
+        role,
         isLoginLoading,
         handlerLogin,
         handlerLogout

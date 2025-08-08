@@ -3,6 +3,7 @@ import {createSlice} from "@reduxjs/toolkit";
 const initialLoginState = JSON.parse(sessionStorage.getItem("login")) || {
     isAuth: false,
     isAdmin: false,
+    role: '',
     user: undefined,
     isLoginLoading: false,
 }
@@ -15,12 +16,14 @@ export const authSlice = createSlice({
             state.isAuth = true;
             state.user = action.payload.user;
             state.isAdmin = action.payload.isAdmin;
+            state.role = action.payload.role;
             state.isLoginLoading = false;
         },
         onLogout: (state) => {
             state.user = undefined;
             state.isAuth = false;
             state.isAdmin = false;
+            state.role = '';
             state.isLoginLoading = false;
         },
         onInitLogin: (state) => {
