@@ -81,8 +81,7 @@ export const searchEmployee = async (username) => {
 // Change employee password
 export const changePassword = async (id, passwordData) => {
     try {
-        const response = await userApi.put(`/change-password/${id}`, passwordData);
-        return response.data;
+        return await userApi.put(`/change-password/${id}`, passwordData);
     } catch (error) {
         console.error('Error changing password:', error);
         throw error;

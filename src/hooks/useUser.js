@@ -1,7 +1,13 @@
 import {useDispatch, useSelector} from "react-redux";
 import {useCallback} from "react";
-import {setUsers, initialUserForm, onUserAdded, onUserUpdated, onUserChangeStatus} from "../stores/slices/user/userSlice.js";
-import {changeStatus, getAllEmployees, saveEmployee, updateEmployee} from "../services/userService.js";
+import {
+    setUsers,
+    initialUserForm,
+    onUserAdded,
+    onUserUpdated,
+    onUserChangeStatus
+} from "../stores/slices/user/userSlice.js";
+import {changePassword, changeStatus, getAllEmployees, saveEmployee, updateEmployee} from "../services/userService.js";
 import {toast} from "react-toastify";
 import {useNavigate} from "react-router-dom";
 
@@ -65,13 +71,32 @@ export const useUser = () => {
         }
     }, [dispatch]);
 
+    const handleChangePassword = useCallback(async (userId, newPassword) => {
+        try {
+            await changePassword(userId, {password: newPassword})
+                .then(result => {
+                    if (result.status === 200) {
+                        toast.success('Contraseña actualizada exitosamente.');
+                    } else {
+                        toast.error('Error al actualizar la contraseña.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating password:', error);
+                    toast.error('Error al actualizar la contraseña.');
+                });
+        } catch (error) {
+            console.log(error);
+        }
+    }, [])
+
     const handleEditPassword = useCallback((userId) => {
         navigate(`/users/edit-password/${userId}`);
     }, [navigate]);
 
-    const handleEditRow = (id) => {
+    const handleEditRow = useCallback((id) => {
         navigate(`/users/edit/${id}`);
-    }
+    }, [navigate]);
 
     return {
         initialUserForm,
@@ -82,5 +107,6 @@ export const useUser = () => {
         handleAddUser,
         handleToggleStatus,
         handleEditPassword,
+        handleChangePassword,
     }
 }

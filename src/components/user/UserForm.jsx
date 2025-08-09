@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {useUser} from "../../hooks/useUser.js";
 
 export const UserForm = ({userSelected}) => {
-    const {handleAddUser, initialUserForm} = useUser();
+    const {handleAddUser, handleChangePassword, initialUserForm} = useUser();
     const navigate = useNavigate();
     const location = useLocation();
     const [formData, setFormData] = useState(initialUserForm);
@@ -85,8 +85,11 @@ export const UserForm = ({userSelected}) => {
         e.preventDefault();
 
         if (validateForm()) {
-            console.log('Form data to submit:', formData);
-            handleAddUser(formData).then(r => console.log(r)).catch(e => console.error(e));
+            if (isPasswordEditMode) {
+                handleChangePassword(formData.id, formData.password);
+            } else {
+                handleAddUser(formData);
+            }
             navigate('/users');
         }
     };
