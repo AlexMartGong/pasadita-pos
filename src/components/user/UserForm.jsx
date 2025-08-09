@@ -50,31 +50,22 @@ export const UserForm = ({userSelected}) => {
         const newErrors = {};
 
         if (isPasswordEditMode) {
-            // In password edit mode, only validate password
-            if (!formData.password.trim()) {
-                newErrors.password = 'La nueva contraseña es requerida';
-            }
+            if (!formData.password.trim()) newErrors.password = 'La nueva contraseña es requerida';
+            if ((!userSelected || !userSelected.id) && (formData.password.length > 8 && formData.password.length < 50)) newErrors.password = 'La contraseña debe tener entre 8 y 50 caracteres';
         } else {
-            // Normal validation for other modes
-            if (!formData.fullName.trim()) {
-                newErrors.fullName = 'El nombre completo es requerido';
-            }
+            if (!formData.fullName.trim()) newErrors.fullName = 'El nombre completo es requerido';
+            if (formData.fullName.length > 5 || formData.fullName.length < 150) newErrors.fullName = 'El nombre completo debe tener entre 5 y 150 caracteres';
 
-            if (!formData.username.trim()) {
-                newErrors.username = 'El nombre de usuario es requerido';
-            }
+            if (!formData.username.trim()) newErrors.username = 'El nombre de usuario es requerido';
+            if (formData.username.length > 4 || formData.username.length < 50) newErrors.username = 'El nombre de usuario debe tener entre 4 y 50 caracteres';
 
-            if ((!userSelected || !userSelected.id) && !formData.password.trim()) {
-                newErrors.password = 'La contraseña es requerida';
-            }
+            if ((!userSelected || !userSelected.id) && !formData.password.trim()) newErrors.password = 'La contraseña es requerida';
+            if ((!userSelected || !userSelected.id) || (formData.password.length > 8 && formData.password.length < 50)) newErrors.password = 'La contraseña debe tener entre 8 y 50 caracteres';
 
-            if (!formData.position) {
-                newErrors.position = 'La posición es requerida';
-            }
+            if (!formData.position) newErrors.position = 'La posición es requerida';
+            if (!formData.phone.trim()) newErrors.phone = 'El teléfono es requerido';
+            if (formData.phone.length !== 10 || !/^\d+$/.test(formData.phone)) newErrors.phone = 'El teléfono debe tener 10 dígitos numéricos';
 
-            if (!formData.phone.trim()) {
-                newErrors.phone = 'El teléfono es requerido';
-            }
         }
 
         setErrors(newErrors);
@@ -122,6 +113,8 @@ export const UserForm = ({userSelected}) => {
                                                 type="text"
                                                 className={`form-control ${errors.fullName ? 'is-invalid' : ''}`}
                                                 id="fullName"
+                                                maxLength="150"
+                                                minLength="5"
                                                 name="fullName"
                                                 value={formData.fullName}
                                                 onChange={handleInputChange}
@@ -144,6 +137,8 @@ export const UserForm = ({userSelected}) => {
                                                 type="text"
                                                 className={`form-control ${errors.username ? 'is-invalid' : ''}`}
                                                 id="username"
+                                                minLength="4"
+                                                maxLength="50"
                                                 name="username"
                                                 value={formData.username}
                                                 onChange={handleInputChange}
@@ -223,9 +218,14 @@ export const UserForm = ({userSelected}) => {
                                                 type="tel"
                                                 className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
                                                 id="phone"
+                                                maxLength="10"
                                                 name="phone"
+                                                pattern="[0-9]{10}"
                                                 value={formData.phone}
                                                 onChange={handleInputChange}
+                                                onKeyPress={(e) => {
+                                                    if (!/[0-9]/.test(e.key)) e.preventDefault();
+                                                }}
                                                 required
                                             />
                                             {errors.phone && (

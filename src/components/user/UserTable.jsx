@@ -20,12 +20,17 @@ export const UserTable = () => {
             field: "id",
             headerName: "ID",
             width: 90,
-            sortable: true,
         },
         {
             field: "fullName",
             headerName: "Nombre",
             width: 300,
+            sortable: true,
+        },
+        {
+            field: "username",
+            headerName: "Usuario",
+            width: 200,
             sortable: true,
         },
         {
@@ -38,7 +43,6 @@ export const UserTable = () => {
             field: "phone",
             headerName: "Teléfono",
             width: 150,
-            sortable: true,
         },
         {
             field: "active",
