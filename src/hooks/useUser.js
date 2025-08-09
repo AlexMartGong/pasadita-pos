@@ -88,7 +88,7 @@ export const useUser = () => {
         } catch (error) {
             console.log(error);
         }
-    }, [])
+    }, []);
 
     const handleEditPassword = useCallback((userId) => {
         navigate(`/users/edit-password/${userId}`);

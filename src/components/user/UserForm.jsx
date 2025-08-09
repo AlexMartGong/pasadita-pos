@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {useUser} from "../../hooks/useUser.js";
 
 export const UserForm = ({userSelected}) => {
-    const {handleAddUser, handleChangePassword, initialUserForm} = useUser();
+    const {users, handleAddUser, handleChangePassword, initialUserForm} = useUser();
     const navigate = useNavigate();
     const location = useLocation();
     const [formData, setFormData] = useState(initialUserForm);
@@ -51,21 +51,29 @@ export const UserForm = ({userSelected}) => {
 
         if (isPasswordEditMode) {
             if (!formData.password.trim()) newErrors.password = 'La nueva contraseña es requerida';
-            if ((!userSelected || !userSelected.id) && (formData.password.length > 8 && formData.password.length < 50)) newErrors.password = 'La contraseña debe tener entre 8 y 50 caracteres';
+            if ((!userSelected || !userSelected.id) && (formData.password.length > 8 && formData.password.length < 50))
+                newErrors.password = 'La contraseña debe tener entre 8 y 50 caracteres';
         } else {
+            const existingUser = users.find(user => user.username === formData.username && user.id !== formData.id);
+
             if (!formData.fullName.trim()) newErrors.fullName = 'El nombre completo es requerido';
-            if (formData.fullName.length > 5 || formData.fullName.length < 150) newErrors.fullName = 'El nombre completo debe tener entre 5 y 150 caracteres';
+            if (formData.fullName.length < 5 || formData.fullName.length > 150)
+                newErrors.fullName = 'El nombre completo debe tener entre 5 y 150 caracteres';
 
             if (!formData.username.trim()) newErrors.username = 'El nombre de usuario es requerido';
-            if (formData.username.length > 4 || formData.username.length < 50) newErrors.username = 'El nombre de usuario debe tener entre 4 y 50 caracteres';
+            if (formData.username.length < 4 || formData.username.length > 50)
+                newErrors.username = 'El nombre de usuario debe tener entre 4 y 50 caracteres';
+            if (existingUser) newErrors.username = 'El nombre de usuario ya está en uso';
 
-            if ((!userSelected || !userSelected.id) && !formData.password.trim()) newErrors.password = 'La contraseña es requerida';
-            if ((!userSelected || !userSelected.id) || (formData.password.length > 8 && formData.password.length < 50)) newErrors.password = 'La contraseña debe tener entre 8 y 50 caracteres';
+            if ((!userSelected || !userSelected.id) && !formData.password.trim())
+                newErrors.password = 'La contraseña es requerida';
+            if ((!userSelected || !userSelected.id) && (formData.password.length < 8 || formData.password.length > 50))
+                newErrors.password = 'La contraseña debe tener entre 8 y 50 caracteres';
 
             if (!formData.position) newErrors.position = 'La posición es requerida';
             if (!formData.phone.trim()) newErrors.phone = 'El teléfono es requerido';
-            if (formData.phone.length !== 10 || !/^\d+$/.test(formData.phone)) newErrors.phone = 'El teléfono debe tener 10 dígitos numéricos';
-
+            if (formData.phone.length !== 10 || !/^\d+$/.test(formData.phone))
+                newErrors.phone = 'El teléfono debe tener 10 dígitos numéricos';
         }
 
         setErrors(newErrors);
