@@ -1,6 +1,5 @@
 import {useState, useEffect} from 'react';
 import {useNavigate, useLocation} from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import {useUser} from "../../hooks/useUser.js";
 
 export const UserForm = ({userSelected}) => {
@@ -9,6 +8,7 @@ export const UserForm = ({userSelected}) => {
     const location = useLocation();
     const [formData, setFormData] = useState(initialUserForm);
     const [errors, setErrors] = useState({});
+    const isEditMode = userSelected && userSelected.id !== 0;
     const isPasswordEditMode = location.pathname.includes('/edit-password/');
 
     const positionOptions = [
@@ -97,7 +97,7 @@ export const UserForm = ({userSelected}) => {
         navigate('/users');
     };
 
-    const isEditMode = userSelected && userSelected.id !== 0;
+
 
     return (
         <div className="container">
