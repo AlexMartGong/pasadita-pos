@@ -34,13 +34,10 @@ export const useAuth = () => {
 
         } catch (error) {
             console.error("Error in handlerLogin:", error);
-
-            if (error.response?.status === 401) {
+            if (error.response?.status === 401)
                 toast.error("Usuario o contraseña incorrectos. Por favor, intenta nuevamente.");
-            } else {
-                toast.error("Ocurrió un error inesperado. Por favor, intenta nuevamente más tarde.");
-            }
-
+            if (error.response?.status === 403) toast.error("No tienes permisos para acceder");
+            if (error.response?.status >= 500) toast.error("Error del servidor. Intenta más tarde");
             dispatch(onLogout());
         }
     };
