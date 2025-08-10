@@ -19,6 +19,25 @@ export const useUser = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const handleApiError = useCallback((error) => {
+        if (error.response) {
+            switch (error.response.status) {
+                case 401:
+                    toast.error('No autorizado. Por favor, inicie sesión nuevamente.');
+                    handlerLogout();
+                    break;
+                case 404:
+                    toast.error('Recurso no encontrado.');
+                    break;
+                case 500:
+                    toast.error('Error interno del servidor.');
+                    break;
+                default:
+                    toast.error('Error inesperado.');
+            }
+        }
+    }, [handlerLogout]);
+
     const getAllUsers = useCallback(async () => {
         try {
             const result = await getAllEmployees();
@@ -29,14 +48,9 @@ export const useUser = () => {
             }
         } catch (error) {
             console.error('Error fetching all users:', error);
-            if (error.response && error.response.status === 401) {
-                toast.error('No autorizado. Por favor, inicie sesión nuevamente.');
-                handlerLogout();
-            }
-            if (error.response && error.response.status === 404) toast.error('No se encontraron usuarios.');
-            if (error.response && error.response.status === 500) toast.error('Error interno del servidor.');
+            handleApiError(error);
         }
-    }, [dispatch, handlerLogout]);
+    }, [dispatch, handleApiError]);
 
     const handleAddUser = useCallback(async (newUser) => {
         let result;
@@ -56,13 +70,9 @@ export const useUser = () => {
             else toast.error('Error al guardar el usuario.');
         } catch (error) {
             console.error('Error fetching all users:', error);
-            if (error.response && error.response.status === 401) {
-                toast.error('No autorizado. Por favor, inicie sesión nuevamente.');
-                handlerLogout();
-            }
-            if (error.response && error.response.status === 500) toast.error('Error interno del servidor.');
+            handleApiError(error);
         }
-    }, [dispatch, handlerLogout]);
+    }, [dispatch, handleApiError]);
 
 
     const handleToggleStatus = useCallback(async (userId, currentStatus) => {
@@ -79,38 +89,23 @@ export const useUser = () => {
             if (result.status === 200) toast.success('Estado del usuario actualizado exitosamente.');
         } catch (error) {
             console.error('Error fetching all users:', error);
-            if (error.response && error.response.status === 401) {
-                toast.error('No autorizado. Por favor, inicie sesión nuevamente.');
-                handlerLogout();
-            }
-            if (error.response && error.response.status === 500) toast.error('Error interno del servidor.');
-            toast.error('Error al cambiar el estado del usuario.');
+            handleApiError(error);
         }
-    }, [dispatch, handlerLogout]);
+    }, [dispatch, handleApiError]);
 
     const handleChangePassword = useCallback(async (userId, newPassword) => {
         try {
-            await changePassword(userId, {password: newPassword})
-                .then(result => {
-                    if (result.status === 200) {
-                        toast.success('Contraseña actualizada exitosamente.');
-                    } else {
-                        toast.error('Error al actualizar la contraseña.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating password:', error);
-                    toast.error('Error al actualizar la contraseña.');
-                });
+            const result = await changePassword(userId, {password: newPassword});
+            if (result.status === 200) {
+                toast.success('Contraseña actualizada exitosamente.');
+            } else {
+                toast.error('Error al actualizar la contraseña.');
+            }
         } catch (error) {
             console.log(error);
-            if (error.response && error.response.status === 401) {
-                toast.error('No autorizado. Por favor, inicie sesión nuevamente.');
-                handlerLogout();
-            }
-            if (error.response && error.response.status === 500) toast.error('Error interno del servidor.');
+            handleApiError(error);
         }
-    }, [handlerLogout]);
+    }, [handleApiError]);
 
     const handleEditPassword = useCallback((userId) => {
         navigate(`/users/edit-password/${userId}`);

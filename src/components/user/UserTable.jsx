@@ -12,7 +12,7 @@ export const UserTable = () => {
 
     useEffect(() => {
         getAllUsers();
-    }, [getAllUsers]);
+    }, []);
 
 
     const columns = useMemo(() => [
