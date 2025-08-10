@@ -10,10 +10,12 @@ import {
 import {changePassword, changeStatus, getAllEmployees, saveEmployee, updateEmployee} from "../services/userService.js";
 import {toast} from "react-toastify";
 import {useNavigate} from "react-router-dom";
+import {useAuth} from "../auth/hooks/useAuth.js";
 
 export const useUser = () => {
 
     const {users, userSelected} = useSelector(state => state.user);
+    const {handlerLogout} = useAuth();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -27,9 +29,14 @@ export const useUser = () => {
             }
         } catch (error) {
             console.error('Error fetching all users:', error);
-            throw error;
+            if (error.response && error.response.status === 401) {
+                toast.error('No autorizado. Por favor, inicie sesión nuevamente.');
+                handlerLogout();
+            }
+            if (error.response && error.response.status === 404) toast.error('No se encontraron usuarios.');
+            if (error.response && error.response.status === 500) toast.error('Error interno del servidor.');
         }
-    }, [dispatch]);
+    }, [dispatch, handlerLogout]);
 
     const handleAddUser = useCallback(async (newUser) => {
         let result;
@@ -49,8 +56,13 @@ export const useUser = () => {
             else toast.error('Error al guardar el usuario.');
         } catch (error) {
             console.error('Error fetching all users:', error);
+            if (error.response && error.response.status === 401) {
+                toast.error('No autorizado. Por favor, inicie sesión nuevamente.');
+                handlerLogout();
+            }
+            if (error.response && error.response.status === 500) toast.error('Error interno del servidor.');
         }
-    }, [dispatch]);
+    }, [dispatch, handlerLogout]);
 
 
     const handleToggleStatus = useCallback(async (userId, currentStatus) => {
@@ -67,9 +79,14 @@ export const useUser = () => {
             if (result.status === 200) toast.success('Estado del usuario actualizado exitosamente.');
         } catch (error) {
             console.error('Error fetching all users:', error);
+            if (error.response && error.response.status === 401) {
+                toast.error('No autorizado. Por favor, inicie sesión nuevamente.');
+                handlerLogout();
+            }
+            if (error.response && error.response.status === 500) toast.error('Error interno del servidor.');
             toast.error('Error al cambiar el estado del usuario.');
         }
-    }, [dispatch]);
+    }, [dispatch, handlerLogout]);
 
     const handleChangePassword = useCallback(async (userId, newPassword) => {
         try {
@@ -87,8 +104,13 @@ export const useUser = () => {
                 });
         } catch (error) {
             console.log(error);
+            if (error.response && error.response.status === 401) {
+                toast.error('No autorizado. Por favor, inicie sesión nuevamente.');
+                handlerLogout();
+            }
+            if (error.response && error.response.status === 500) toast.error('Error interno del servidor.');
         }
-    }, []);
+    }, [handlerLogout]);
 
     const handleEditPassword = useCallback((userId) => {
         navigate(`/users/edit-password/${userId}`);
