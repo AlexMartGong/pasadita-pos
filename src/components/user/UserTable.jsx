@@ -1,6 +1,6 @@
 import {useEffect, useMemo} from "react";
 import {DataGrid} from "@mui/x-data-grid";
-import {TextField, Box, Paper, IconButton, Tooltip} from "@mui/material";
+import {TextField, Box, Paper, IconButton, Tooltip, Chip} from "@mui/material";
 import {Edit, ToggleOn, ToggleOff, Password} from "@mui/icons-material";
 import {useUser} from "../../hooks/useUser.js";
 import {useUserTable} from "../../hooks/useUserTable.js";
@@ -49,6 +49,14 @@ export const UserTable = () => {
             headerName: "Estado",
             width: 100,
             sortable: true,
+            renderCell: (params) => (
+                <Chip
+                    label={params.row.active ? "Activo" : "Inactivo"}
+                    color={params.row.active ? "success" : "default"}
+                    variant="outlined"
+                    size="small"
+                />
+            ),
         },
         {
             field: "actions",
