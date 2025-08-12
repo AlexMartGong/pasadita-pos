@@ -10,33 +10,13 @@ import {
 import {changePassword, changeStatus, getAllEmployees, saveEmployee, updateEmployee} from "../services/userService.js";
 import {toast} from "react-toastify";
 import {useNavigate} from "react-router-dom";
-import {useAuth} from "../auth/hooks/useAuth.js";
+import {useApiErrorHandler} from "./useApiErrorHandler.js";
 
 export const useUser = () => {
-
     const {users, userSelected} = useSelector(state => state.user);
-    const {handlerLogout} = useAuth();
+    const {handleApiError} = useApiErrorHandler();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
-    const handleApiError = useCallback((error) => {
-        if (error.response) {
-            switch (error.response.status) {
-                case 401:
-                    toast.error('No autorizado. Por favor, inicie sesión nuevamente.');
-                    handlerLogout();
-                    break;
-                case 404:
-                    toast.error('Recurso no encontrado.');
-                    break;
-                case 500:
-                    toast.error('Error interno del servidor.');
-                    break;
-                default:
-                    toast.error('Error inesperado.');
-            }
-        }
-    }, [handlerLogout]);
 
     const getAllUsers = useCallback(async () => {
         try {
