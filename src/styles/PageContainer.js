@@ -1,4 +1,3 @@
-// Estilos reutilizables para contenedores principales de páginas
 export const pageContainerStyles = {
   main: {
     py: 4

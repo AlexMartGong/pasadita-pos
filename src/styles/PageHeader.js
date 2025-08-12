@@ -1,4 +1,3 @@
-// Estilos reutilizables para headers de páginas
 export const pageHeaderStyles = {
   container: {
     mb: 4,

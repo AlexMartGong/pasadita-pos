@@ -30,7 +30,7 @@ export const UserTable = () => {
         {
             field: "username",
             headerName: "Usuario",
-            width: 200,
+            width: 150,
             sortable: true,
         },
         {
@@ -47,7 +47,7 @@ export const UserTable = () => {
         {
             field: "active",
             headerName: "Estado",
-            width: 150,
+            width: 100,
             sortable: true,
         },
         {

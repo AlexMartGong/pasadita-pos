@@ -1,4 +1,3 @@
-// Estilos para tarjetas de estadísticas reutilizables
 export const statsCardStyles = {
   container: {
     mb: 4,
