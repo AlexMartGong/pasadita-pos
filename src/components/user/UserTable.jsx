@@ -9,11 +9,9 @@ export const UserTable = () => {
     const {users, getAllUsers, handleToggleStatus, handleEditRow, handleEditPassword} = useUser();
     const {searchText, setSearchText, filteredUsers} = useUserTable(users);
 
-
     useEffect(() => {
         getAllUsers();
     }, []);
-
 
     const columns = useMemo(() => [
         {

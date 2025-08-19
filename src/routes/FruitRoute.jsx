@@ -13,7 +13,6 @@ export const FruitRoute = () => {
             <main style={{marginLeft: '250px', padding: '20px'}}>
                 <Routes>
                     <Route path="dashboard" element={<DashboardPage/>}/>
-                    <Route path="products" element={<ProductPage/>}/>
                     <Route path="users" element={
                         <AdminRoute>
                             <UserPage/>
@@ -32,6 +31,11 @@ export const FruitRoute = () => {
                     <Route path="users/edit-password/:id" element={
                         <AdminRoute>
                             <RegisterUserPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="products" element={
+                        <AdminRoute>
+                            <ProductPage/>
                         </AdminRoute>
                     }/>
                 </Routes>
