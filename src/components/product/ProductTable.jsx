@@ -10,7 +10,7 @@ export const ProductTable = () => {
 
     useEffect(() => {
         handleGetProducts();
-    }, [handleGetProducts]);
+    }, []);
 
     return (
         <Paper sx={{p: 2, height: "100%"}}>
