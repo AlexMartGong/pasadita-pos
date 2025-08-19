@@ -59,8 +59,6 @@ export const UserForm = ({userSelected}) => {
             if (!formData.fullName.trim()) newErrors.fullName = 'El nombre completo es requerido';
             if (formData.fullName.length < 5 || formData.fullName.length > 150)
                 newErrors.fullName = 'El nombre completo debe tener entre 5 y 150 caracteres';
-            if (/[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/.test(formData.fullName))
-                newErrors.fullName = 'El nombre completo solo puede contener letras y espacios';
 
             if (!formData.username.trim()) newErrors.username = 'El nombre de usuario es requerido';
             if (formData.username.length < 4 || formData.username.length > 50)
@@ -128,7 +126,7 @@ export const UserForm = ({userSelected}) => {
                                                 value={formData.fullName}
                                                 onChange={handleInputChange}
                                                 onKeyPress={(e) => {
-                                                    if (!/[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/.test(e.key)) e.preventDefault();
+                                                    if (!/[a-zA-Z\s]/.test(e.key)) e.preventDefault();
                                                 }}
                                                 required
                                             />
