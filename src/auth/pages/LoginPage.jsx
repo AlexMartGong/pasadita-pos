@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {useAuth} from "../hooks/useAuth";
-import "../../styles/LoginPage.css";
+import "../../styles/css/LoginPage.css";
 
 export const LoginPage = () => {
     const [formData, setFormData] = useState({

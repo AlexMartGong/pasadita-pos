@@ -1,6 +1,6 @@
 import {NavLink} from "react-router-dom";
-import {pageContainerStyles} from "../styles/PageContainer.js";
-import {pageHeaderStyles} from "../styles/PageHeader.js";
+import {pageContainerStyles} from "../styles/js/PageContainer.js";
+import {pageHeaderStyles} from "../styles/js/PageHeader.js";
 import {Box, Button, Card, CardContent, Container, Paper, Typography} from "@mui/material";
 import {Add, People} from "@mui/icons-material";
 import {ProductTable} from "../components/product/ProductTable.jsx";

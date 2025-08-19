@@ -4,6 +4,7 @@ import {TextField, Box, Paper, IconButton, Tooltip, Chip} from "@mui/material";
 import {Edit, ToggleOn, ToggleOff, Password} from "@mui/icons-material";
 import {useUser} from "../../hooks/user/useUser.js";
 import {useUserTable} from "../../hooks/user/useUserTable.js";
+import {userTableStyles} from "../../styles/js/UserTable.js";
 
 export const UserTable = () => {
     const {users, getAllUsers, handleToggleStatus, handleEditRow, handleEditPassword} = useUser();
@@ -63,7 +64,7 @@ export const UserTable = () => {
             sortable: false,
             filterable: false,
             renderCell: (params) => (
-                <Box sx={{display: 'flex', gap: 1}}>
+                <Box sx={userTableStyles.actionsContainer}>
                     <Tooltip title="Editar">
                         <IconButton
                             size="small"
@@ -94,8 +95,8 @@ export const UserTable = () => {
     ], [handleEditRow, handleToggleStatus, handleEditPassword]);
 
     return (
-        <Paper sx={{p: 2, height: "100%"}}>
-            <Box sx={{mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2}}>
+        <Paper sx={userTableStyles.paper}>
+            <Box sx={userTableStyles.searchContainer}>
                 <TextField
                     fullWidth
                     label="Buscar usuarios..."
@@ -104,7 +105,7 @@ export const UserTable = () => {
                     onChange={(e) => setSearchText(e.target.value)}
                 />
             </Box>
-            <Box sx={{height: 600, width: "100%"}}>
+            <Box sx={userTableStyles.tableContainer}>
                 <DataGrid
                     rows={filteredUsers}
                     columns={columns}
@@ -116,22 +117,7 @@ export const UserTable = () => {
                     pageSizeOptions={[5, 10, 25, 50]}
                     disableRowSelectionOnClick
                     loading={!users}
-                    sx={{
-                        "& .MuiDataGrid-root": {
-                            border: "none",
-                        },
-                        "& .MuiDataGrid-cell": {
-                            borderBottom: "none",
-                        },
-                        "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: "#f5f5f5",
-                            color: "#000",
-                            fontSize: 16,
-                        },
-                        "& .MuiDataGrid-virtualScroller": {
-                            backgroundColor: "#fff",
-                        },
-                    }}
+                    sx={userTableStyles.dataGrid}
                 />
             </Box>
         </Paper>

@@ -2,8 +2,8 @@ import {Box, Button, Typography, Paper, Container, Card, CardContent} from "@mui
 import {Add, People} from "@mui/icons-material";
 import {UserTable} from "../components/user/UserTable.jsx";
 import {NavLink} from "react-router-dom";
-import {pageHeaderStyles} from "../styles/PageHeader.js";
-import {pageContainerStyles} from "../styles/PageContainer.js";
+import {pageHeaderStyles} from "../styles/js/PageHeader.js";
+import {pageContainerStyles} from "../styles/js/PageContainer.js";
 
 export const UserPage = () => {
     return (
