@@ -2,8 +2,8 @@ import {useEffect, useMemo} from "react";
 import {DataGrid} from "@mui/x-data-grid";
 import {TextField, Box, Paper, IconButton, Tooltip, Chip} from "@mui/material";
 import {Edit, ToggleOn, ToggleOff, Password} from "@mui/icons-material";
-import {useUser} from "../../hooks/useUser.js";
-import {useUserTable} from "../../hooks/useUserTable.js";
+import {useUser} from "../../hooks/user/useUser.js";
+import {useUserTable} from "../../hooks/user/useUserTable.js";
 
 export const UserTable = () => {
     const {users, getAllUsers, handleToggleStatus, handleEditRow, handleEditPassword} = useUser();

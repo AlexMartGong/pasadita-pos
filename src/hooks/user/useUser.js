@@ -6,11 +6,11 @@ import {
     onUserAdded,
     onUserUpdated,
     onUserChangeStatus
-} from "../stores/slices/user/userSlice.js";
-import {changePassword, changeStatus, getAllEmployees, saveEmployee, updateEmployee} from "../services/userService.js";
+} from "../../stores/slices/user/userSlice.js";
+import {changePassword, changeStatus, getAllEmployees, saveEmployee, updateEmployee} from "../../services/userService.js";
 import {toast} from "react-toastify";
 import {useNavigate} from "react-router-dom";
-import {useApiErrorHandler} from "./useApiErrorHandler.js";
+import {useApiErrorHandler} from "../useApiErrorHandler.js";
 
 export const useUser = () => {
     const {users, userSelected} = useSelector(state => state.user);

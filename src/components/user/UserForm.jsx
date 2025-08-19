@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react';
 import {useNavigate, useLocation} from 'react-router-dom';
-import {useUser} from "../../hooks/useUser.js";
+import {useUser} from "../../hooks/user/useUser.js";
 
 export const UserForm = ({userSelected}) => {
     const {users, handleAddUser, handleChangePassword, initialUserForm} = useUser();

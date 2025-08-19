@@ -1,4 +1,4 @@
-import {useUser} from "../hooks/useUser.js";
+import {useUser} from "../hooks/user/useUser.js";
 import {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import {UserForm} from "../components/user/UserForm.jsx";
