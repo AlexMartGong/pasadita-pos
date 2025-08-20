@@ -104,7 +104,7 @@ export const UserForm = ({userSelected}) => {
                 <div className="col-md-8 col-lg-6">
                     <div className="card shadow">
                         <div className="card-header bg-primary text-white">
-                            <h5 className="card-title mb-0 fw-bold">
+                            <h5 className="card-title mb-4 fw-bold">
                                 {isPasswordEditMode ? 'Editar Contraseña' : (isEditMode ? 'Editar Usuario' : 'Registrar Nuevo Usuario')}
                             </h5>
                         </div>

@@ -9,8 +9,18 @@ export const getProducts = async () => {
     }
 };
 
+export const createProduct = async (productData) => {
+    try {
+        return await productApi.post('/create', productData);
+    } catch (error) {
+        console.error('Error creating product:', error);
+        throw error;
+    }
+};
+
 const productService = {
     getProducts,
+    createProduct,
 };
 
 export default productService;

@@ -1,5 +1,5 @@
-import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../auth/hooks/useAuth.js';
+import {Link, useLocation} from 'react-router-dom';
+import {useAuth} from '../../auth/hooks/useAuth.js';
 import {
     Drawer,
     List,
@@ -25,23 +25,23 @@ import {
 
 export const Sidebar = () => {
     const location = useLocation();
-    const { user, isAdmin, handlerLogout } = useAuth();
+    const {user, isAdmin, handlerLogout} = useAuth();
 
     const getIcon = (iconName) => {
         const icons = {
-            'bi-speedometer2': <Dashboard />,
-            'bi-box-seam': <Inventory />,
-            'bi bi-people': <People />,
-            'bi-gear': <Settings />
+            'bi-speedometer2': <Dashboard/>,
+            'bi-box-seam': <Inventory/>,
+            'bi bi-people': <People/>,
+            'bi-gear': <Settings/>
         };
-        return icons[iconName] || <Dashboard />;
+        return icons[iconName] || <Dashboard/>;
     };
 
     const menuItems = [
-        { path: '/dashboard', icon: 'bi-speedometer2', label: 'Dashboard' },
-        { path: '/products', icon: 'bi-box-seam', label: 'Products' },
-        ...(isAdmin ? [{ path: '/users', icon: 'bi bi-people', label: 'Users' }] : []),
-        { path: '/settings', icon: 'bi-gear', label: 'Settings' }
+        {path: '/dashboard', icon: 'bi-speedometer2', label: 'Dashboard'},
+        {path: '/products', icon: 'bi-box-seam', label: 'Products'},
+        ...(isAdmin ? [{path: '/users', icon: 'bi bi-people', label: 'Users'}] : []),
+        {path: '/settings', icon: 'bi-gear', label: 'Settings'}
     ];
 
     return (
@@ -61,7 +61,7 @@ export const Sidebar = () => {
             }}
         >
             {/* Header */}
-            <Box sx={{ p: 3, borderBottom: '1px solid #333' }}>
+            <Box sx={{p: 3, borderBottom: '1px solid #333'}}>
                 <Typography
                     variant="h5"
                     sx={{
@@ -79,10 +79,10 @@ export const Sidebar = () => {
             </Box>
 
             {/* Navigation Menu */}
-            <Box sx={{ flexGrow: 1, py: 2 }}>
+            <Box sx={{flexGrow: 1, py: 2}}>
                 <List>
                     {menuItems.map((item, index) => (
-                        <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                        <ListItem key={item.path} disablePadding sx={{mb: 0.5}}>
                             <ListItemButton
                                 component={Link}
                                 to={item.path}
@@ -131,8 +131,8 @@ export const Sidebar = () => {
             </Box>
 
             {/* User Profile & Logout */}
-            <Box sx={{ mt: 'auto' }}>
-                <Divider sx={{ borderColor: '#333' }} />
+            <Box sx={{mt: 'auto'}}>
+                <Divider sx={{borderColor: '#333'}}/>
                 <Paper
                     elevation={0}
                     sx={{
@@ -142,7 +142,7 @@ export const Sidebar = () => {
                         borderRadius: 2
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
                         <Avatar
                             sx={{
                                 width: 40,
@@ -151,18 +151,18 @@ export const Sidebar = () => {
                                 mr: 2
                             }}
                         >
-                            <Person />
+                            <Person/>
                         </Avatar>
                         <Box>
                             <Typography
                                 variant="body2"
-                                sx={{ fontWeight: 600, color: '#fff' }}
+                                sx={{fontWeight: 600, color: '#fff'}}
                             >
                                 {user || 'Admin User'}
                             </Typography>
                             <Typography
                                 variant="caption"
-                                sx={{ color: '#bbb' }}
+                                sx={{color: '#bbb'}}
                             >
                                 Administrator
                             </Typography>
@@ -172,7 +172,7 @@ export const Sidebar = () => {
                     <Button
                         fullWidth
                         onClick={handlerLogout}
-                        startIcon={<Logout />}
+                        startIcon={<Logout/>}
                         sx={{
                             color: '#fff',
                             backgroundColor: 'rgba(255, 255, 255, 0.1)',

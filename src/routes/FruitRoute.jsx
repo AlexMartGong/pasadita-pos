@@ -5,11 +5,12 @@ import {ProductPage} from "../pages/ProductPage.jsx";
 import {UserPage} from "../pages/UserPage.jsx";
 import {RegisterUserPage} from "../pages/RegisterUserPage.jsx";
 import {AdminRoute} from "../components/auth/AdminRoute.jsx";
-import { Box } from '@mui/material';
+import {Box} from '@mui/material';
+import {RegisterProductPage} from "../pages/RegisterProductPage.jsx";
 
 export const FruitRoute = () => {
     return (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{display: 'flex'}}>
             <Sidebar/>
             <Box
                 component="main"
@@ -45,6 +46,11 @@ export const FruitRoute = () => {
                     <Route path="products" element={
                         <AdminRoute>
                             <ProductPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="product/register" element={
+                        <AdminRoute>
+                            <RegisterProductPage/>
                         </AdminRoute>
                     }/>
                 </Routes>
