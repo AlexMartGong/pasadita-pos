@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react';
 import {useNavigate, useLocation} from 'react-router-dom';
 import {useUser} from "../../hooks/user/useUser.js";
+import formStyles from "../../styles/js/FormStyles.js";
 
 export const UserForm = ({userSelected}) => {
     const {users, handleAddUser, handleChangePassword, initialUserForm} = useUser();
@@ -103,7 +104,7 @@ export const UserForm = ({userSelected}) => {
             <div className="row justify-content-center">
                 <div className="col-md-8 col-lg-6">
                     <div className="card shadow">
-                        <div className="card-header bg-primary text-white">
+                        <div className="card-header" style={formStyles.cardHeader}>
                             <h5 className="card-title mb-4 fw-bold">
                                 {isPasswordEditMode ? 'Editar Contraseña' : (isEditMode ? 'Editar Usuario' : 'Registrar Nuevo Usuario')}
                             </h5>

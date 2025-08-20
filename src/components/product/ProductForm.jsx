@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { useProduct } from '../../hooks/product/useProduct';
-import { useNavigate } from 'react-router-dom';
+import React, {useState} from 'react';
+import {useProduct} from '../../hooks/product/useProduct';
+import {useNavigate} from 'react-router-dom';
+import {formStyles} from '../../styles/js/FormStyles';
 
-export const ProductForm = ({ productSelected, onProductCreated, onCancel }) => {
-    const { handleCreateProduct } = useProduct();
+export const ProductForm = ({productSelected, onProductCreated, onCancel}) => {
+    const {handleCreateProduct} = useProduct();
     const navigate = useNavigate();
     const isEditMode = productSelected && productSelected.id !== 0;
 
@@ -20,24 +21,24 @@ export const ProductForm = ({ productSelected, onProductCreated, onCancel }) => 
 
     // Categories enum values (based on typical POS categories)
     const categories = [
-        { value: 'FOOD', label: 'Comida' },
-        { value: 'BEVERAGE', label: 'Bebida' },
-        { value: 'DESSERT', label: 'Postre' },
-        { value: 'APPETIZER', label: 'Entrada' },
-        { value: 'MAIN_COURSE', label: 'Plato Principal' },
-        { value: 'SIDE_DISH', label: 'Acompañamiento' },
-        { value: 'OTHER', label: 'Otro' }
+        {value: 'FOOD', label: 'Comida'},
+        {value: 'BEVERAGE', label: 'Bebida'},
+        {value: 'DESSERT', label: 'Postre'},
+        {value: 'APPETIZER', label: 'Entrada'},
+        {value: 'MAIN_COURSE', label: 'Plato Principal'},
+        {value: 'SIDE_DISH', label: 'Acompañamiento'},
+        {value: 'OTHER', label: 'Otro'}
     ];
 
     // Unit measures enum values
     const unitMeasures = [
-        { value: 'UNIT', label: 'Unidad' },
-        { value: 'KILOGRAM', label: 'Kilogramo' },
-        { value: 'GRAM', label: 'Gramo' },
-        { value: 'LITER', label: 'Litro' },
-        { value: 'MILLILITER', label: 'Mililitro' },
-        { value: 'PORTION', label: 'Porción' },
-        { value: 'DOZEN', label: 'Docena' }
+        {value: 'UNIT', label: 'Unidad'},
+        {value: 'KILOGRAM', label: 'Kilogramo'},
+        {value: 'GRAM', label: 'Gramo'},
+        {value: 'LITER', label: 'Litro'},
+        {value: 'MILLILITER', label: 'Mililitro'},
+        {value: 'PORTION', label: 'Porción'},
+        {value: 'DOZEN', label: 'Docena'}
     ];
 
     const validateForm = () => {
@@ -158,12 +159,7 @@ export const ProductForm = ({ productSelected, onProductCreated, onCancel }) => 
             <div className="row justify-content-center">
                 <div className="col-md-8 col-lg-6">
                     <div className="card shadow">
-                        <div className="card-header" style={{
-                            background: 'linear-gradient(135deg, #003c8f 0%, #005cb2 100%)',
-                            color: 'white',
-                            borderRadius: '8px 8px 0 0',
-                            padding: '16px'
-                        }}>
+                        <div className="card-header" style={formStyles.cardHeader}>
                             <h5 className="card-title mb-4 fw-bold">
                                 {isEditMode ? 'Editar Producto' : 'Registrar Nuevo Producto'}
                             </h5>
