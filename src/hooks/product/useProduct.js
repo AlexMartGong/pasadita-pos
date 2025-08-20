@@ -1,14 +1,16 @@
 import {useDispatch, useSelector} from "react-redux";
 import {useCallback} from "react";
-import {setProducts} from "../../stores/slices/product/productSlice.js";
+import {initialProductForm, setProducts} from "../../stores/slices/product/productSlice.js";
 import {toast} from "react-toastify";
 import {useApiErrorHandler} from "../useApiErrorHandler.js";
 import {getProducts, createProduct} from "../../services/productService.js";
+import {useNavigate} from "react-router-dom";
 
 export const useProduct = () => {
     const {products} = useSelector(state => state.product);
     const {handleApiError} = useApiErrorHandler();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleGetProducts = useCallback(async () => {
         try {
@@ -42,7 +44,33 @@ export const useProduct = () => {
         }
     }, [handleApiError, handleGetProducts]);
 
+    const handleCancel = () => {
+        navigate('/products');
+    };
+
+    const categories = [
+        {value: 'FRUTAS', label: 'Fruta'},
+        {value: 'VERDURAS', label: 'Verdura'},
+        {value: 'HIERBAS', label: 'Hierba'},
+        {value: 'CHILES', label: 'Chile'},
+        {value: 'GRANOS_CEREALES', label: 'Grano Cereal'},
+        {value: 'FRUTOS_SECOS', label: 'Fruto Seco'},
+    ];
+
+    const unitMeasures = [
+        {value: 'PIEZA', label: 'Pieza'},
+        {value: 'PORCION', label: 'Porción'},
+        {value: 'KILOGRAMO', label: 'Kilogramo'},
+        {value: 'GRAMO', label: 'Gramo'},
+        {value: 'LITRO', label: 'Litro'},
+        {value: 'MILILITRO', label: 'Mililitro'},
+    ];
+
     return {
+        initialProductForm,
+        handleCancel,
+        categories,
+        unitMeasures,
         products,
         handleGetProducts,
         handleCreateProduct,

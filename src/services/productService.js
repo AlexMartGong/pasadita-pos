@@ -9,9 +9,15 @@ export const getProducts = async () => {
     }
 };
 
-export const createProduct = async (productData) => {
+export const createProduct = async ({name, category, price, unitMeasure, active}) => {
     try {
-        return await productApi.post('/create', productData);
+        return await productApi.post('/save', {
+            name,
+            category,
+            price,
+            unitMeasure,
+            active,
+        });
     } catch (error) {
         console.error('Error creating product:', error);
         throw error;

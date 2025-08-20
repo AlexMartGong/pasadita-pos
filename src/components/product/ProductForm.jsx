@@ -1,45 +1,26 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useProduct} from '../../hooks/product/useProduct';
-import {useNavigate} from 'react-router-dom';
 import {formStyles} from '../../styles/js/FormStyles';
 
-export const ProductForm = ({productSelected, onProductCreated, onCancel}) => {
-    const {handleCreateProduct} = useProduct();
-    const navigate = useNavigate();
+export const ProductForm = ({productSelected}) => {
+    const {handleCreateProduct, unitMeasures, categories, handleCancel, initialProductForm} = useProduct();
     const isEditMode = productSelected && productSelected.id !== 0;
-
-    const [formData, setFormData] = useState({
-        name: productSelected?.name || '',
-        category: productSelected?.category || '',
-        price: productSelected?.price || '',
-        unitMeasure: productSelected?.unitMeasure || '',
-        active: productSelected?.active !== undefined ? productSelected.active : true
-    });
-
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formData, setFormData] = useState(initialProductForm);
 
-    // Categories enum values (based on typical POS categories)
-    const categories = [
-        {value: 'FOOD', label: 'Comida'},
-        {value: 'BEVERAGE', label: 'Bebida'},
-        {value: 'DESSERT', label: 'Postre'},
-        {value: 'APPETIZER', label: 'Entrada'},
-        {value: 'MAIN_COURSE', label: 'Plato Principal'},
-        {value: 'SIDE_DISH', label: 'Acompañamiento'},
-        {value: 'OTHER', label: 'Otro'}
-    ];
-
-    // Unit measures enum values
-    const unitMeasures = [
-        {value: 'UNIT', label: 'Unidad'},
-        {value: 'KILOGRAM', label: 'Kilogramo'},
-        {value: 'GRAM', label: 'Gramo'},
-        {value: 'LITER', label: 'Litro'},
-        {value: 'MILLILITER', label: 'Mililitro'},
-        {value: 'PORTION', label: 'Porción'},
-        {value: 'DOZEN', label: 'Docena'}
-    ];
+    useEffect(() => {
+        if (productSelected && productSelected.id !== 0) {
+            setFormData({
+                id: productSelected.id || 0,
+                name: productSelected.name || '',
+                category: productSelected.category || '',
+                price: productSelected.price || 0,
+                unitMeasure: productSelected.unitMeasure || '',
+                active: productSelected.active !== undefined ? productSelected.active : true
+            })
+        }
+    }, [productSelected]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -121,23 +102,14 @@ export const ProductForm = ({productSelected, onProductCreated, onCancel}) => {
                 active: formData.active
             };
 
+            console.log('Product Data:', productData);
+
             const success = await handleCreateProduct(productData);
 
             if (success) {
-                // Reset form
-                setFormData({
-                    name: '',
-                    category: '',
-                    price: '',
-                    unitMeasure: '',
-                    active: true
-                });
+                setFormData(initialProductForm);
                 setErrors({});
-
-                if (onProductCreated) {
-                    onProductCreated();
-                }
-                navigate('/products');
+                handleCancel();
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -146,13 +118,6 @@ export const ProductForm = ({productSelected, onProductCreated, onCancel}) => {
         }
     };
 
-    const handleCancel = () => {
-        if (onCancel) {
-            onCancel();
-        } else {
-            navigate('/products');
-        }
-    };
 
     return (
         <div className="container">
@@ -178,6 +143,9 @@ export const ProductForm = ({productSelected, onProductCreated, onCancel}) => {
                                             id="name"
                                             value={formData.name}
                                             onChange={handleInputChange('name')}
+                                            onKeyDown={(e) => {
+                                                if (!/[a-zA-Z0-9\s]/.test(e.key)) e.preventDefault();
+                                            }}
                                             required
                                         />
                                         {errors.name && (
