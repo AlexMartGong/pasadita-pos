@@ -32,6 +32,14 @@ export const productSlice = createSlice({
                     ...action.payload,
                 }
             }
+        },
+        onChangeStatusProduct: (state, action) => {
+            state.products = state.products.map(product => {
+                return (product.id === action.payload.id) ? {
+                    ...product,
+                    active: action.payload.active,
+                } : product;
+            });
         }
     }
 });
@@ -40,4 +48,5 @@ export const {
     setProducts,
     onCreateProduct,
     onUpdateProduct,
+    onChangeStatusProduct,
 } = productSlice.actions;

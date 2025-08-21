@@ -37,7 +37,15 @@ export const updateProduct = async ({id, name, category, price, unitMeasure, act
         console.error('Error updating product:', error);
         throw error;
     }
-}
+};
+
+export const changeStatusProduct = async (id, statusData) => {
+    try {
+        return await productApi.put(`/change-status/${id}`, statusData);
+    } catch (error) {
+        console.error('Error changing status:', error);
+    }
+};
 
 const productService = {
     getProducts,

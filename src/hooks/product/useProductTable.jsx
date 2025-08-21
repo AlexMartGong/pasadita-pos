@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 import {useProduct} from "./useProduct.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {Edit, ToggleOn, ToggleOff, Password} from "@mui/icons-material";
+import {Edit, ToggleOn, ToggleOff} from "@mui/icons-material";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);

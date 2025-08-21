@@ -1,14 +1,14 @@
 import {useDispatch, useSelector} from "react-redux";
 import {useCallback} from "react";
 import {
-    initialProductForm,
+    initialProductForm, onChangeStatusProduct,
     onCreateProduct,
     onUpdateProduct,
     setProducts
 } from "../../stores/slices/product/productSlice.js";
 import {toast} from "react-toastify";
 import {useApiErrorHandler} from "../useApiErrorHandler.js";
-import {getProducts, createProduct, updateProduct} from "../../services/productService.js";
+import {getProducts, createProduct, updateProduct, changeStatusProduct} from "../../services/productService.js";
 import {useNavigate} from "react-router-dom";
 
 export const useProduct = () => {
@@ -60,6 +60,19 @@ export const useProduct = () => {
     }, [navigate]);
 
     const handleProductToggleStatus = useCallback(async (id, currentStatus) => {
+        const newStatus = !currentStatus;
+        const confirmMessage = `¿Está seguro de ${newStatus ? 'activar' : 'desactivar'} este producto?`;
+        if (!window.confirm(confirmMessage)) return;
+
+        try {
+            const result = await changeStatusProduct(id, {active: newStatus});
+            dispatch(onChangeStatusProduct({id, active: newStatus}));
+            if (result.status === 200) toast.success('Estado del producto actualizado exitosamente.');
+        } catch (error) {
+            console.error('Error fetching all products:', error);
+            handleApiError(error);
+        }
+
     }, [dispatch, handleApiError]);
 
     const categories = [
