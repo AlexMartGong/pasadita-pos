@@ -56,7 +56,7 @@ export const useProductTable = (products) => {
         {
             field: "category",
             headerName: "Categoria",
-            width: 130,
+            width: 180,
             sortable: true,
         },
         {
@@ -85,7 +85,7 @@ export const useProductTable = (products) => {
         {
             field: "actions",
             headerName: "Acciones",
-            width: 400,
+            width: 220,
             sortable: false,
             filterable: false,
             renderCell: (params) => (

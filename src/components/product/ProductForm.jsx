@@ -3,7 +3,7 @@ import {useProduct} from '../../hooks/product/useProduct';
 import {formStyles} from '../../styles/js/FormStyles';
 
 export const ProductForm = ({productSelected}) => {
-    const {handleCreateProduct, unitMeasures, categories, handleCancel, initialProductForm} = useProduct();
+    const {handleSaveProduct, unitMeasures, categories, handleCancel, initialProductForm} = useProduct();
     const isEditMode = productSelected && productSelected.id !== 0;
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -104,7 +104,7 @@ export const ProductForm = ({productSelected}) => {
 
             console.log('Product Data:', productData);
 
-            const success = await handleCreateProduct(productData);
+            const success = await handleSaveProduct(productData);
 
             if (success) {
                 setFormData(initialProductForm);
@@ -132,7 +132,6 @@ export const ProductForm = ({productSelected}) => {
                         <div className="card-body p-4">
                             <form onSubmit={handleSubmit} noValidate>
                                 <div className="row g-3">
-                                    {/* Nombre del Producto */}
                                     <div className="col-12">
                                         <label htmlFor="name" className="form-label">
                                             Nombre del Producto <span className="text-danger">*</span>
@@ -155,7 +154,6 @@ export const ProductForm = ({productSelected}) => {
                                         )}
                                     </div>
 
-                                    {/* Categoría */}
                                     <div className="col-md-6">
                                         <label htmlFor="category" className="form-label">
                                             Categoría <span className="text-danger">*</span>
@@ -181,7 +179,6 @@ export const ProductForm = ({productSelected}) => {
                                         )}
                                     </div>
 
-                                    {/* Unidad de Medida */}
                                     <div className="col-md-6">
                                         <label htmlFor="unitMeasure" className="form-label">
                                             Unidad de Medida <span className="text-danger">*</span>
@@ -207,7 +204,6 @@ export const ProductForm = ({productSelected}) => {
                                         )}
                                     </div>
 
-                                    {/* Precio */}
                                     <div className="col-md-6">
                                         <label htmlFor="price" className="form-label">
                                             Precio <span className="text-danger">*</span>
@@ -233,7 +229,6 @@ export const ProductForm = ({productSelected}) => {
                                         </div>
                                     </div>
 
-                                    {/* Estado del Producto */}
                                     <div className="col-12">
                                         <div className="form-check form-switch">
                                             <input
@@ -249,7 +244,8 @@ export const ProductForm = ({productSelected}) => {
                                         </div>
                                     </div>
 
-                                    {/* Botones */}
+                                    <input type="hidden" name="id" value={formData.id}/>
+
                                     <div className="col-12">
                                         <div className="d-flex gap-2 justify-content-end mt-3">
                                             <button

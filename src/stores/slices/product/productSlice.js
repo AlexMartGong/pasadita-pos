@@ -19,9 +19,25 @@ export const productSlice = createSlice({
         setProducts: (state, action) => {
             state.products = action.payload;
         },
+        onCreateProduct: (state, action) => {
+            state.products.push({
+                ...action.payload,
+            });
+            state.productSelected = initialProductForm;
+        },
+        onUpdateProduct: (state, action) => {
+            const index = state.products.findIndex(product => product.id === action.payload.id);
+            if (index !== -1) {
+                state.products[index] = {
+                    ...action.payload,
+                }
+            }
+        }
     }
 });
 
 export const {
     setProducts,
+    onCreateProduct,
+    onUpdateProduct,
 } = productSlice.actions;

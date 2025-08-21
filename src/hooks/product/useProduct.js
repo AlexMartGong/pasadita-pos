@@ -1,9 +1,14 @@
 import {useDispatch, useSelector} from "react-redux";
 import {useCallback} from "react";
-import {initialProductForm, setProducts} from "../../stores/slices/product/productSlice.js";
+import {
+    initialProductForm,
+    onCreateProduct,
+    onUpdateProduct,
+    setProducts
+} from "../../stores/slices/product/productSlice.js";
 import {toast} from "react-toastify";
 import {useApiErrorHandler} from "../useApiErrorHandler.js";
-import {getProducts, createProduct} from "../../services/productService.js";
+import {getProducts, createProduct, updateProduct} from "../../services/productService.js";
 import {useNavigate} from "react-router-dom";
 
 export const useProduct = () => {
@@ -26,23 +31,25 @@ export const useProduct = () => {
         }
     }, [dispatch, handleApiError]);
 
-    const handleCreateProduct = useCallback(async (productData) => {
+    const handleSaveProduct = useCallback(async (productData) => {
+        let result;
         try {
-            const result = await createProduct(productData);
-            if (result.status === 201) {
-                toast.success('Producto creado exitosamente');
-                await handleGetProducts(); // Refresh the products list
-                return true;
+            if (productData.id === 0) {
+                result = await createProduct(productData);
+                dispatch(onCreateProduct(result.data));
             } else {
-                toast.error('Error al crear el producto.');
-                return false;
+                result = await updateProduct(productData);
+                dispatch(onUpdateProduct(result.data));
             }
+            if (result.status === 201 || result.status === 200) toast.success('Producto guardado exitosamente.');
+            else toast.error('Error al guardar el producto.');
+            return true;
         } catch (error) {
             console.error('Error creating product:', error);
             handleApiError(error);
             return false;
         }
-    }, [handleApiError, handleGetProducts]);
+    }, [handleApiError, dispatch]);
 
     const handleCancel = useCallback(() => {
         navigate('/products');
@@ -82,7 +89,7 @@ export const useProduct = () => {
         unitMeasures,
         products,
         handleGetProducts,
-        handleCreateProduct,
+        handleSaveProduct,
     }
 
 }
