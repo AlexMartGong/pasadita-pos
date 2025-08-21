@@ -1,11 +1,11 @@
-import {NavLink} from "react-router-dom";
-import {pageContainerStyles} from "../styles/js/PageContainer.js";
-import {pageHeaderStyles} from "../styles/js/PageHeader.js";
-import {Box, Button, Card, CardContent, Container, Paper, Typography} from "@mui/material";
+import {Box, Button, Typography, Paper, Container, Card, CardContent} from "@mui/material";
 import {Add, People} from "@mui/icons-material";
-import {ProductTable} from "../components/product/ProductTable.jsx";
+import {UserTable} from "../../components/user/UserTable.jsx";
+import {NavLink} from "react-router-dom";
+import {pageHeaderStyles} from "../../styles/js/PageHeader.js";
+import {pageContainerStyles} from "../../styles/js/PageContainer.js";
 
-export const ProductPage = () => {
+export const UserPage = () => {
     return (
         <Container maxWidth="xl" sx={pageContainerStyles.main}>
             <Paper elevation={2} sx={pageHeaderStyles.container}>
@@ -14,10 +14,10 @@ export const ProductPage = () => {
                         <People sx={pageHeaderStyles.icon}/>
                         <Box>
                             <Typography variant="h4" component="h1" sx={pageHeaderStyles.title}>
-                                Gestion de Productos
+                                Gestión de Usuarios
                             </Typography>
                             <Typography variant="body1" sx={pageHeaderStyles.subtitle}>
-                                Administra los productos de manera eficiente y segura
+                                Administra los usuarios del sistema de manera eficiente y segura
                             </Typography>
                         </Box>
                     </Box>
@@ -25,12 +25,13 @@ export const ProductPage = () => {
                     <Box sx={pageHeaderStyles.buttonContainer}>
                         <Button
                             component={NavLink}
-                            to="/product/register"
+                            to="/users/register"
                             variant="contained"
                             size="large"
                             startIcon={<Add/>}
-                            sx={pageHeaderStyles.actionButton}>
-                            Agregar Nuevo Producto
+                            sx={pageHeaderStyles.actionButton}
+                        >
+                            Agregar Nuevo Usuario
                         </Button>
                     </Box>
                 </Box>
@@ -39,17 +40,17 @@ export const ProductPage = () => {
             <Card elevation={4} sx={pageContainerStyles.contentCard}>
                 <Box sx={pageContainerStyles.contentHeader}>
                     <Typography variant="h6" component="h2" sx={pageContainerStyles.contentTitle}>
-                        Lista de Productos
+                        Lista de Usuarios
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={pageContainerStyles.contentSubtitle}>
-                        Visualiza y gestiona todos los productos registrados en el sistema
+                        Visualiza y gestiona todos los usuarios registrados en el sistema
                     </Typography>
                 </Box>
 
                 <CardContent sx={pageContainerStyles.contentBody}>
-                    <ProductTable/>
+                    <UserTable/>
                 </CardContent>
             </Card>
         </Container>
     );
-}
+};

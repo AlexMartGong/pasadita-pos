@@ -1,5 +1,5 @@
-import {ProductForm} from "../components/product/ProductForm.jsx";
-import {useProduct} from "../hooks/product/useProduct.js";
+import {ProductForm} from "../../components/product/ProductForm.jsx";
+import {useProduct} from "../../hooks/product/useProduct.js";
 import {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 

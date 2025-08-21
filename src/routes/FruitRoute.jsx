@@ -1,12 +1,13 @@
 import {Route, Routes} from "react-router-dom";
 import {DashboardPage} from "../pages/DashboardPage.jsx";
 import {Sidebar} from "../components/layout/Sidebar.jsx";
-import {ProductPage} from "../pages/ProductPage.jsx";
-import {UserPage} from "../pages/UserPage.jsx";
-import {RegisterUserPage} from "../pages/RegisterUserPage.jsx";
+import {ProductPage} from "../pages/product/ProductPage.jsx";
+import {UserPage} from "../pages/user/UserPage.jsx";
+import {RegisterUserPage} from "../pages/user/RegisterUserPage.jsx";
 import {AdminRoute} from "../components/auth/AdminRoute.jsx";
 import {Box} from '@mui/material';
-import {RegisterProductPage} from "../pages/RegisterProductPage.jsx";
+import {RegisterProductPage} from "../pages/product/RegisterProductPage.jsx";
+import {SimpleProductTable} from "../components/product/SimpleProductTable.jsx";
 
 export const FruitRoute = () => {
     return (
@@ -56,6 +57,11 @@ export const FruitRoute = () => {
                     <Route path="product/edit/:id" element={
                         <AdminRoute>
                             <RegisterProductPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="product/price-change" element={
+                        <AdminRoute>
+                            <SimpleProductTable/>
                         </AdminRoute>
                     }/>
                 </Routes>

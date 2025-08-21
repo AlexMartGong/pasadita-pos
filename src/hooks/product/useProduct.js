@@ -51,14 +51,6 @@ export const useProduct = () => {
         }
     }, [handleApiError, dispatch]);
 
-    const handleCancel = useCallback(() => {
-        navigate('/products');
-    }, [navigate]);
-
-    const handleProductEdit = useCallback((id) => {
-        navigate(`/product/edit/${id}`);
-    }, [navigate]);
-
     const handleProductToggleStatus = useCallback(async (id, currentStatus) => {
         const newStatus = !currentStatus;
         const confirmMessage = `¿Está seguro de ${newStatus ? 'activar' : 'desactivar'} este producto?`;
@@ -74,6 +66,14 @@ export const useProduct = () => {
         }
 
     }, [dispatch, handleApiError]);
+
+    const handleCancel = useCallback(() => {
+        navigate('/products');
+    }, [navigate]);
+
+    const handleProductEdit = useCallback((id) => {
+        navigate(`/product/edit/${id}`);
+    }, [navigate]);
 
     const categories = [
         {value: 'FRUTAS', label: 'Fruta'},
