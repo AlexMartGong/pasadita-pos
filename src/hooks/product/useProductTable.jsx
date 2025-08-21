@@ -1,5 +1,8 @@
 import {useEffect, useMemo, useState, useCallback} from "react";
-import {Chip} from "@mui/material";
+import {userTableStyles} from "../../styles/js/UserTable.js";
+import {useProduct} from "./useProduct.js";
+import {Box, Chip, IconButton, Tooltip} from "@mui/material";
+import {Edit, ToggleOn, ToggleOff, Password} from "@mui/icons-material";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -20,6 +23,7 @@ const useDebounce = (value, delay) => {
 export const useProductTable = (products) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
+    const {handleProductEdit, handleProductToggleStatus} = useProduct();
 
     const filteredProducts = useMemo(() => {
         if (!products || !debouncedSearchText) return products || [];
@@ -77,8 +81,35 @@ export const useProductTable = (products) => {
                     size="small"
                 />
             ),
-        }
-    ], []);
+        },
+        {
+            field: "actions",
+            headerName: "Acciones",
+            width: 400,
+            sortable: false,
+            filterable: false,
+            renderCell: (params) => (
+                <Box sx={userTableStyles.actionsContainer}>
+                    <Tooltip title="Editar">
+                        <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => handleProductEdit(params.row.id)}>
+                            <Edit/> Editar
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title={params.row.active ? "Desactivar" : "Activar"}>
+                        <IconButton
+                            size="small"
+                            color={params.row.active ? "success" : "default"}
+                            onClick={() => handleProductToggleStatus(params.row.id, params.row.active)}>
+                            {params.row.active ? <ToggleOn/> : <ToggleOff/>} Estado
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            ),
+        },
+    ], [handleProductEdit, handleProductToggleStatus]);
 
     return {
         searchText,

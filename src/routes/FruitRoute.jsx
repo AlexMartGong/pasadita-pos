@@ -53,6 +53,11 @@ export const FruitRoute = () => {
                             <RegisterProductPage/>
                         </AdminRoute>
                     }/>
+                    <Route path="product/edit/:id" element={
+                        <AdminRoute>
+                            <RegisterProductPage/>
+                        </AdminRoute>
+                    }/>
                 </Routes>
             </Box>
         </Box>

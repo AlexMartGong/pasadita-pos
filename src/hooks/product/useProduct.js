@@ -44,9 +44,16 @@ export const useProduct = () => {
         }
     }, [handleApiError, handleGetProducts]);
 
-    const handleCancel = () => {
+    const handleCancel = useCallback(() => {
         navigate('/products');
-    };
+    }, [navigate]);
+
+    const handleProductEdit = useCallback((id) => {
+        navigate(`/product/edit/${id}`);
+    }, [navigate]);
+
+    const handleProductToggleStatus = useCallback(async (id, currentStatus) => {
+    }, [dispatch, handleApiError]);
 
     const categories = [
         {value: 'FRUTAS', label: 'Fruta'},
@@ -68,6 +75,8 @@ export const useProduct = () => {
 
     return {
         initialProductForm,
+        handleProductEdit,
+        handleProductToggleStatus,
         handleCancel,
         categories,
         unitMeasures,
