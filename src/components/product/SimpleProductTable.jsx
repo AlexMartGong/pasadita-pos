@@ -13,8 +13,14 @@ import {
     Typography,
     IconButton
 } from "@mui/material";
-import {Edit as EditIcon, Save as SaveIcon, Cancel as CancelIcon, ArrowBack as ArrowBackIcon} from "@mui/icons-material";
-import {useState, useEffect} from "react";
+import {
+    Edit as EditIcon,
+    Save as SaveIcon,
+    Cancel as CancelIcon,
+    ArrowBack as ArrowBackIcon,
+    Search as SearchIcon
+} from "@mui/icons-material";
+import {useState, useEffect, useMemo} from "react";
 import {useProduct} from "../../hooks/product/useProduct.js";
 import {toast} from "react-toastify";
 
@@ -24,6 +30,17 @@ export const SimpleProductTable = () => {
     const [selectedProducts, setSelectedProducts] = useState(new Set());
     const [priceChanges, setPriceChanges] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [nameFilter, setNameFilter] = useState('');
+
+    // Filter products by name
+    const filteredProducts = useMemo(() => {
+        if (!nameFilter.trim()) {
+            return products;
+        }
+        return products.filter(product =>
+            product.name.toLowerCase().includes(nameFilter.toLowerCase())
+        );
+    }, [products, nameFilter]);
 
     useEffect(() => {
         handleGetProducts();
@@ -40,10 +57,10 @@ export const SimpleProductTable = () => {
     };
 
     const handleSelectAll = () => {
-        if (selectedProducts.size === products.length) {
+        if (selectedProducts.size === filteredProducts.length) {
             setSelectedProducts(new Set());
         } else {
-            setSelectedProducts(new Set(products.map(p => p.id)));
+            setSelectedProducts(new Set(filteredProducts.map(p => p.id)));
         }
     };
 
@@ -150,12 +167,12 @@ export const SimpleProductTable = () => {
     return (
         <Box sx={{width: '100%'}}>
             {/* Back button */}
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{mb: 2}}>
                 <Button
                     variant="outlined"
-                    startIcon={<ArrowBackIcon />}
+                    startIcon={<ArrowBackIcon/>}
                     onClick={handleCancel}
-                    sx={{ mb: 1 }}
+                    sx={{mb: 1}}
                 >
                     Regresar a Productos
                 </Button>
@@ -164,6 +181,23 @@ export const SimpleProductTable = () => {
             <Typography variant="h6" sx={{mb: 2}}>
                 Modificación de Precios
             </Typography>
+
+            {/* Search bar */}
+            <Box sx={{mb: 2}}>
+                <TextField
+                    variant="outlined"
+                    size="small"
+                    placeholder="Buscar por nombre"
+                    value={nameFilter}
+                    onChange={(e) => setNameFilter(e.target.value)}
+                    InputProps={{
+                        startAdornment: (
+                            <SearchIcon/>
+                        ),
+                    }}
+                    sx={{width: 300}}
+                />
+            </Box>
 
             {/* Bulk actions */}
             <Box sx={{mb: 2, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center'}}>
@@ -213,8 +247,8 @@ export const SimpleProductTable = () => {
                         <TableRow>
                             <TableCell padding="checkbox">
                                 <Checkbox
-                                    indeterminate={selectedProducts.size > 0 && selectedProducts.size < products.length}
-                                    checked={products.length > 0 && selectedProducts.size === products.length}
+                                    indeterminate={selectedProducts.size > 0 && selectedProducts.size < filteredProducts.length}
+                                    checked={filteredProducts.length > 0 && selectedProducts.size === filteredProducts.length}
                                     onChange={handleSelectAll}
                                 />
                             </TableCell>
@@ -226,7 +260,7 @@ export const SimpleProductTable = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {products.map((product) => (
+                        {filteredProducts.map((product) => (
                             <TableRow
                                 key={product.id}
                                 sx={{'&:last-child td, &:last-child th': {border: 0}}}
