@@ -115,49 +115,6 @@ export const SimpleProductTable = () => {
         }
     };
 
-    const handleBulkPriceUpdate = async () => {
-        if (selectedProducts.size === 0) {
-            toast.error('Selecciona al menos un producto');
-            return;
-        }
-
-        setIsLoading(true);
-        let successCount = 0;
-
-        for (const productId of selectedProducts) {
-            const newPrice = priceChanges[productId];
-
-            if (newPrice && newPrice > 0) {
-                const success = await handleUpdatePriceProduct(productId, newPrice);
-                if (success) {
-                    successCount++;
-                }
-            }
-        }
-
-        setIsLoading(false);
-
-        if (successCount > 0) {
-            toast.success(`${successCount} precios actualizados exitosamente`);
-            setSelectedProducts(new Set());
-            setEditingProducts(new Set());
-            setPriceChanges({});
-        }
-    };
-
-    const applyBulkPriceChange = (percentage) => {
-        const newPriceChanges = {...priceChanges};
-
-        selectedProducts.forEach(productId => {
-            const product = products.find(p => p.id === productId);
-            const newPrice = product.price * (1 + percentage / 100);
-            newPriceChanges[productId] = Math.round(newPrice * 100) / 100; // Round to 2 decimals
-        });
-
-        setPriceChanges(newPriceChanges);
-        setEditingProducts(new Set(selectedProducts));
-    };
-
     // Check if there are unsaved changes
     const hasUnsavedChanges = useMemo(() => {
         return Object.keys(priceChanges).some(productId => {
@@ -275,41 +232,6 @@ export const SimpleProductTable = () => {
                     <Typography variant="body2" color="warning.main">
                         {modifiedProductsCount} cambios sin guardar
                     </Typography>
-                )}
-
-                {selectedProducts.size > 0 && (
-                    <>
-                        <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={() => applyBulkPriceChange(10)}
-                        >
-                            +10%
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={() => applyBulkPriceChange(-10)}
-                        >
-                            -10%
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={() => applyBulkPriceChange(20)}
-                        >
-                            +20%
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            onClick={handleBulkPriceUpdate}
-                            disabled={isLoading}
-                        >
-                            Guardar Cambios
-                        </Button>
-                    </>
                 )}
 
                 {/* Auto-save button when 2+ modifications */}

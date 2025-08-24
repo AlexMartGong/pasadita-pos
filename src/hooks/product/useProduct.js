@@ -77,7 +77,6 @@ export const useProduct = () => {
         try {
             const result = await updateProductPrice(id, newPrice);
             if (result.status === 200) {
-                toast.success('Precio actualizado exitosamente.');
                 dispatch(onChangePriceProduct({id, price: newPrice}));
                 return true;
             } else {
