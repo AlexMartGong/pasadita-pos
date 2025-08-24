@@ -39,6 +39,14 @@ export const updateProduct = async ({id, name, category, price, unitMeasure, act
     }
 };
 
+export const updateProductPrice = async (id, price) => {
+    try {
+        return await productApi.put(`/update-price/${id}`, {price});
+    } catch (error) {
+        console.error('Error updating product price:', error);
+    }
+};
+
 export const changeStatusProduct = async (id, statusData) => {
     try {
         return await productApi.put(`/change-status/${id}`, statusData);
@@ -51,6 +59,8 @@ const productService = {
     getProducts,
     createProduct,
     updateProduct,
+    updateProductPrice,
+    changeStatusProduct,
 };
 
 export default productService;

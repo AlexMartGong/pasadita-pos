@@ -25,7 +25,7 @@ import {useProduct} from "../../hooks/product/useProduct.js";
 import {toast} from "react-toastify";
 
 export const SimpleProductTable = () => {
-    const {products, handleGetProducts, handleSaveProduct, handleCancel} = useProduct();
+    const {products, handleGetProducts, handleUpdatePriceProduct, handleCancel} = useProduct();
     const [editingProducts, setEditingProducts] = useState(new Set());
     const [selectedProducts, setSelectedProducts] = useState(new Set());
     const [priceChanges, setPriceChanges] = useState({});
@@ -96,7 +96,6 @@ export const SimpleProductTable = () => {
     };
 
     const handleSaveSinglePrice = async (productId) => {
-        const product = products.find(p => p.id === productId);
         const newPrice = priceChanges[productId];
 
         if (newPrice <= 0) {
@@ -104,12 +103,7 @@ export const SimpleProductTable = () => {
             return;
         }
 
-        const updatedProduct = {
-            ...product,
-            price: newPrice
-        };
-
-        const success = await handleSaveProduct(updatedProduct);
+        const success = await handleUpdatePriceProduct(productId, newPrice);
         if (success) {
             handleCancelEdit(productId);
         }
@@ -125,16 +119,10 @@ export const SimpleProductTable = () => {
         let successCount = 0;
 
         for (const productId of selectedProducts) {
-            const product = products.find(p => p.id === productId);
             const newPrice = priceChanges[productId];
 
             if (newPrice && newPrice > 0) {
-                const updatedProduct = {
-                    ...product,
-                    price: newPrice
-                };
-
-                const success = await handleSaveProduct(updatedProduct);
+                const success = await handleUpdatePriceProduct(productId, newPrice);
                 if (success) {
                     successCount++;
                 }

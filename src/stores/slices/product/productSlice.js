@@ -40,6 +40,12 @@ export const productSlice = createSlice({
                     active: action.payload.active,
                 } : product;
             });
+        },
+        onChangePriceProduct: (state, action) => {
+            const index = state.products.findIndex(product => product.id === action.payload.id);
+            if (index !== -1) {
+                state.products[index].price = action.payload.price;
+            }
         }
     }
 });
@@ -49,4 +55,5 @@ export const {
     onCreateProduct,
     onUpdateProduct,
     onChangeStatusProduct,
+    onChangePriceProduct,
 } = productSlice.actions;

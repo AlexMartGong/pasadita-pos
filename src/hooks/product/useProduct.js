@@ -1,14 +1,20 @@
 import {useDispatch, useSelector} from "react-redux";
 import {useCallback} from "react";
 import {
-    initialProductForm, onChangeStatusProduct,
+    initialProductForm, onChangePriceProduct, onChangeStatusProduct,
     onCreateProduct,
     onUpdateProduct,
     setProducts
 } from "../../stores/slices/product/productSlice.js";
 import {toast} from "react-toastify";
 import {useApiErrorHandler} from "../useApiErrorHandler.js";
-import {getProducts, createProduct, updateProduct, changeStatusProduct} from "../../services/productService.js";
+import {
+    getProducts,
+    createProduct,
+    updateProduct,
+    changeStatusProduct,
+    updateProductPrice
+} from "../../services/productService.js";
 import {useNavigate} from "react-router-dom";
 
 export const useProduct = () => {
@@ -67,6 +73,24 @@ export const useProduct = () => {
 
     }, [dispatch, handleApiError]);
 
+    const handleUpdatePriceProduct = useCallback(async (id, newPrice) => {
+        try {
+            const result = await updateProductPrice(id, newPrice);
+            if (result.status === 200) {
+                toast.success('Precio actualizado exitosamente.');
+                dispatch(onChangePriceProduct({id, price: newPrice}));
+                return true;
+            } else {
+                toast.error('Error al actualizar el precio.');
+                return false;
+            }
+        } catch (error) {
+            handleApiError(error);
+            console.log(error);
+            return false;
+        }
+    }, [dispatch, handleApiError]);
+
     const handleCancel = useCallback(() => {
         navigate('/products');
     }, [navigate]);
@@ -95,14 +119,15 @@ export const useProduct = () => {
 
     return {
         initialProductForm,
+        handleGetProducts,
+        handleSaveProduct,
         handleProductEdit,
         handleProductToggleStatus,
+        handleUpdatePriceProduct,
         handleCancel,
         categories,
         unitMeasures,
         products,
-        handleGetProducts,
-        handleSaveProduct,
     }
 
 }
