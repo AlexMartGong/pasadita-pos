@@ -11,7 +11,12 @@ import {
     Button,
     Checkbox,
     Typography,
-    IconButton
+    IconButton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions
 } from "@mui/material";
 import {
     Edit as EditIcon,
@@ -31,6 +36,7 @@ export const SimpleProductTable = () => {
     const [priceChanges, setPriceChanges] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [nameFilter, setNameFilter] = useState('');
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
     // Filter products by name
     const filteredProducts = useMemo(() => {
@@ -152,6 +158,78 @@ export const SimpleProductTable = () => {
         setEditingProducts(new Set(selectedProducts));
     };
 
+    // Check if there are unsaved changes
+    const hasUnsavedChanges = useMemo(() => {
+        return Object.keys(priceChanges).some(productId => {
+            const product = products.find(p => p.id === parseInt(productId));
+            return product && priceChanges[productId] !== product.price;
+        });
+    }, [priceChanges, products]);
+
+    // Count modified products
+    const modifiedProductsCount = useMemo(() => {
+        return Object.keys(priceChanges).filter(productId => {
+            const product = products.find(p => p.id === parseInt(productId));
+            return product && priceChanges[productId] !== product.price && priceChanges[productId] > 0;
+        }).length;
+    }, [priceChanges, products]);
+
+    // Auto-enable save button when more than 2 modifications
+    const shouldShowSaveButton = modifiedProductsCount >= 2;
+
+    const handleBackClick = () => {
+        if (hasUnsavedChanges) {
+            setShowConfirmDialog(true);
+        } else {
+            handleCancel();
+        }
+    };
+
+    const handleConfirmBack = () => {
+        setShowConfirmDialog(false);
+        handleCancel();
+    };
+
+    const handleCancelBack = () => {
+        setShowConfirmDialog(false);
+    };
+
+    const handleAutoSaveChanges = async () => {
+        const modifiedProducts = Object.keys(priceChanges).filter(productId => {
+            const product = products.find(p => p.id === parseInt(productId));
+            return product && priceChanges[productId] !== product.price && priceChanges[productId] > 0;
+        });
+
+        if (modifiedProducts.length === 0) {
+            toast.error('No hay cambios válidos para guardar');
+            return;
+        }
+
+        setIsLoading(true);
+        let successCount = 0;
+
+        for (const productId of modifiedProducts) {
+            const newPrice = priceChanges[productId];
+            const success = await handleUpdatePriceProduct(parseInt(productId), newPrice);
+            if (success) {
+                successCount++;
+            }
+        }
+
+        setIsLoading(false);
+
+        if (successCount > 0) {
+            toast.success(`${successCount} precios actualizados exitosamente`);
+            // Clear the changes after successful save
+            const clearedChanges = {...priceChanges};
+            modifiedProducts.forEach(productId => {
+                delete clearedChanges[productId];
+            });
+            setPriceChanges(clearedChanges);
+            setEditingProducts(new Set());
+        }
+    };
+
     return (
         <Box sx={{width: '100%'}}>
             {/* Back button */}
@@ -159,7 +237,7 @@ export const SimpleProductTable = () => {
                 <Button
                     variant="outlined"
                     startIcon={<ArrowBackIcon/>}
-                    onClick={handleCancel}
+                    onClick={handleBackClick}
                     sx={{mb: 1}}
                 >
                     Regresar a Productos
@@ -192,6 +270,12 @@ export const SimpleProductTable = () => {
                 <Typography variant="body2">
                     {selectedProducts.size} productos seleccionados
                 </Typography>
+
+                {hasUnsavedChanges && (
+                    <Typography variant="body2" color="warning.main">
+                        {modifiedProductsCount} cambios sin guardar
+                    </Typography>
+                )}
 
                 {selectedProducts.size > 0 && (
                     <>
@@ -226,6 +310,20 @@ export const SimpleProductTable = () => {
                             Guardar Cambios
                         </Button>
                     </>
+                )}
+
+                {/* Auto-save button when 2+ modifications */}
+                {shouldShowSaveButton && (
+                    <Button
+                        variant="contained"
+                        color="success"
+                        size="small"
+                        onClick={handleAutoSaveChanges}
+                        disabled={isLoading}
+                        sx={{ml: 'auto'}}
+                    >
+                        Guardar Todos los Cambios ({modifiedProductsCount})
+                    </Button>
                 )}
             </Box>
 
@@ -313,6 +411,32 @@ export const SimpleProductTable = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            {/* Confirmation Dialog */}
+            <Dialog
+                open={showConfirmDialog}
+                onClose={handleCancelBack}
+                aria-labelledby="confirm-dialog-title"
+                aria-describedby="confirm-dialog-description"
+            >
+                <DialogTitle id="confirm-dialog-title">
+                    Cambios sin guardar
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="confirm-dialog-description">
+                        Tienes {modifiedProductsCount} cambios sin guardar. ¿Estás seguro de que quieres salir sin
+                        guardar los cambios?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancelBack} color="primary">
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleConfirmBack} color="error" autoFocus>
+                        Salir sin guardar
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }
