@@ -52,6 +52,7 @@ export const changeStatusProduct = async (id, statusData) => {
         return await productApi.put(`/change-status/${id}`, statusData);
     } catch (error) {
         console.error('Error changing status:', error);
+        throw error;
     }
 };
 
