@@ -79,10 +79,10 @@ export const SimpleProductTable = () => {
                     placeholder="Buscar por nombre"
                     value={nameFilter}
                     onChange={(e) => setNameFilter(e.target.value)}
-                    InputProps={{
-                        startAdornment: (
-                            <SearchIcon/>
-                        ),
+                    slotProps={{
+                        input: {
+                            startAdornment: <SearchIcon/>
+                        }
                     }}
                     sx={{width: 300}}
                 />
@@ -157,7 +157,10 @@ export const SimpleProductTable = () => {
                                             size="small"
                                             value={priceChanges[product.id] || ''}
                                             onChange={(e) => handlePriceChange(product.id, e.target.value)}
-                                            inputProps={{step: "0.01", min: "0"}}
+                                            inputMode="decimal"
+                                            slotProps={{
+                                                htmlInput: {min: 0}
+                                            }}
                                             sx={{width: 100}}
                                         />
                                     ) : (
