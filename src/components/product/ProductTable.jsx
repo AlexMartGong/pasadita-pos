@@ -1,16 +1,16 @@
+import {useProduct} from "../../hooks/product/useProduct.js";
 import {useEffect} from "react";
+import {useProductTable} from "../../hooks/product/useProductTable.jsx";
+import {Box, Paper, TextField} from "@mui/material";
 import {DataGrid} from "@mui/x-data-grid";
-import {TextField, Box, Paper} from "@mui/material";
-import {useUser} from "../../hooks/user/useUser.js";
-import {useUserTable} from "../../hooks/user/useUserTable.jsx";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 
-export const UserTable = () => {
-    const {users, getAllUsers} = useUser();
-    const {searchText, setSearchText, filteredUsers, columns} = useUserTable(users);
+export const ProductTable = () => {
+    const {products, handleGetProducts} = useProduct();
+    const {searchText, setSearchText, filteredProducts, columns} = useProductTable(products);
 
     useEffect(() => {
-        getAllUsers();
+        handleGetProducts();
     }, []);
 
     return (
@@ -18,7 +18,7 @@ export const UserTable = () => {
             <Box sx={userTableStyles.searchContainer}>
                 <TextField
                     fullWidth
-                    label="Buscar usuarios..."
+                    label="Buscar productos..."
                     variant="outlined"
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
@@ -26,7 +26,7 @@ export const UserTable = () => {
             </Box>
             <Box sx={userTableStyles.tableContainer}>
                 <DataGrid
-                    rows={filteredUsers}
+                    rows={filteredProducts}
                     columns={columns}
                     initialState={{
                         pagination: {
@@ -35,7 +35,7 @@ export const UserTable = () => {
                     }}
                     pageSizeOptions={[5, 10, 25, 50]}
                     disableRowSelectionOnClick
-                    loading={!users}
+                    loading={!products}
                     sx={userTableStyles.dataGrid}
                 />
             </Box>

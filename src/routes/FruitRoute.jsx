@@ -1,19 +1,29 @@
 import {Route, Routes} from "react-router-dom";
 import {DashboardPage} from "../pages/DashboardPage.jsx";
 import {Sidebar} from "../components/layout/Sidebar.jsx";
-import {ProductPage} from "../pages/ProductPage.jsx";
-import {UserPage} from "../pages/UserPage.jsx";
-import {RegisterUserPage} from "../pages/RegisterUserPage.jsx";
+import {ProductPage} from "../pages/product/ProductPage.jsx";
+import {UserPage} from "../pages/user/UserPage.jsx";
+import {RegisterUserPage} from "../pages/user/RegisterUserPage.jsx";
 import {AdminRoute} from "../components/auth/AdminRoute.jsx";
+import {Box} from '@mui/material';
+import {RegisterProductPage} from "../pages/product/RegisterProductPage.jsx";
+import {SimpleProductTable} from "../components/product/SimpleProductTable.jsx";
 
 export const FruitRoute = () => {
     return (
-        <>
+        <Box sx={{display: 'flex'}}>
             <Sidebar/>
-            <main style={{marginLeft: '250px', padding: '20px'}}>
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    p: 3,
+                    backgroundColor: '#f5f5f5',
+                    minHeight: '100vh'
+                }}
+            >
                 <Routes>
                     <Route path="dashboard" element={<DashboardPage/>}/>
-                    <Route path="products" element={<ProductPage/>}/>
                     <Route path="users" element={
                         <AdminRoute>
                             <UserPage/>
@@ -34,8 +44,28 @@ export const FruitRoute = () => {
                             <RegisterUserPage/>
                         </AdminRoute>
                     }/>
+                    <Route path="products" element={
+                        <AdminRoute>
+                            <ProductPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="product/register" element={
+                        <AdminRoute>
+                            <RegisterProductPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="product/edit/:id" element={
+                        <AdminRoute>
+                            <RegisterProductPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="product/price-change" element={
+                        <AdminRoute>
+                            <SimpleProductTable/>
+                        </AdminRoute>
+                    }/>
                 </Routes>
-            </main>
-        </>
+            </Box>
+        </Box>
     );
 }

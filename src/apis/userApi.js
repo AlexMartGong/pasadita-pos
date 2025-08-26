@@ -23,7 +23,6 @@ userApi.interceptors.response.use(
         return response;
     },
     error => {
-        console.log('API Error:', error);
         return Promise.reject(error);
     }
 );

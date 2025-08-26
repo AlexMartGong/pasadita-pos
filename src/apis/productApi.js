@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const productApi = axios.create({
-    baseURL: `${import.meta.env.VITE_API_BASE_URL}/products`,
+    baseURL: `${import.meta.env.VITE_API_BASE_URL}/api/products`,
     timeout: 10000,
 });
 
@@ -25,4 +25,6 @@ productApi.interceptors.response.use(
     error => {
         return Promise.reject(error);
     }
-)
+);
+
+export {productApi};
