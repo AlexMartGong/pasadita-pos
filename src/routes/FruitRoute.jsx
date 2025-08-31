@@ -9,6 +9,7 @@ import {Box} from '@mui/material';
 import {RegisterProductPage} from "../pages/product/RegisterProductPage.jsx";
 import {SimpleProductTable} from "../components/product/SimpleProductTable.jsx";
 import {CustomerPage} from "../pages/customer/CustomerPage.jsx";
+import {RegisterCustomerPage} from "../pages/customer/RegisterCustomerPage.jsx";
 
 export const FruitRoute = () => {
     return (
@@ -68,6 +69,16 @@ export const FruitRoute = () => {
                     <Route path="customers" element={
                         <AdminRoute>
                             <CustomerPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="customer/register" element={
+                        <AdminRoute>
+                            <RegisterCustomerPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="customer/edit/:id" element={
+                        <AdminRoute>
+                            <RegisterCustomerPage/>
                         </AdminRoute>
                     }/>
                 </Routes>
