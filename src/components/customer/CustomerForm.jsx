@@ -195,6 +195,9 @@ export const CustomerForm = ({customerSelected}) => {
                                             id="name"
                                             value={formData.name}
                                             onChange={handleInputChange('name')}
+                                            onKeyDown={(e) => {
+                                                if (!/[a-zA-Z\s]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
+                                            }}
                                             required
                                         />
                                         {errors.name && (
@@ -237,6 +240,7 @@ export const CustomerForm = ({customerSelected}) => {
                                             type="tel"
                                             className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
                                             id="phone"
+                                            maxLength="10"
                                             value={formData.phone}
                                             onChange={handleInputChange('phone')}
                                             onKeyDown={(e) => {
@@ -253,7 +257,7 @@ export const CustomerForm = ({customerSelected}) => {
 
                                     <div className="col-md-6">
                                         <label htmlFor="customDiscount" className="form-label">
-                                            Descuento Personalizado (%) <span className="text-danger">*</span>
+                                            Descuento Personalizado<span className="text-danger">*</span>
                                         </label>
                                         <input
                                             type="number"
@@ -263,7 +267,6 @@ export const CustomerForm = ({customerSelected}) => {
                                             onChange={handleInputChange('customDiscount')}
                                             step="0.01"
                                             min="0"
-                                            max="100"
                                             required
                                         />
                                         {errors.customDiscount && (
@@ -283,6 +286,9 @@ export const CustomerForm = ({customerSelected}) => {
                                             id="address"
                                             value={formData.address}
                                             onChange={handleInputChange('address')}
+                                            onKeyDown={(e) => {
+                                                if (!/[a-zA-Z\s0-9\\#.,\-']/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
+                                            }}
                                             required
                                         />
                                         {errors.address && (
@@ -324,6 +330,10 @@ export const CustomerForm = ({customerSelected}) => {
                                             id="postalCode"
                                             value={formData.postalCode}
                                             onChange={handleInputChange('postalCode')}
+                                            onKeyDown={(e) => {
+                                                if (!/[0-9\s-]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
+                                            }}
+                                            maxLength="10"
                                             required
                                         />
                                         {errors.postalCode && (
@@ -343,6 +353,9 @@ export const CustomerForm = ({customerSelected}) => {
                                             rows="3"
                                             value={formData.notes}
                                             onChange={handleInputChange('notes')}
+                                            onKeyDown={(e) => {
+                                                if (!/[a-zA-Z0-9\s.,\-']/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
+                                            }}
                                             required
                                         />
                                         {errors.notes && (
