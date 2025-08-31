@@ -8,6 +8,7 @@ import {AdminRoute} from "../components/auth/AdminRoute.jsx";
 import {Box} from '@mui/material';
 import {RegisterProductPage} from "../pages/product/RegisterProductPage.jsx";
 import {SimpleProductTable} from "../components/product/SimpleProductTable.jsx";
+import {CustomerPage} from "../pages/customer/CustomerPage.jsx";
 
 export const FruitRoute = () => {
     return (
@@ -62,6 +63,11 @@ export const FruitRoute = () => {
                     <Route path="product/price-change" element={
                         <AdminRoute>
                             <SimpleProductTable/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="customers" element={
+                        <AdminRoute>
+                            <CustomerPage/>
                         </AdminRoute>
                     }/>
                 </Routes>

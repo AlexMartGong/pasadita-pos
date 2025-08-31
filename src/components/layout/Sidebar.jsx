@@ -41,6 +41,7 @@ export const Sidebar = () => {
         {path: '/dashboard', icon: 'bi-speedometer2', label: 'Dashboard'},
         {path: '/products', icon: 'bi-box-seam', label: 'Products'},
         ...(isAdmin ? [{path: '/users', icon: 'bi bi-people', label: 'Users'}] : []),
+        {path: '/customers', icon: 'bi-people', label: 'Customers'},
         {path: '/settings', icon: 'bi-gear', label: 'Settings'}
     ];
 
