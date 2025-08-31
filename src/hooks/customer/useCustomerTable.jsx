@@ -32,9 +32,10 @@ export const useCustomerTable = (customers) => {
         return customers.filter((customer) => {
             return (
                 customer.name?.toLowerCase().includes(searchLower) ||
-                customer.email?.toLowerCase().includes(searchLower) ||
-                customer.document?.toLowerCase().includes(searchLower) ||
-                customer.phone?.toLowerCase().includes(searchLower)
+                customer.phone?.toLowerCase().includes(searchLower) ||
+                customer.address?.toLowerCase().includes(searchLower) ||
+                customer.city?.toLowerCase().includes(searchLower) ||
+                customer.customerTypeName?.toLowerCase().includes(searchLower)
             );
         });
     }, [customers, debouncedSearchText]);
@@ -47,24 +48,12 @@ export const useCustomerTable = (customers) => {
         {
             field: "id",
             headerName: "ID",
-            width: 90,
+            width: 70,
         },
         {
             field: "name",
             headerName: "Nombre",
-            width: 200,
-            sortable: true,
-        },
-        {
-            field: "document",
-            headerName: "Documento",
-            width: 120,
-            sortable: true,
-        },
-        {
-            field: "email",
-            headerName: "Email",
-            width: 220,
+            width: 180,
             sortable: true,
         },
         {
@@ -73,11 +62,29 @@ export const useCustomerTable = (customers) => {
             width: 130,
         },
         {
-            field: "customerType",
-            headerName: "Tipo",
+            field: "address",
+            headerName: "Dirección",
+            width: 200,
+            sortable: true,
+        },
+        {
+            field: "city",
+            headerName: "Ciudad",
             width: 120,
+            sortable: true,
+        },
+        {
+            field: "customerTypeName",
+            headerName: "Tipo Cliente",
+            width: 140,
+            sortable: true,
+        },
+        {
+            field: "customDiscount",
+            headerName: "Descuento",
+            width: 100,
             renderCell: (params) => (
-                <span>{params.row.customerType?.name || 'N/A'}</span>
+                <span>{params.row.customDiscount ? `${params.row.customDiscount}` : 'N/A'}</span>
             ),
         },
         {

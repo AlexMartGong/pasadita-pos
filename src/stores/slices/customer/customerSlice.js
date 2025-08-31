@@ -2,11 +2,15 @@ import {createSlice} from "@reduxjs/toolkit";
 
 export const initialCustomerForm = {
     id: 0,
+    customerTypeId: null,
+    customerTypeName: '',
     name: '',
-    email: '',
     phone: '',
     address: '',
-    customerType: null,
+    city: '',
+    postalCode: '',
+    customDiscount: 0,
+    notes: '',
     active: true,
 }
 

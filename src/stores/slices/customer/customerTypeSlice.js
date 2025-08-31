@@ -4,7 +4,7 @@ export const initialCustomerTypeForm = {
     id: 0,
     name: '',
     description: '',
-    active: true,
+    discount: 0,
 }
 
 export const customerTypeSlice = createSlice({
