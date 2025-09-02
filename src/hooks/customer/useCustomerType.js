@@ -1,81 +1,61 @@
 import {useDispatch, useSelector} from "react-redux";
-import {useCallback} from "react";
+import {useApiErrorHandler} from "../useApiErrorHandler.js";
+import {useNavigate} from "react-router-dom";
+import {customerTypeService} from "../../services/customerTypeService.js";
 import {
-    initialCustomerTypeForm,
     onCreateCustomerType,
     onUpdateCustomerType,
+    resetCustomerTypeSelected,
     setCustomerTypes,
-    setCustomerTypeSelected,
-    resetCustomerTypeSelected
+    setCustomerTypeSelected
 } from "../../stores/slices/customer/customerTypeSlice.js";
-import {toast} from "react-toastify";
-import {useApiErrorHandler} from "../useApiErrorHandler.js";
-import {customerTypeService} from "../../services/customerTypeService.js";
-import {useNavigate} from "react-router-dom";
 
 export const useCustomerType = () => {
     const {customerTypes, customerTypeSelected} = useSelector(state => state.customerType);
-    const {handleApiError} = useApiErrorHandler();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const {handleApiError} = useApiErrorHandler();
 
-    const handleGetCustomerTypes = useCallback(async () => {
+    const handleGetCustomerTypes = async () => {
         try {
-            const result = await customerTypeService.getAllCustomerTypes();
-            dispatch(setCustomerTypes(result));
+            const response = await customerTypeService.getAllCustomerTypes();
+            dispatch(setCustomerTypes(response));
         } catch (error) {
-            console.error('Error fetching all customer types:', error);
             handleApiError(error);
-            toast.error('Error al encontrar tipos de cliente.');
         }
-    }, [dispatch, handleApiError]);
+    };
 
-    const handleSaveCustomerType = useCallback(async (customerTypeData) => {
-        let result;
+    const handleCustomerTypeFormSubmit = async (customerTypeData) => {
         try {
+            let response;
             if (customerTypeData.id === 0) {
-                result = await customerTypeService.saveCustomerType(customerTypeData);
-                dispatch(onCreateCustomerType(result));
-                toast.success('Tipo de cliente creado exitosamente.');
+                response = await customerTypeService.saveCustomerType(customerTypeData);
+                dispatch(onCreateCustomerType(response));
             } else {
-                result = await customerTypeService.updateCustomerType(customerTypeData);
-                dispatch(onUpdateCustomerType(result));
-                toast.success('Tipo de cliente actualizado exitosamente.');
+                response = await customerTypeService.updateCustomerType(customerTypeData);
+                dispatch(onUpdateCustomerType(response));
             }
-            return true;
+            navigate("/customer-types");
         } catch (error) {
-            console.error('Error saving customer type:', error);
             handleApiError(error);
-            toast.error('Error al guardar el tipo de cliente.');
-            return false;
         }
-    }, [handleApiError, dispatch]);
+    };
 
-    const handleSelectCustomerType = useCallback((customerType) => {
+    const handleCustomerTypeEdit = (customerType) => {
         dispatch(setCustomerTypeSelected(customerType));
-    }, [dispatch]);
+        navigate(`/customer-type/edit/${customerType.id}`);
+    };
 
-    const handleResetCustomerTypeSelection = useCallback(() => {
+    const handleCustomerTypeReset = () => {
         dispatch(resetCustomerTypeSelected());
-    }, [dispatch]);
-
-    const handleCancel = useCallback(() => {
-        navigate('/customer-types');
-    }, [navigate]);
-
-    const handleCustomerTypeEdit = useCallback((id) => {
-        navigate(`/customer-type/edit/${id}`);
-    }, [navigate]);
+    };
 
     return {
-        initialCustomerTypeForm,
         customerTypes,
         customerTypeSelected,
         handleGetCustomerTypes,
-        handleSaveCustomerType,
+        handleCustomerTypeFormSubmit,
         handleCustomerTypeEdit,
-        handleSelectCustomerType,
-        handleResetCustomerTypeSelection,
-        handleCancel,
-    }
-}
+        handleCustomerTypeReset
+    };
+};

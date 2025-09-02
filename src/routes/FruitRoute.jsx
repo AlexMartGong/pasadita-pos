@@ -10,6 +10,8 @@ import {RegisterProductPage} from "../pages/product/RegisterProductPage.jsx";
 import {SimpleProductTable} from "../components/product/SimpleProductTable.jsx";
 import {CustomerPage} from "../pages/customer/CustomerPage.jsx";
 import {RegisterCustomerPage} from "../pages/customer/RegisterCustomerPage.jsx";
+import {CustomerTypePage} from "../pages/customer/CustomerTypePage.jsx";
+import {RegisterCustomerTypePage} from "../pages/customer/RegisterCustomerTypePage.jsx";
 
 export const FruitRoute = () => {
     return (
@@ -79,6 +81,21 @@ export const FruitRoute = () => {
                     <Route path="customer/edit/:id" element={
                         <AdminRoute>
                             <RegisterCustomerPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="customer-types" element={
+                        <AdminRoute>
+                            <CustomerTypePage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="customer-type/register" element={
+                        <AdminRoute>
+                            <RegisterCustomerTypePage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="customer-type/edit/:id" element={
+                        <AdminRoute>
+                            <RegisterCustomerTypePage/>
                         </AdminRoute>
                     }/>
                 </Routes>

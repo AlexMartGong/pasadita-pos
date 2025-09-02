@@ -84,7 +84,12 @@ export const useCustomerTable = (customers) => {
             headerName: "Descuento",
             width: 100,
             renderCell: (params) => (
-                <span>{params.row.customDiscount ? `${params.row.customDiscount}` : 'N/A'}</span>
+                <Chip
+                    label={`$ ${params.value}`}
+                    color="info"
+                    variant="outlined"
+                    size="small"
+                />
             ),
         },
         {

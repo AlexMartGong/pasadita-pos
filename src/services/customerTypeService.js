@@ -1,7 +1,6 @@
 import {customerTypeApi} from "../apis/customerTypeApi.js";
 
 class CustomerTypeService {
-    // Get all customer types
     async getAllCustomerTypes() {
         try {
             const response = await customerTypeApi.get("/all");
@@ -12,7 +11,6 @@ class CustomerTypeService {
         }
     }
 
-    // Save a new customer type
     async saveCustomerType(customerTypeData) {
         try {
             const response = await customerTypeApi.post("/save", customerTypeData);
@@ -23,7 +21,6 @@ class CustomerTypeService {
         }
     }
 
-    // Update customer type
     async updateCustomerType(customerTypeData) {
         try {
             const response = await customerTypeApi.put("/update", customerTypeData);

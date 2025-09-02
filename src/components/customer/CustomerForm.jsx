@@ -92,8 +92,8 @@ export const CustomerForm = ({customerSelected}) => {
             const discount = parseFloat(formData.customDiscount);
             if (isNaN(discount) || discount < 0) {
                 newErrors.customDiscount = 'El descuento debe ser un valor positivo';
-            } else if (discount > 100) {
-                newErrors.customDiscount = 'El descuento no puede ser mayor a 100%';
+            } else if (discount > 15) {
+                newErrors.customDiscount = 'El descuento no puede ser mayor a $ 15';
             }
         }
 
@@ -124,13 +124,6 @@ export const CustomerForm = ({customerSelected}) => {
                 [field]: ''
             }));
         }
-    };
-
-    const handleSwitchChange = (event) => {
-        setFormData(prev => ({
-            ...prev,
-            active: event.target.checked
-        }));
     };
 
     const handleSubmit = async (event) => {
@@ -257,7 +250,7 @@ export const CustomerForm = ({customerSelected}) => {
 
                                     <div className="col-md-6">
                                         <label htmlFor="customDiscount" className="form-label">
-                                            Descuento Personalizado<span className="text-danger">*</span>
+                                            Descuento Personalizado ($)<span className="text-danger">*</span>
                                         </label>
                                         <input
                                             type="number"
@@ -265,8 +258,9 @@ export const CustomerForm = ({customerSelected}) => {
                                             id="customDiscount"
                                             value={formData.customDiscount}
                                             onChange={handleInputChange('customDiscount')}
-                                            step="0.01"
+                                            step="1"
                                             min="0"
+                                            max="15"
                                             required
                                         />
                                         {errors.customDiscount && (
@@ -363,21 +357,6 @@ export const CustomerForm = ({customerSelected}) => {
                                                 {errors.notes}
                                             </div>
                                         )}
-                                    </div>
-
-                                    <div className="col-12">
-                                        <div className="form-check form-switch">
-                                            <input
-                                                className="form-check-input"
-                                                type="checkbox"
-                                                id="active"
-                                                checked={formData.active}
-                                                onChange={handleSwitchChange}
-                                            />
-                                            <label className="form-check-label" htmlFor="active">
-                                                Cliente Activo
-                                            </label>
-                                        </div>
                                     </div>
 
                                     <input type="hidden" name="id" value={formData.id}/>
