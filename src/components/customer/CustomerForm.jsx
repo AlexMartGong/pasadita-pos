@@ -27,7 +27,6 @@ export const CustomerForm = ({customerSelected}) => {
                 postalCode: customerSelected.postalCode || '',
                 customDiscount: customerSelected.customDiscount || 0,
                 notes: customerSelected.notes || '',
-                active: customerSelected.active !== undefined ? customerSelected.active : true
             });
         }
     }, [customerSelected]);
