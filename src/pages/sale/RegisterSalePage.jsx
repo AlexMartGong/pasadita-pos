@@ -18,11 +18,5 @@ export const RegisterSalePage = () => {
         }
     }, [id, sales])
 
-    return (
-        <div className="container my-4">
-            <div className="row justify-content-center">
-                <SaleForm saleSelected={saleSelected}/>
-            </div>
-        </div>
-    );
+    return <SaleForm saleSelected={saleSelected}/>;
 };

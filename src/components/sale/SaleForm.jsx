@@ -2,8 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {useSale} from '../../hooks/sale/useSale';
 import {useCustomer} from '../../hooks/customer/useCustomer';
 import {useProduct} from '../../hooks/product/useProduct';
-import {formStyles} from '../../styles/js/FormStyles';
-import {Box, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
+import {
+    Box, Button, Card, CardContent, Grid, IconButton, Paper,
+    Table, TableBody, TableCell, TableContainer, TableHead,
+    TableRow, TextField, Typography, Divider
+} from '@mui/material';
 import {Add, Delete} from '@mui/icons-material';
 import {useSelector} from "react-redux";
 
@@ -17,8 +20,14 @@ export const SaleForm = ({saleSelected}) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState(initialSaleForm);
     const [saleDetails, setSaleDetails] = useState([]);
-    const [selectedProduct, setSelectedProduct] = useState('');
-    const [quantity, setQuantity] = useState(1);
+    const [productSearch, setProductSearch] = useState('');
+    const [selectedProductData, setSelectedProductData] = useState({
+        id: '',
+        name: '',
+        quantity: '',
+        price: '',
+        total: 0
+    });
 
     useEffect(() => {
         handleGetCustomers();
@@ -42,43 +51,64 @@ export const SaleForm = ({saleSelected}) => {
         return details.reduce((sum, detail) => sum + (detail.price * detail.quantity), 0);
     };
 
-    const handleAddProduct = () => {
-        if (!selectedProduct) {
-            setErrors({...errors, product: 'Debe seleccionar un producto'});
+    // Calcular total del producto seleccionado
+    useEffect(() => {
+        const qty = parseFloat(selectedProductData.quantity) || 0;
+        const price = parseFloat(selectedProductData.price) || 0;
+        setSelectedProductData(prev => ({
+            ...prev,
+            total: qty * price
+        }));
+    }, [selectedProductData.quantity, selectedProductData.price]);
+
+    // Manejar selección de producto desde la tabla
+    const handleSelectProduct = (product) => {
+        setSelectedProductData({
+            id: product.id,
+            name: product.name,
+            quantity: product.unitMeasure === 'kg' ? '' : '1',
+            price: product.price,
+            total: product.unitMeasure === 'kg' ? 0 : product.price
+        });
+    };
+
+    // Agregar producto al carrito
+    const handleAddToCart = () => {
+        if (!selectedProductData.id || !selectedProductData.quantity || selectedProductData.quantity <= 0) {
+            setErrors({...errors, cart: 'Complete todos los campos del producto'});
             return;
         }
 
-        if (quantity <= 0) {
-            setErrors({...errors, quantity: 'La cantidad debe ser mayor a 0'});
-            return;
-        }
-
-        const product = products.find(p => p.id === parseInt(selectedProduct));
-        if (!product) return;
-
-        const existingDetail = saleDetails.find(d => d.productId === product.id);
+        const existingDetail = saleDetails.find(d => d.productId === selectedProductData.id);
 
         let newDetails;
         if (existingDetail) {
             newDetails = saleDetails.map(d =>
-                d.productId === product.id
-                    ? {...d, quantity: d.quantity + quantity}
+                d.productId === selectedProductData.id
+                    ? {...d, quantity: parseFloat(d.quantity) + parseFloat(selectedProductData.quantity)}
                     : d
             );
         } else {
             newDetails = [...saleDetails, {
-                productId: product.id,
-                productName: product.name,
-                price: product.price,
-                quantity: quantity
+                productId: selectedProductData.id,
+                productName: selectedProductData.name,
+                price: parseFloat(selectedProductData.price),
+                quantity: parseFloat(selectedProductData.quantity)
             }];
         }
 
         setSaleDetails(newDetails);
         setFormData({...formData, total: calculateTotal(newDetails)});
-        setSelectedProduct('');
-        setQuantity(1);
-        setErrors({...errors, product: '', quantity: ''});
+
+        // Limpiar formulario de producto
+        setSelectedProductData({
+            id: '',
+            name: '',
+            quantity: '',
+            price: '',
+            total: 0
+        });
+        setErrors({...errors, cart: ''});
     };
 
     const handleRemoveProduct = (productId) => {
@@ -116,6 +146,16 @@ export const SaleForm = ({saleSelected}) => {
             }));
         }
     };
+
+    // Filtrar productos por búsqueda
+    const filteredProducts = products.filter(p =>
+        p.active &&
+        (p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+            p.id.toString().includes(productSearch))
+    );
+
+    // Obtener información del cliente seleccionado
+    const selectedCustomer = customers.find(c => c.id === parseInt(formData.customerId));
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -164,203 +204,277 @@ export const SaleForm = ({saleSelected}) => {
     };
 
     return (
-        <div className="container">
-            <div className="row justify-content-center">
-                <div className="col-md-12 col-lg-10">
-                    <div className="card shadow">
-                        <div className="card-header" style={formStyles.cardHeader}>
-                            <h5 className="card-title mb-4 fw-bold">
-                                {isEditMode ? 'Editar Venta' : 'Registrar Nueva Venta'}
-                            </h5>
-                        </div>
-                        <div className="card-body p-4">
-                            <form onSubmit={handleSubmit} noValidate>
-                                <div className="row g-3">
-                                    <div className="col-md-6">
-                                        <label htmlFor="customerId" className="form-label">
-                                            Cliente <span className="text-danger">*</span>
-                                        </label>
-                                        <select
-                                            className={`form-select ${errors.customerId ? 'is-invalid' : ''}`}
-                                            id="customerId"
-                                            value={formData.customerId || ''}
-                                            onChange={handleInputChange('customerId')}
-                                            required
-                                        >
-                                            <option value="">Seleccione un cliente</option>
-                                            {customers.map((customer) => (
-                                                <option key={customer.id} value={customer.id}>
-                                                    {customer.name}
-                                                </option>
+        <Box sx={{flexGrow: 1, p: 2, height: 'calc(100vh - 100px)'}}>
+            <form onSubmit={handleSubmit} noValidate style={{height: '100%'}}>
+                <Grid container spacing={2} sx={{height: '100%'}}>
+                    {/* Columna Izquierda - Lista de Productos */}
+                    <Grid item xs={12} md={6} sx={{height: '100%'}}>
+                        <Card sx={{height: '100%', display: 'flex', flexDirection: 'column'}}>
+                            <CardContent sx={{flexGrow: 1, display: 'flex', flexDirection: 'column', pb: 1}}>
+                                <Typography variant="h6" gutterBottom>
+                                    Lista de Productos
+                                </Typography>
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    label="Buscar producto"
+                                    value={productSearch}
+                                    onChange={(e) => setProductSearch(e.target.value)}
+                                    sx={{mb: 2}}
+                                />
+                                <TableContainer sx={{flexGrow: 1, overflow: 'auto'}}>
+                                    <Table stickyHeader size="small">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>ID</TableCell>
+                                                <TableCell>Producto</TableCell>
+                                                <TableCell align="right">Precio</TableCell>
+                                                <TableCell align="center">Acción</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {filteredProducts.map((product) => (
+                                                <TableRow key={product.id} hover>
+                                                    <TableCell>{product.id}</TableCell>
+                                                    <TableCell>{product.name}</TableCell>
+                                                    <TableCell align="right">{formatCurrency(product.price)}</TableCell>
+                                                    <TableCell align="center">
+                                                        <IconButton
+                                                            size="small"
+                                                            color="primary"
+                                                            onClick={() => handleSelectProduct(product)}
+                                                        >
+                                                            <Add/>
+                                                        </IconButton>
+                                                    </TableCell>
+                                                </TableRow>
                                             ))}
-                                        </select>
-                                        {errors.customerId && (
-                                            <div className="invalid-feedback">
-                                                {errors.customerId}
-                                            </div>
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    {/* Columna Derecha */}
+                    <Grid item xs={12} md={6} sx={{height: '100%', display: 'flex', flexDirection: 'column'}}>
+                        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2, height: '100%'}}>
+                            {/* Panel Superior - Info Venta */}
+                            <Card>
+                                <CardContent sx={{pb: 2}}>
+                                    <Typography variant="h6" gutterBottom>
+                                        Información de Venta
+                                    </Typography>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                fullWidth
+                                                size="small"
+                                                label="Cajero"
+                                                value={user || ''}
+                                                disabled
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <select
+                                                className={`form-select ${errors.customerId ? 'is-invalid' : ''}`}
+                                                value={formData.customerId || ''}
+                                                onChange={handleInputChange('customerId')}
+                                            >
+                                                <option value="">Seleccione un cliente</option>
+                                                {customers.map((customer) => (
+                                                    <option key={customer.id} value={customer.id}>
+                                                        {customer.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.customerId && (
+                                                <div className="text-danger small">
+                                                    {errors.customerId}
+                                                </div>
+                                            )}
+                                        </Grid>
+                                        {selectedCustomer && (
+                                            <Grid item xs={12}>
+                                                <Divider/>
+                                                <Typography variant="body2" sx={{mt: 1}}>
+                                                    <strong>Cliente:</strong> {selectedCustomer.name} (ID: {selectedCustomer.id})
+                                                    {(selectedCustomer.customerType?.discountPercentage || selectedCustomer.customDiscount) && (
+                                                        <> | <strong>Descuento:</strong> {selectedCustomer.customerType?.discountPercentage || selectedCustomer.customDiscount}%</>
+                                                    )}
+                                                </Typography>
+                                            </Grid>
                                         )}
-                                    </div>
+                                    </Grid>
+                                </CardContent>
+                            </Card>
 
-                                    <div className="col-md-6">
-                                        <label htmlFor="employeeName" className="form-label">
-                                            Empleado
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="employeeName"
-                                            value={user || ''}
-                                            disabled
-                                        />
-                                    </div>
+                            {/* Panel Central - Agregar Producto */}
+                            <Card>
+                                <CardContent sx={{pb: 2}}>
+                                    <Typography variant="h6" gutterBottom>
+                                        Agregar Producto
+                                    </Typography>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={6} sm={3}>
+                                            <TextField
+                                                fullWidth
+                                                size="small"
+                                                label="ID"
+                                                value={selectedProductData.id}
+                                                disabled
+                                            />
+                                        </Grid>
+                                        <Grid item xs={6} sm={9}>
+                                            <TextField
+                                                fullWidth
+                                                size="small"
+                                                label="Nombre"
+                                                value={selectedProductData.name}
+                                                disabled
+                                            />
+                                        </Grid>
+                                        <Grid item xs={4}>
+                                            <TextField
+                                                fullWidth
+                                                size="small"
+                                                type="number"
+                                                label="Cantidad"
+                                                value={selectedProductData.quantity}
+                                                onChange={(e) => setSelectedProductData({
+                                                    ...selectedProductData,
+                                                    quantity: e.target.value
+                                                })}
+                                                inputProps={{step: '0.01', min: '0'}}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={4}>
+                                            <TextField
+                                                fullWidth
+                                                size="small"
+                                                type="number"
+                                                label="Precio"
+                                                value={selectedProductData.price}
+                                                onChange={(e) => setSelectedProductData({
+                                                    ...selectedProductData,
+                                                    price: e.target.value
+                                                })}
+                                                inputProps={{step: '0.01', min: '0'}}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={4}>
+                                            <TextField
+                                                fullWidth
+                                                size="small"
+                                                label="Total"
+                                                value={formatCurrency(selectedProductData.total)}
+                                                disabled
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                color="primary"
+                                                startIcon={<Add/>}
+                                                onClick={handleAddToCart}
+                                                disabled={!selectedProductData.id}
+                                            >
+                                                Agregar
+                                            </Button>
+                                            {errors.cart && (
+                                                <Typography color="error" variant="caption" sx={{mt: 1, display: 'block'}}>
+                                                    {errors.cart}
+                                                </Typography>
+                                            )}
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
+                            </Card>
 
-                                    <div className="col-12">
-                                        <hr className="my-4"/>
-                                        <h6 className="fw-bold mb-3">Productos</h6>
-
-                                        <div className="row g-3 mb-3">
-                                            <div className="col-md-6">
-                                                <label htmlFor="product" className="form-label">
-                                                    Producto
-                                                </label>
-                                                <select
-                                                    className={`form-select ${errors.product ? 'is-invalid' : ''}`}
-                                                    id="product"
-                                                    value={selectedProduct}
-                                                    onChange={(e) => setSelectedProduct(e.target.value)}
-                                                >
-                                                    <option value="">Seleccione un producto</option>
-                                                    {products.filter(p => p.active).map((product) => (
-                                                        <option key={product.id} value={product.id}>
-                                                            {product.name} - {formatCurrency(product.price)}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                {errors.product && (
-                                                    <div className="invalid-feedback">
-                                                        {errors.product}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="col-md-4">
-                                                <label htmlFor="quantity" className="form-label">
-                                                    Cantidad
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    className={`form-control ${errors.quantity ? 'is-invalid' : ''}`}
-                                                    id="quantity"
-                                                    value={quantity}
-                                                    onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-                                                    min="1"
-                                                />
-                                                {errors.quantity && (
-                                                    <div className="invalid-feedback">
-                                                        {errors.quantity}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="col-md-2 d-flex align-items-end">
-                                                <Button
-                                                    variant="contained"
-                                                    color="primary"
-                                                    fullWidth
-                                                    startIcon={<Add/>}
-                                                    onClick={handleAddProduct}
-                                                >
-                                                    Agregar
-                                                </Button>
-                                            </div>
-                                        </div>
-
-                                        {errors.saleDetails && (
-                                            <div className="alert alert-danger">
-                                                {errors.saleDetails}
-                                            </div>
-                                        )}
-
-                                        <TableContainer component={Paper}>
-                                            <Table>
-                                                <TableHead>
+                            {/* Panel Inferior - Carrito */}
+                            <Card sx={{flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
+                                <CardContent sx={{flexGrow: 1, display: 'flex', flexDirection: 'column', pb: 2}}>
+                                    <Typography variant="h6" gutterBottom>
+                                        Carrito de Compras
+                                    </Typography>
+                                    <TableContainer sx={{flexGrow: 1, overflow: 'auto', mb: 2}}>
+                                        <Table size="small" stickyHeader>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>Producto</TableCell>
+                                                    <TableCell align="right">Cantidad</TableCell>
+                                                    <TableCell align="right">Total</TableCell>
+                                                    <TableCell align="center">Acción</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {saleDetails.length === 0 ? (
                                                     <TableRow>
-                                                        <TableCell>Producto</TableCell>
-                                                        <TableCell align="right">Precio</TableCell>
-                                                        <TableCell align="right">Cantidad</TableCell>
-                                                        <TableCell align="right">Subtotal</TableCell>
-                                                        <TableCell align="center">Acciones</TableCell>
+                                                        <TableCell colSpan={4} align="center">
+                                                            No hay productos en el carrito
+                                                        </TableCell>
                                                     </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    {saleDetails.length === 0 ? (
-                                                        <TableRow>
-                                                            <TableCell colSpan={5} align="center">
-                                                                No hay productos agregados
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ) : (
-                                                        saleDetails.map((detail) => (
-                                                            <TableRow key={detail.productId}>
-                                                                <TableCell>{detail.productName}</TableCell>
-                                                                <TableCell align="right">{formatCurrency(detail.price)}</TableCell>
-                                                                <TableCell align="right">{detail.quantity}</TableCell>
-                                                                <TableCell align="right">
-                                                                    {formatCurrency(detail.price * detail.quantity)}
-                                                                </TableCell>
-                                                                <TableCell align="center">
-                                                                    <IconButton
-                                                                        color="error"
-                                                                        size="small"
-                                                                        onClick={() => handleRemoveProduct(detail.productId)}
-                                                                    >
-                                                                        <Delete/>
-                                                                    </IconButton>
-                                                                </TableCell>
-                                                            </TableRow>
-                                                        ))
-                                                    )}
-                                                    {saleDetails.length > 0 && (
-                                                        <TableRow>
-                                                            <TableCell colSpan={3} align="right">
-                                                                <strong>Total:</strong>
-                                                            </TableCell>
+                                                ) : (
+                                                    saleDetails.map((detail) => (
+                                                        <TableRow key={detail.productId}>
+                                                            <TableCell>{detail.productName}</TableCell>
+                                                            <TableCell align="right">{detail.quantity}</TableCell>
                                                             <TableCell align="right">
-                                                                <strong>{formatCurrency(formData.total)}</strong>
+                                                                {formatCurrency(detail.price * detail.quantity)}
                                                             </TableCell>
-                                                            <TableCell></TableCell>
+                                                            <TableCell align="center">
+                                                                <IconButton
+                                                                    color="error"
+                                                                    size="small"
+                                                                    onClick={() => handleRemoveProduct(detail.productId)}
+                                                                >
+                                                                    <Delete/>
+                                                                </IconButton>
+                                                            </TableCell>
                                                         </TableRow>
-                                                    )}
-                                                </TableBody>
-                                            </Table>
-                                        </TableContainer>
-                                    </div>
-
-                                    <div className="col-12">
-                                        <div className="d-flex gap-2 justify-content-end mt-3">
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline-secondary"
+                                                    ))
+                                                )}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                    <Box>
+                                        {saleDetails.length > 0 && (
+                                            <Box sx={{mb: 2, textAlign: 'right'}}>
+                                                <Typography variant="h6">
+                                                    Total: {formatCurrency(formData.total)}
+                                                </Typography>
+                                            </Box>
+                                        )}
+                                        {errors.saleDetails && (
+                                            <Typography color="error" variant="body2" sx={{mb: 2}}>
+                                                {errors.saleDetails}
+                                            </Typography>
+                                        )}
+                                        <Box sx={{display: 'flex', gap: 2, justifyContent: 'flex-end'}}>
+                                            <Button
+                                                variant="outlined"
                                                 onClick={handleCancel}
                                                 disabled={isSubmitting}
                                             >
-                                                <i className="fas fa-times me-2"></i>
                                                 Cancelar
-                                            </button>
-                                            <button
+                                            </Button>
+                                            <Button
                                                 type="submit"
-                                                className="btn btn-primary"
+                                                variant="contained"
+                                                color="primary"
                                                 disabled={isSubmitting}
                                             >
-                                                <i className="fas fa-save me-2"></i>
-                                                {isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar')}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                                                {isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar Venta')}
+                                            </Button>
+                                        </Box>
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </form>
+        </Box>
     );
 };
