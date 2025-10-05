@@ -3,12 +3,13 @@ import {useSale} from '../../hooks/sale/useSale';
 import {useCustomer} from '../../hooks/customer/useCustomer';
 import {useProduct} from '../../hooks/product/useProduct';
 import {
-    Box, Button, Card, CardContent, Grid, IconButton, Paper,
+    Box, Button, Card, CardContent, Grid, IconButton,
     Table, TableBody, TableCell, TableContainer, TableHead,
     TableRow, TextField, Typography, Divider
 } from '@mui/material';
 import {Add, Delete} from '@mui/icons-material';
 import {useSelector} from "react-redux";
+import '../../styles/css/SaleForm.css';
 
 export const SaleForm = ({saleSelected}) => {
     const {handleSaveSale, handleCancel, initialSaleForm} = useSale();
@@ -204,11 +205,12 @@ export const SaleForm = ({saleSelected}) => {
     };
 
     return (
-        <Box sx={{flexGrow: 1, p: 2, height: 'calc(100vh - 100px)'}}>
+        <Box sx={{flexGrow: 1, p: 2, height: 'calc(100vh - 100px)'}} className="sale-form-container">
             <form onSubmit={handleSubmit} noValidate style={{height: '100%'}}>
-                <Grid container spacing={2} sx={{height: '100%'}}>
+                <Grid container spacing={2} sx={{height: '100%', flexWrap: 'nowrap !important'}}>
                     {/* Columna Izquierda - Lista de Productos */}
-                    <Grid item xs={12} md={6} sx={{height: '100%'}}>
+                    <Grid item xs={6}
+                          sx={{height: '100%', minWidth: '400px', flex: '1 1 50%', maxWidth: '50% !important'}}>
                         <Card sx={{height: '100%', display: 'flex', flexDirection: 'column'}}>
                             <CardContent sx={{flexGrow: 1, display: 'flex', flexDirection: 'column', pb: 1}}>
                                 <Typography variant="h6" gutterBottom>
@@ -257,7 +259,14 @@ export const SaleForm = ({saleSelected}) => {
                     </Grid>
 
                     {/* Columna Derecha */}
-                    <Grid item xs={12} md={6} sx={{height: '100%', display: 'flex', flexDirection: 'column'}}>
+                    <Grid item xs={6} sx={{
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minWidth: '400px',
+                        flex: '1 1 50%',
+                        maxWidth: '50% !important'
+                    }}>
                         <Box sx={{display: 'flex', flexDirection: 'column', gap: 2, height: '100%'}}>
                             {/* Panel Superior - Info Venta */}
                             <Card>
@@ -266,7 +275,7 @@ export const SaleForm = ({saleSelected}) => {
                                         Información de Venta
                                     </Typography>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={6}>
+                                        <Grid item xs={6}>
                                             <TextField
                                                 fullWidth
                                                 size="small"
@@ -275,7 +284,7 @@ export const SaleForm = ({saleSelected}) => {
                                                 disabled
                                             />
                                         </Grid>
-                                        <Grid item xs={12} sm={6}>
+                                        <Grid item xs={6}>
                                             <select
                                                 className={`form-select ${errors.customerId ? 'is-invalid' : ''}`}
                                                 value={formData.customerId || ''}
@@ -315,7 +324,7 @@ export const SaleForm = ({saleSelected}) => {
                                     <Typography variant="h6" gutterBottom>
                                         Agregar Producto
                                     </Typography>
-                                    <Grid container spacing={2}>
+                                    <Grid container spacing={2} sx={{mb: 2}}>
                                         <Grid item xs={6} sm={3}>
                                             <TextField
                                                 fullWidth
@@ -371,23 +380,24 @@ export const SaleForm = ({saleSelected}) => {
                                                 disabled
                                             />
                                         </Grid>
-                                        <Grid item xs={12}>
-                                            <Button
-                                                fullWidth
-                                                variant="contained"
-                                                color="primary"
-                                                startIcon={<Add/>}
-                                                onClick={handleAddToCart}
-                                                disabled={!selectedProductData.id}
-                                            >
-                                                Agregar
-                                            </Button>
-                                            {errors.cart && (
-                                                <Typography color="error" variant="caption" sx={{mt: 1, display: 'block'}}>
-                                                    {errors.cart}
-                                                </Typography>
-                                            )}
-                                        </Grid>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            color="primary"
+                                            startIcon={<Add/>}
+                                            onClick={handleAddToCart}
+                                            disabled={!selectedProductData.id}
+                                        >
+                                            Agregar
+                                        </Button>
+                                        {errors.cart && (
+                                            <Typography color="error" variant="caption"
+                                                        sx={{mt: 1, display: 'block'}}>
+                                                {errors.cart}
+                                            </Typography>
+                                        )}
                                     </Grid>
                                 </CardContent>
                             </Card>

@@ -1,0 +1,56 @@
+/* Forzar que las columnas del formulario de ventas siempre mantengan 2 columnas */
+.sale-form-container .MuiGrid-item {
+    flex-basis: auto !important;
+}
+
+.sale-form-container .MuiGrid-grid-xs-6 {
+    flex-grow: 0 !important;
+    max-width: 50% !important;
+    flex-basis: 50% !important;
+}
+
+/* Asegurar que el contenedor use flexbox correctamente */
+.sale-form-container .MuiGrid-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+}
+
+/* Prevenir que Bootstrap interfiera */
+.sale-form-container {
+    box-sizing: border-box !important;
+}
+
+.sale-form-container * {
+    box-sizing: border-box !important;
+}
+
+/* Personalizar tamaño de TextField */
+.sale-form-container .MuiTextField-root {
+    /* Ajusta el ancho (ya está en 100% por fullWidth) */
+    width: 100%;
+}
+
+/* Ajustar altura del TextField pequeño */
+.sale-form-container .MuiTextField-root .MuiInputBase-input {
+    /* Altura del input interno */
+    height: 40px;
+    padding: 8px 14px;
+}
+
+/* TextField de tamaño específico */
+.textfield-small {
+    width: 150px !important;
+}
+
+.textfield-medium {
+    width: 250px !important;
+}
+
+.textfield-large {
+    width: 400px !important;
+}
+
+/* Ajustar altura completa del TextField */
+.textfield-tall .MuiInputBase-root {
+    height: 60px;
+}
