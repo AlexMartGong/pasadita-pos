@@ -8,21 +8,21 @@ import {
     TableRow, TextField, Typography, Divider
 } from '@mui/material';
 import {Add, Delete} from '@mui/icons-material';
-import {useSelector} from "react-redux";
+import {useAuth} from "../../auth/hooks/useAuth";
 import '../../styles/css/SaleForm.css';
 
 export const SaleForm = ({saleSelected}) => {
     const {handleSaveSale, handleCancel, initialSaleForm} = useSale();
     const {customers, handleGetCustomers} = useCustomer();
     const {products, handleGetProducts} = useProduct();
-    const {user} = useSelector(state => state.auth);
+    const {user, employeeId} = useAuth();
     const isEditMode = saleSelected && saleSelected.id !== 0;
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState(initialSaleForm);
     const [saleDetails, setSaleDetails] = useState([]);
     const [productSearch, setProductSearch] = useState('');
-    const [paymentMethodId, setPaymentMethodId] = useState(1); // 1: Efectivo, 2: Tarjeta, 3: Transferencia
+    const [paymentMethodId, setPaymentMethodId] = useState(1);
     const [paid, setPaid] = useState(true);
     const [notes, setNotes] = useState('');
     const [selectedProductData, setSelectedProductData] = useState({
@@ -210,7 +210,7 @@ export const SaleForm = ({saleSelected}) => {
 
             const saleData = {
                 id: saleSelected?.id || 0,
-                employeeId: user?.id || 0,
+                employeeId: employeeId,
                 customerId: parseInt(formData.customerId),
                 paymentMethodId: paymentMethodId,
                 subtotal: subtotal,

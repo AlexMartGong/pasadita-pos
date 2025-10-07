@@ -3,7 +3,6 @@ import {useCallback} from "react";
 import {
     initialSaleForm,
     onCreateSale,
-    onUpdateSale,
     setSales,
     onSelectSale,
     onClearSaleSelected
@@ -38,13 +37,12 @@ export const useSale = () => {
         try {
             if (saleData.id === 0) {
                 result = await saleService.saveSale(saleData);
-                dispatch(onCreateSale(result.data));
             } else {
                 result = await saleService.updateSale(saleData.id, saleData);
-                dispatch(onUpdateSale(result.data));
             }
             if (result.status === 201 || result.status === 200) {
                 toast.success('Venta guardada exitosamente.');
+                dispatch(onCreateSale(result.data));
             } else {
                 toast.error('Error al guardar la venta.');
             }
