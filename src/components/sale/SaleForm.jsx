@@ -22,6 +22,9 @@ export const SaleForm = ({saleSelected}) => {
     const [formData, setFormData] = useState(initialSaleForm);
     const [saleDetails, setSaleDetails] = useState([]);
     const [productSearch, setProductSearch] = useState('');
+    const [paymentMethodId, setPaymentMethodId] = useState(1); // 1: Efectivo, 2: Tarjeta, 3: Transferencia
+    const [paid, setPaid] = useState(true);
+    const [notes, setNotes] = useState('');
     const [selectedProductData, setSelectedProductData] = useState({
         id: '',
         name: '',
@@ -49,7 +52,14 @@ export const SaleForm = ({saleSelected}) => {
     }, [saleSelected]);
 
     const calculateTotal = (details) => {
-        return details.reduce((sum, detail) => sum + (detail.price * detail.quantity), 0);
+        return details.reduce((sum, detail) => sum + detail.total, 0);
+    };
+
+    // Calcular descuento del cliente (valor fijo, no porcentaje)
+    const getCustomerDiscount = () => {
+        if (!formData.customerId) return 0;
+        const customer = customers.find(c => c.id === parseInt(formData.customerId));
+        return customer?.customerType?.discountPercentage || customer?.customDiscount || 0;
     };
 
     // Calcular total del producto seleccionado
@@ -64,12 +74,17 @@ export const SaleForm = ({saleSelected}) => {
 
     // Manejar selección de producto desde la tabla
     const handleSelectProduct = (product) => {
+        const discountAmount = getCustomerDiscount();
+        const discountedPrice = product.price - discountAmount;
+
         setSelectedProductData({
             id: product.id,
             name: product.name,
             quantity: product.unitMeasure === 'kg' ? '' : '1',
-            price: product.price,
-            total: product.unitMeasure === 'kg' ? 0 : product.price
+            price: discountedPrice,
+            originalPrice: product.price,
+            discount: discountAmount,
+            total: product.unitMeasure === 'kg' ? 0 : discountedPrice
         });
     };
 
@@ -80,21 +95,42 @@ export const SaleForm = ({saleSelected}) => {
             return;
         }
 
+        const quantity = parseFloat(selectedProductData.quantity);
+        const unitPrice = parseFloat(selectedProductData.originalPrice);
+        const discountPerUnit = selectedProductData.discount; // descuento fijo por unidad
+        const subtotal = quantity * unitPrice;
+        const discountAmount = quantity * discountPerUnit; // descuento total = cantidad × descuento por unidad
+        const total = subtotal - discountAmount;
+
         const existingDetail = saleDetails.find(d => d.productId === selectedProductData.id);
 
         let newDetails;
         if (existingDetail) {
+            const newQuantity = parseFloat(existingDetail.quantity) + quantity;
+            const newSubtotal = newQuantity * unitPrice;
+            const newDiscountAmount = newQuantity * discountPerUnit;
+            const newTotal = newSubtotal - newDiscountAmount;
+
             newDetails = saleDetails.map(d =>
                 d.productId === selectedProductData.id
-                    ? {...d, quantity: parseFloat(d.quantity) + parseFloat(selectedProductData.quantity)}
+                    ? {
+                        ...d,
+                        quantity: newQuantity,
+                        subtotal: newSubtotal,
+                        discount: newDiscountAmount,
+                        total: newTotal
+                    }
                     : d
             );
         } else {
             newDetails = [...saleDetails, {
                 productId: selectedProductData.id,
                 productName: selectedProductData.name,
-                price: parseFloat(selectedProductData.price),
-                quantity: parseFloat(selectedProductData.quantity)
+                unitPrice: unitPrice,
+                quantity: quantity,
+                subtotal: subtotal,
+                discount: discountAmount,
+                total: total
             }];
         }
 
@@ -168,16 +204,27 @@ export const SaleForm = ({saleSelected}) => {
         setIsSubmitting(true);
 
         try {
+            // Calcular subtotal y descuento total
+            const subtotal = saleDetails.reduce((sum, detail) => sum + detail.subtotal, 0);
+            const discountAmount = saleDetails.reduce((sum, detail) => sum + detail.discount, 0);
+
             const saleData = {
                 id: saleSelected?.id || 0,
+                employeeId: user?.id || 0,
                 customerId: parseInt(formData.customerId),
-                employeeId: formData.employeeId,
-                saleDate: new Date().toISOString(),
+                paymentMethodId: paymentMethodId,
+                subtotal: subtotal,
+                discountAmount: discountAmount,
                 total: formData.total,
+                paid: paid,
+                notes: notes || '',
                 saleDetails: saleDetails.map(detail => ({
                     productId: detail.productId,
                     quantity: detail.quantity,
-                    price: detail.price
+                    unitPrice: detail.unitPrice,
+                    subtotal: detail.subtotal,
+                    discount: detail.discount,
+                    total: detail.total
                 }))
             };
 
@@ -186,6 +233,9 @@ export const SaleForm = ({saleSelected}) => {
             if (success) {
                 setFormData(initialSaleForm);
                 setSaleDetails([]);
+                setPaymentMethodId(1);
+                setPaid(true);
+                setNotes('');
                 setErrors({});
                 handleCancel();
             }
@@ -275,7 +325,7 @@ export const SaleForm = ({saleSelected}) => {
                                         Información de Venta
                                     </Typography>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={6}>
+                                        <Grid item xs={12} sm={6}>
                                             <TextField
                                                 fullWidth
                                                 size="small"
@@ -284,7 +334,7 @@ export const SaleForm = ({saleSelected}) => {
                                                 disabled
                                             />
                                         </Grid>
-                                        <Grid item xs={6}>
+                                        <Grid item xs={12} sm={6}>
                                             <select
                                                 className={`form-select ${errors.customerId ? 'is-invalid' : ''}`}
                                                 value={formData.customerId || ''}
@@ -302,6 +352,38 @@ export const SaleForm = ({saleSelected}) => {
                                                     {errors.customerId}
                                                 </div>
                                             )}
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <select
+                                                className="form-select"
+                                                value={paymentMethodId}
+                                                onChange={(e) => setPaymentMethodId(parseInt(e.target.value))}
+                                            >
+                                                <option value={1}>Efectivo</option>
+                                                <option value={2}>Tarjeta</option>
+                                                <option value={3}>Transferencia</option>
+                                            </select>
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <select
+                                                className="form-select"
+                                                value={paid}
+                                                onChange={(e) => setPaid(e.target.value === 'true')}
+                                            >
+                                                <option value={true}>Pagado</option>
+                                                <option value={false}>Pendiente</option>
+                                            </select>
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <TextField
+                                                fullWidth
+                                                size="small"
+                                                label="Notas (opcional)"
+                                                value={notes}
+                                                onChange={(e) => setNotes(e.target.value)}
+                                                multiline
+                                                rows={2}
+                                            />
                                         </Grid>
                                         {selectedCustomer && (
                                             <Grid item xs={12}>
@@ -413,7 +495,9 @@ export const SaleForm = ({saleSelected}) => {
                                             <TableHead>
                                                 <TableRow>
                                                     <TableCell>Producto</TableCell>
-                                                    <TableCell align="right">Cantidad</TableCell>
+                                                    <TableCell align="right">Cant.</TableCell>
+                                                    <TableCell align="right">P. Unit.</TableCell>
+                                                    <TableCell align="right">Desc.</TableCell>
                                                     <TableCell align="right">Total</TableCell>
                                                     <TableCell align="center">Acción</TableCell>
                                                 </TableRow>
@@ -421,7 +505,7 @@ export const SaleForm = ({saleSelected}) => {
                                             <TableBody>
                                                 {saleDetails.length === 0 ? (
                                                     <TableRow>
-                                                        <TableCell colSpan={4} align="center">
+                                                        <TableCell colSpan={6} align="center">
                                                             No hay productos en el carrito
                                                         </TableCell>
                                                     </TableRow>
@@ -431,7 +515,13 @@ export const SaleForm = ({saleSelected}) => {
                                                             <TableCell>{detail.productName}</TableCell>
                                                             <TableCell align="right">{detail.quantity}</TableCell>
                                                             <TableCell align="right">
-                                                                {formatCurrency(detail.price * detail.quantity)}
+                                                                {formatCurrency(detail.unitPrice)}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {formatCurrency(detail.discount)}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {formatCurrency(detail.total)}
                                                             </TableCell>
                                                             <TableCell align="center">
                                                                 <IconButton
@@ -451,6 +541,12 @@ export const SaleForm = ({saleSelected}) => {
                                     <Box>
                                         {saleDetails.length > 0 && (
                                             <Box sx={{mb: 2, textAlign: 'right'}}>
+                                                <Typography variant="body2">
+                                                    Subtotal: {formatCurrency(saleDetails.reduce((sum, d) => sum + d.subtotal, 0))}
+                                                </Typography>
+                                                <Typography variant="body2" color="error">
+                                                    Descuento: -{formatCurrency(saleDetails.reduce((sum, d) => sum + d.discount, 0))}
+                                                </Typography>
                                                 <Typography variant="h6">
                                                     Total: {formatCurrency(formData.total)}
                                                 </Typography>
