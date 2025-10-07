@@ -325,7 +325,7 @@ export const SaleForm = ({saleSelected}) => {
                                         Información de Venta
                                     </Typography>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={6}>
+                                        <Grid sm={6}>
                                             <TextField
                                                 fullWidth
                                                 size="small"
@@ -374,28 +374,30 @@ export const SaleForm = ({saleSelected}) => {
                                                 <option value={false}>Pendiente</option>
                                             </select>
                                         </Grid>
+                                    </Grid>
+
+                                    {selectedCustomer && (
                                         <Grid item xs={12}>
-                                            <TextField
-                                                fullWidth
-                                                size="small"
-                                                label="Notas (opcional)"
-                                                value={notes}
-                                                onChange={(e) => setNotes(e.target.value)}
-                                                multiline
-                                                rows={2}
-                                            />
+                                            <Divider/>
+                                            <Typography variant="body2" sx={{mt: 1}}>
+                                                {(selectedCustomer.customerType?.discountPercentage || selectedCustomer.customDiscount) && (
+                                                    <>
+                                                        <strong>Descuento:</strong> {selectedCustomer.customerType?.discountPercentage || selectedCustomer.customDiscount}</>
+                                                )}
+                                            </Typography>
                                         </Grid>
-                                        {selectedCustomer && (
-                                            <Grid item xs={12}>
-                                                <Divider/>
-                                                <Typography variant="body2" sx={{mt: 1}}>
-                                                    <strong>Cliente:</strong> {selectedCustomer.name} (ID: {selectedCustomer.id})
-                                                    {(selectedCustomer.customerType?.discountPercentage || selectedCustomer.customDiscount) && (
-                                                        <> | <strong>Descuento:</strong> {selectedCustomer.customerType?.discountPercentage || selectedCustomer.customDiscount}%</>
-                                                    )}
-                                                </Typography>
-                                            </Grid>
-                                        )}
+                                    )}
+
+                                    <Grid item xs={12} sx={{mt: 2}}>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            label="Notas (opcional)"
+                                            value={notes}
+                                            onChange={(e) => setNotes(e.target.value)}
+                                            multiline
+                                            rows={2}
+                                        />
                                     </Grid>
                                 </CardContent>
                             </Card>
@@ -545,7 +547,8 @@ export const SaleForm = ({saleSelected}) => {
                                                     Subtotal: {formatCurrency(saleDetails.reduce((sum, d) => sum + d.subtotal, 0))}
                                                 </Typography>
                                                 <Typography variant="body2" color="error">
-                                                    Descuento: -{formatCurrency(saleDetails.reduce((sum, d) => sum + d.discount, 0))}
+                                                    Descuento:
+                                                    -{formatCurrency(saleDetails.reduce((sum, d) => sum + d.discount, 0))}
                                                 </Typography>
                                                 <Typography variant="h6">
                                                     Total: {formatCurrency(formData.total)}
