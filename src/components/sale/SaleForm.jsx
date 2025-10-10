@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useSale} from '../../hooks/sale/useSale';
 import {useCustomer} from '../../hooks/customer/useCustomer';
 import {useProduct} from '../../hooks/product/useProduct';
@@ -11,7 +11,7 @@ import {ShoppingCart} from './ShoppingCart';
 import '../../styles/css/SaleForm.css';
 
 export const SaleForm = ({saleSelected}) => {
-    const {handleSaveSale, handleCancel, initialSaleForm} = useSale();
+    const {handleSaveSale, initialSaleForm} = useSale();
     const {customers, handleGetCustomers} = useCustomer();
     const {products, handleGetProducts} = useProduct();
     const {user, employeeId} = useAuth();
@@ -58,18 +58,43 @@ export const SaleForm = ({saleSelected}) => {
                 customerId: customers[0].id
             }));
         }
-    }, [customers]);
+    }, [customers, formData.customerId, isEditMode]);
 
     const calculateTotal = (details) => {
         return details.reduce((sum, detail) => sum + detail.total, 0);
     };
 
     // Calcular descuento del cliente (valor fijo, no porcentaje)
-    const getCustomerDiscount = () => {
+    const getCustomerDiscount = useCallback(() => {
         if (!formData.customerId) return 0;
         const customer = customers.find(c => c.id === parseInt(formData.customerId));
         return customer?.customerType?.discountPercentage || customer?.customDiscount || 0;
-    };
+    }, [customers, formData.customerId]);
+
+    // Recalcular carrito cuando cambia el cliente seleccionado
+    useEffect(() => {
+        if (saleDetails.length > 0 && formData.customerId) {
+            const discountAmount = getCustomerDiscount();
+
+            const updatedDetails = saleDetails.map(detail => {
+                const quantity = detail.quantity;
+                const unitPrice = detail.unitPrice;
+                const subtotal = quantity * unitPrice;
+                const discountTotal = quantity * discountAmount;
+                const total = subtotal - discountTotal;
+
+                return {
+                    ...detail,
+                    subtotal: subtotal,
+                    discount: discountTotal,
+                    total: total
+                };
+            });
+
+            setSaleDetails(updatedDetails);
+            setFormData(prev => ({...prev, total: calculateTotal(updatedDetails)}));
+        }
+    }, [saleDetails, getCustomerDiscount, formData.customerId]);
 
     // Calcular total del producto seleccionado
     useEffect(() => {
@@ -193,6 +218,32 @@ export const SaleForm = ({saleSelected}) => {
         }
     };
 
+    // Limpiar formulario y preparar para nueva venta
+    const handleLocalCancel = () => {
+        setFormData(initialSaleForm);
+        setSaleDetails([]);
+        setPaymentMethodId(1);
+        setPaid(true);
+        setNotes('');
+        setProductSearch('');
+        setSelectedProductData({
+            id: '',
+            name: '',
+            quantity: '',
+            price: '',
+            total: 0
+        });
+        setErrors({});
+
+        // Restablecer el primer cliente como seleccionado
+        if (customers.length > 0) {
+            setFormData(prev => ({
+                ...prev,
+                customerId: customers[0].id
+            }));
+        }
+    };
+
     // Obtener información del cliente seleccionado
     const selectedCustomer = customers.find(c => c.id === parseInt(formData.customerId));
 
@@ -233,13 +284,7 @@ export const SaleForm = ({saleSelected}) => {
             const success = await handleSaveSale(saleData);
 
             if (success) {
-                setFormData(initialSaleForm);
-                setSaleDetails([]);
-                setPaymentMethodId(1);
-                setPaid(true);
-                setNotes('');
-                setErrors({});
-                handleCancel();
+                handleLocalCancel();
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -320,7 +365,7 @@ export const SaleForm = ({saleSelected}) => {
                                 isSubmitting={isSubmitting}
                                 errors={errors}
                                 onRemoveProduct={handleRemoveProduct}
-                                onCancel={handleCancel}
+                                onCancel={handleLocalCancel}
                                 formatCurrency={formatCurrency}
                             />
                         </Box>
