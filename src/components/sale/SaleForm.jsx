@@ -2,13 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {useSale} from '../../hooks/sale/useSale';
 import {useCustomer} from '../../hooks/customer/useCustomer';
 import {useProduct} from '../../hooks/product/useProduct';
-import {
-    Box, Button, Card, CardContent, Grid, IconButton,
-    Table, TableBody, TableCell, TableContainer, TableHead,
-    TableRow, TextField, Typography, Divider
-} from '@mui/material';
-import {Add, Delete} from '@mui/icons-material';
+import {Box, Grid} from '@mui/material';
 import {useAuth} from "../../auth/hooks/useAuth";
+import {ProductsTable} from './ProductsTable';
+import {SaleInfo} from './SaleInfo';
+import {ShoppingCart} from './ShoppingCart';
 import '../../styles/css/SaleForm.css';
 
 export const SaleForm = ({saleSelected}) => {
@@ -184,13 +182,6 @@ export const SaleForm = ({saleSelected}) => {
         }
     };
 
-    // Filtrar productos por búsqueda
-    const filteredProducts = products.filter(p =>
-        p.active &&
-        (p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-            p.id.toString().includes(productSearch))
-    );
-
     // Obtener información del cliente seleccionado
     const selectedCustomer = customers.find(c => c.id === parseInt(formData.customerId));
 
@@ -261,51 +252,13 @@ export const SaleForm = ({saleSelected}) => {
                     {/* Columna Izquierda - Lista de Productos */}
                     <Grid item xs={6}
                           sx={{height: '100%', minWidth: '400px', flex: '1 1 50%', maxWidth: '50% !important'}}>
-                        <Card sx={{height: '100%', display: 'flex', flexDirection: 'column'}}>
-                            <CardContent sx={{flexGrow: 1, display: 'flex', flexDirection: 'column', pb: 1}}>
-                                <Typography variant="h6" gutterBottom>
-                                    Lista de Productos
-                                </Typography>
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    label="Buscar producto"
-                                    value={productSearch}
-                                    onChange={(e) => setProductSearch(e.target.value)}
-                                    sx={{mb: 2}}
-                                />
-                                <TableContainer sx={{flexGrow: 1, overflow: 'auto'}}>
-                                    <Table stickyHeader size="small">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>ID</TableCell>
-                                                <TableCell>Producto</TableCell>
-                                                <TableCell align="right">Precio</TableCell>
-                                                <TableCell align="center">Acción</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {filteredProducts.map((product) => (
-                                                <TableRow key={product.id} hover>
-                                                    <TableCell>{product.id}</TableCell>
-                                                    <TableCell>{product.name}</TableCell>
-                                                    <TableCell align="right">{formatCurrency(product.price)}</TableCell>
-                                                    <TableCell align="center">
-                                                        <IconButton
-                                                            size="small"
-                                                            color="primary"
-                                                            onClick={() => handleSelectProduct(product)}
-                                                        >
-                                                            <Add/>
-                                                        </IconButton>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </CardContent>
-                        </Card>
+                        <ProductsTable
+                            products={products}
+                            productSearch={productSearch}
+                            onProductSearchChange={setProductSearch}
+                            onSelectProduct={handleSelectProduct}
+                            formatCurrency={formatCurrency}
+                        />
                     </Grid>
 
                     {/* Columna Derecha */}
@@ -318,268 +271,35 @@ export const SaleForm = ({saleSelected}) => {
                         maxWidth: '50% !important'
                     }}>
                         <Box sx={{display: 'flex', flexDirection: 'column', gap: 2, height: '100%'}}>
-                            {/* Panel Superior - Info Venta */}
-                            <Card>
-                                <CardContent sx={{pb: 2}}>
-                                    <Typography variant="h6" gutterBottom>
-                                        Información de Venta
-                                    </Typography>
-                                    <Grid container spacing={2}>
-                                        <Grid sm={6}>
-                                            <TextField
-                                                fullWidth
-                                                size="small"
-                                                label="Cajero"
-                                                value={user || ''}
-                                                disabled
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <select
-                                                className={`form-select ${errors.customerId ? 'is-invalid' : ''}`}
-                                                value={formData.customerId || ''}
-                                                onChange={handleInputChange('customerId')}
-                                            >
-                                                <option value="">Seleccione un cliente</option>
-                                                {customers.map((customer) => (
-                                                    <option key={customer.id} value={customer.id}>
-                                                        {customer.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            {errors.customerId && (
-                                                <div className="text-danger small">
-                                                    {errors.customerId}
-                                                </div>
-                                            )}
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <select
-                                                className="form-select"
-                                                value={paymentMethodId}
-                                                onChange={(e) => setPaymentMethodId(parseInt(e.target.value))}
-                                            >
-                                                <option value={1}>Efectivo</option>
-                                                <option value={2}>Tarjeta</option>
-                                                <option value={3}>Transferencia</option>
-                                            </select>
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <select
-                                                className="form-select"
-                                                value={paid}
-                                                onChange={(e) => setPaid(e.target.value === 'true')}
-                                            >
-                                                <option value={true}>Pagado</option>
-                                                <option value={false}>Pendiente</option>
-                                            </select>
-                                        </Grid>
-                                    </Grid>
+                            <SaleInfo
+                                user={user}
+                                customers={customers}
+                                formData={formData}
+                                selectedCustomer={selectedCustomer}
+                                paymentMethodId={paymentMethodId}
+                                paid={paid}
+                                notes={notes}
+                                selectedProductData={selectedProductData}
+                                errors={errors}
+                                onInputChange={handleInputChange}
+                                onPaymentMethodChange={setPaymentMethodId}
+                                onPaidChange={setPaid}
+                                onNotesChange={setNotes}
+                                onSelectedProductChange={setSelectedProductData}
+                                onAddToCart={handleAddToCart}
+                                formatCurrency={formatCurrency}
+                            />
 
-                                    {selectedCustomer && (
-                                        <Grid item xs={12}>
-                                            <Divider/>
-                                            <Typography variant="body2" sx={{mt: 1}}>
-                                                {(selectedCustomer.customerType?.discountPercentage || selectedCustomer.customDiscount) && (
-                                                    <>
-                                                        <strong>Descuento:</strong> {selectedCustomer.customerType?.discountPercentage || selectedCustomer.customDiscount}</>
-                                                )}
-                                            </Typography>
-                                        </Grid>
-                                    )}
-
-                                    <Grid item xs={12} sx={{mt: 2}}>
-                                        <TextField
-                                            fullWidth
-                                            size="small"
-                                            label="Notas (opcional)"
-                                            value={notes}
-                                            onChange={(e) => setNotes(e.target.value)}
-                                            multiline
-                                            rows={2}
-                                        />
-                                    </Grid>
-                                </CardContent>
-                            </Card>
-
-                            {/* Panel Central - Agregar Producto */}
-                            <Card>
-                                <CardContent sx={{pb: 2}}>
-                                    <Typography variant="h6" gutterBottom>
-                                        Agregar Producto
-                                    </Typography>
-                                    <Grid container spacing={2} sx={{mb: 2}}>
-                                        <Grid item xs={6} sm={3}>
-                                            <TextField
-                                                fullWidth
-                                                size="small"
-                                                label="ID"
-                                                value={selectedProductData.id}
-                                                disabled
-                                            />
-                                        </Grid>
-                                        <Grid item xs={6} sm={9}>
-                                            <TextField
-                                                fullWidth
-                                                size="small"
-                                                label="Nombre"
-                                                value={selectedProductData.name}
-                                                disabled
-                                            />
-                                        </Grid>
-                                        <Grid item xs={4}>
-                                            <TextField
-                                                fullWidth
-                                                size="small"
-                                                type="number"
-                                                label="Cantidad"
-                                                value={selectedProductData.quantity}
-                                                onChange={(e) => setSelectedProductData({
-                                                    ...selectedProductData,
-                                                    quantity: e.target.value
-                                                })}
-                                                inputProps={{step: '0.01', min: '0'}}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={4}>
-                                            <TextField
-                                                fullWidth
-                                                size="small"
-                                                type="number"
-                                                label="Precio"
-                                                value={selectedProductData.price}
-                                                onChange={(e) => setSelectedProductData({
-                                                    ...selectedProductData,
-                                                    price: e.target.value
-                                                })}
-                                                inputProps={{step: '0.01', min: '0'}}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={4}>
-                                            <TextField
-                                                fullWidth
-                                                size="small"
-                                                label="Total"
-                                                value={formatCurrency(selectedProductData.total)}
-                                                disabled
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <Button
-                                            fullWidth
-                                            variant="contained"
-                                            color="primary"
-                                            startIcon={<Add/>}
-                                            onClick={handleAddToCart}
-                                            disabled={!selectedProductData.id}
-                                        >
-                                            Agregar
-                                        </Button>
-                                        {errors.cart && (
-                                            <Typography color="error" variant="caption"
-                                                        sx={{mt: 1, display: 'block'}}>
-                                                {errors.cart}
-                                            </Typography>
-                                        )}
-                                    </Grid>
-                                </CardContent>
-                            </Card>
-
-                            {/* Panel Inferior - Carrito */}
-                            <Card sx={{flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
-                                <CardContent sx={{flexGrow: 1, display: 'flex', flexDirection: 'column', pb: 2}}>
-                                    <Typography variant="h6" gutterBottom>
-                                        Carrito de Compras
-                                    </Typography>
-                                    <TableContainer sx={{flexGrow: 1, overflow: 'auto', mb: 2}}>
-                                        <Table size="small" stickyHeader>
-                                            <TableHead>
-                                                <TableRow>
-                                                    <TableCell>Producto</TableCell>
-                                                    <TableCell align="right">Cant.</TableCell>
-                                                    <TableCell align="right">P. Unit.</TableCell>
-                                                    <TableCell align="right">Desc.</TableCell>
-                                                    <TableCell align="right">Total</TableCell>
-                                                    <TableCell align="center">Acción</TableCell>
-                                                </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                {saleDetails.length === 0 ? (
-                                                    <TableRow>
-                                                        <TableCell colSpan={6} align="center">
-                                                            No hay productos en el carrito
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ) : (
-                                                    saleDetails.map((detail) => (
-                                                        <TableRow key={detail.productId}>
-                                                            <TableCell>{detail.productName}</TableCell>
-                                                            <TableCell align="right">{detail.quantity}</TableCell>
-                                                            <TableCell align="right">
-                                                                {formatCurrency(detail.unitPrice)}
-                                                            </TableCell>
-                                                            <TableCell align="right">
-                                                                {formatCurrency(detail.discount)}
-                                                            </TableCell>
-                                                            <TableCell align="right">
-                                                                {formatCurrency(detail.total)}
-                                                            </TableCell>
-                                                            <TableCell align="center">
-                                                                <IconButton
-                                                                    color="error"
-                                                                    size="small"
-                                                                    onClick={() => handleRemoveProduct(detail.productId)}
-                                                                >
-                                                                    <Delete/>
-                                                                </IconButton>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))
-                                                )}
-                                            </TableBody>
-                                        </Table>
-                                    </TableContainer>
-                                    <Box>
-                                        {saleDetails.length > 0 && (
-                                            <Box sx={{mb: 2, textAlign: 'right'}}>
-                                                <Typography variant="body2">
-                                                    Subtotal: {formatCurrency(saleDetails.reduce((sum, d) => sum + d.subtotal, 0))}
-                                                </Typography>
-                                                <Typography variant="body2" color="error">
-                                                    Descuento:
-                                                    -{formatCurrency(saleDetails.reduce((sum, d) => sum + d.discount, 0))}
-                                                </Typography>
-                                                <Typography variant="h6">
-                                                    Total: {formatCurrency(formData.total)}
-                                                </Typography>
-                                            </Box>
-                                        )}
-                                        {errors.saleDetails && (
-                                            <Typography color="error" variant="body2" sx={{mb: 2}}>
-                                                {errors.saleDetails}
-                                            </Typography>
-                                        )}
-                                        <Box sx={{display: 'flex', gap: 2, justifyContent: 'flex-end'}}>
-                                            <Button
-                                                variant="outlined"
-                                                onClick={handleCancel}
-                                                disabled={isSubmitting}
-                                            >
-                                                Cancelar
-                                            </Button>
-                                            <Button
-                                                type="submit"
-                                                variant="contained"
-                                                color="primary"
-                                                disabled={isSubmitting}
-                                            >
-                                                {isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar Venta')}
-                                            </Button>
-                                        </Box>
-                                    </Box>
-                                </CardContent>
-                            </Card>
+                            <ShoppingCart
+                                saleDetails={saleDetails}
+                                formData={formData}
+                                isEditMode={isEditMode}
+                                isSubmitting={isSubmitting}
+                                errors={errors}
+                                onRemoveProduct={handleRemoveProduct}
+                                onCancel={handleCancel}
+                                formatCurrency={formatCurrency}
+                            />
                         </Box>
                     </Grid>
                 </Grid>
