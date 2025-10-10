@@ -6,6 +6,7 @@ import {Box, Grid} from '@mui/material';
 import {useAuth} from "../../auth/hooks/useAuth";
 import {ProductsTable} from './ProductsTable';
 import {SaleInfo} from './SaleInfo';
+import {AddProductForm} from './AddProductForm';
 import {ShoppingCart} from './ShoppingCart';
 import '../../styles/css/SaleForm.css';
 
@@ -48,6 +49,16 @@ export const SaleForm = ({saleSelected}) => {
             setSaleDetails(saleSelected.saleDetails || []);
         }
     }, [saleSelected]);
+
+    // Seleccionar el primer cliente por defecto cuando se cargan los clientes
+    useEffect(() => {
+        if (customers.length > 0 && !formData.customerId && !isEditMode) {
+            setFormData(prev => ({
+                ...prev,
+                customerId: customers[0].id
+            }));
+        }
+    }, [customers]);
 
     const calculateTotal = (details) => {
         return details.reduce((sum, detail) => sum + detail.total, 0);
@@ -287,12 +298,16 @@ export const SaleForm = ({saleSelected}) => {
                                 paymentMethodId={paymentMethodId}
                                 paid={paid}
                                 notes={notes}
-                                selectedProductData={selectedProductData}
                                 errors={errors}
                                 onInputChange={handleInputChange}
                                 onPaymentMethodChange={setPaymentMethodId}
                                 onPaidChange={setPaid}
                                 onNotesChange={setNotes}
+                            />
+
+                            <AddProductForm
+                                selectedProductData={selectedProductData}
+                                errors={errors}
                                 onSelectedProductChange={setSelectedProductData}
                                 onAddToCart={handleAddToCart}
                                 formatCurrency={formatCurrency}

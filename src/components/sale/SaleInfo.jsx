@@ -1,29 +1,23 @@
 import React from 'react';
 import {
-    Button,
     Card, CardContent, Divider,
     Grid, TextField, Typography
 } from '@mui/material';
-import {Add} from '@mui/icons-material';
 
 export const SaleInfo = ({
-    user,
-    customers,
-    formData,
-    selectedCustomer,
-    paymentMethodId,
-    paid,
-    notes,
-    selectedProductData,
-    errors,
-    onInputChange,
-    onPaymentMethodChange,
-    onPaidChange,
-    onNotesChange,
-    onSelectedProductChange,
-    onAddToCart,
-    formatCurrency
-}) => {
+                             user,
+                             customers,
+                             formData,
+                             selectedCustomer,
+                             paymentMethodId,
+                             paid,
+                             notes,
+                             errors,
+                             onInputChange,
+                             onPaymentMethodChange,
+                             onPaidChange,
+                             onNotesChange
+                         }) => {
     return (
         <>
             {/* Panel Superior - Info Venta */}
@@ -88,9 +82,10 @@ export const SaleInfo = ({
                         <Grid item xs={12}>
                             <Divider/>
                             <Typography variant="body2" sx={{mt: 1}}>
-                                {(selectedCustomer.customerType?.discountPercentage || selectedCustomer.customDiscount) && (
+                                {(selectedCustomer.customDiscount > 0) && (
                                     <>
-                                        <strong>Descuento:</strong> {selectedCustomer.customerType?.discountPercentage || selectedCustomer.customDiscount}</>
+                                        <strong>Descuento:</strong> {selectedCustomer.customDiscount}
+                                    </>
                                 )}
                             </Typography>
                         </Grid>
@@ -106,90 +101,6 @@ export const SaleInfo = ({
                             multiline
                             rows={2}
                         />
-                    </Grid>
-                </CardContent>
-            </Card>
-
-            {/* Panel Central - Agregar Producto */}
-            <Card sx={{flexShrink: 0}}>
-                <CardContent sx={{pb: 2}}>
-                    <Typography variant="h6" gutterBottom>
-                        Agregar Producto
-                    </Typography>
-                    <Grid container spacing={2} sx={{mb: 2}}>
-                        <Grid item xs={6} sm={3}>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                label="ID"
-                                value={selectedProductData.id}
-                                disabled
-                            />
-                        </Grid>
-                        <Grid item xs={6} sm={9}>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                label="Nombre"
-                                value={selectedProductData.name}
-                                disabled
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                type="number"
-                                label="Cantidad"
-                                value={selectedProductData.quantity}
-                                onChange={(e) => onSelectedProductChange({
-                                    ...selectedProductData,
-                                    quantity: e.target.value
-                                })}
-                                inputProps={{step: '0.01', min: '0'}}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                type="number"
-                                label="Precio"
-                                value={selectedProductData.price}
-                                onChange={(e) => onSelectedProductChange({
-                                    ...selectedProductData,
-                                    price: e.target.value
-                                })}
-                                inputProps={{step: '0.01', min: '0'}}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                label="Total"
-                                value={formatCurrency(selectedProductData.total)}
-                                disabled
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Button
-                            fullWidth
-                            variant="contained"
-                            color="primary"
-                            startIcon={<Add/>}
-                            onClick={onAddToCart}
-                            disabled={!selectedProductData.id}
-                        >
-                            Agregar
-                        </Button>
-                        {errors.cart && (
-                            <Typography color="error" variant="caption"
-                                        sx={{mt: 1, display: 'block'}}>
-                                {errors.cart}
-                            </Typography>
-                        )}
                     </Grid>
                 </CardContent>
             </Card>
