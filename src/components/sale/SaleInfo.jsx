@@ -27,7 +27,7 @@ export const SaleInfo = ({
     return (
         <>
             {/* Panel Superior - Info Venta */}
-            <Card>
+            <Card sx={{flexShrink: 0}}>
                 <CardContent sx={{pb: 2}}>
                     <Typography variant="h6" gutterBottom>
                         Información de Venta
@@ -111,7 +111,7 @@ export const SaleInfo = ({
             </Card>
 
             {/* Panel Central - Agregar Producto */}
-            <Card>
+            <Card sx={{flexShrink: 0}}>
                 <CardContent sx={{pb: 2}}>
                     <Typography variant="h6" gutterBottom>
                         Agregar Producto

@@ -268,9 +268,17 @@ export const SaleForm = ({saleSelected}) => {
                         flexDirection: 'column',
                         minWidth: '400px',
                         flex: '1 1 50%',
-                        maxWidth: '50% !important'
+                        maxWidth: '50% !important',
+                        overflow: 'hidden'
                     }}>
-                        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2, height: '100%'}}>
+                        <Box sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                            height: '100%',
+                            overflow: 'auto',
+                            minHeight: 0
+                        }}>
                             <SaleInfo
                                 user={user}
                                 customers={customers}

@@ -17,12 +17,16 @@ export const ShoppingCart = ({
     formatCurrency
 }) => {
     return (
-        <Card sx={{flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
-            <CardContent sx={{flexGrow: 1, display: 'flex', flexDirection: 'column', pb: 2}}>
+        <Card sx={{flexShrink: 0}}>
+            <CardContent sx={{pb: 2}}>
                 <Typography variant="h6" gutterBottom>
                     Carrito de Compras
                 </Typography>
-                <TableContainer sx={{flexGrow: 1, overflow: 'auto', mb: 2}}>
+                <TableContainer sx={{
+                    overflow: 'auto',
+                    mb: 2,
+                    maxHeight: '250px'
+                }}>
                     <Table size="small" stickyHeader>
                         <TableHead>
                             <TableRow>
