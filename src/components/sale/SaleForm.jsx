@@ -302,9 +302,9 @@ export const SaleForm = ({saleSelected}) => {
     };
 
     return (
-        <Box sx={{flexGrow: 1, p: 2, height: 'calc(100vh - 100px)'}} className="sale-form-container">
+        <Box sx={{flexGrow: 1, p: 3, minHeight: 'calc(100vh - 350px)'}} className="sale-form-container">
             <form onSubmit={handleSubmit} noValidate style={{height: '100%'}}>
-                <Grid container spacing={2} sx={{height: '100%', flexWrap: 'nowrap !important'}}>
+                <Grid container spacing={3} sx={{height: '100%', flexWrap: 'nowrap !important'}}>
                     {/* Columna Izquierda - Lista de Productos */}
                     <Grid item xs={6}
                           sx={{height: '100%', minWidth: '400px', flex: '1 1 50%', maxWidth: '50% !important'}}>
