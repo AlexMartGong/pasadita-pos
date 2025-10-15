@@ -26,6 +26,7 @@ export const SaleForm = ({saleSelected}) => {
         isEditMode,
         selectedCustomer,
         hasDeliveryRole,
+        canSaveDeliveryOrder,
         deliveryEmployeeId,
         deliveryCost,
         setProductSearch,
@@ -101,7 +102,7 @@ export const SaleForm = ({saleSelected}) => {
                                     employees={employees}
                                     onDeliveryEmployeeChange={setDeliveryEmployeeId}
                                     onDeliveryCostChange={setDeliveryCost}
-                                    formatCurrency={formatCurrency}
+                                    canSaveDeliveryOrder={canSaveDeliveryOrder}
                                 />
                             )}
 

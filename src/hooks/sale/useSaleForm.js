@@ -4,6 +4,8 @@ import {useCustomer} from '../customer/useCustomer';
 import {useProduct} from '../product/useProduct';
 import {useUser} from '../user/useUser';
 import {useAuth} from '../../auth/hooks/useAuth';
+import {deliveryOrderService} from '../../services/deliveryOrderService';
+import {toast} from 'react-toastify';
 
 export const useSaleForm = (saleSelected) => {
     const {handleSaveSale, initialSaleForm} = useSale();
@@ -35,8 +37,11 @@ export const useSaleForm = (saleSelected) => {
     const [deliveryEmployeeId, setDeliveryEmployeeId] = useState(null);
     const [deliveryCost, setDeliveryCost] = useState(0);
 
-    // Verificar si el usuario tiene el rol ROLE_PEDIDOS
-    const hasDeliveryRole = role && role.includes('ROLE_PEDIDOS', 'ROLE_ADMIN');
+    // Verificar si el usuario tiene el rol ROLE_PEDIDOS o ROLE_ADMIN (para visualizar el componente)
+    const hasDeliveryRole = role && (role.includes('ROLE_PEDIDOS') || role.includes('ROLE_ADMIN'));
+
+    // Verificar si el usuario puede guardar delivery orders (solo ROLE_PEDIDOS)
+    const canSaveDeliveryOrder = role && role.includes('ROLE_PEDIDOS');
 
     // Cargar clientes, productos y empleados al iniciar
     useEffect(() => {
@@ -303,9 +308,29 @@ export const useSaleForm = (saleSelected) => {
                 }))
             };
 
-            const success = await handleSaveSale(saleData);
+            const savedSale = await handleSaveSale(saleData);
 
-            if (success) {
+            if (savedSale) {
+                // Si el usuario tiene ROLE_PEDIDOS y hay datos de delivery order, guardar el pedido
+                if (hasDeliveryRole && saleData.employeeId) {
+                    try {
+                        const customer = customers.find(c => c.id === parseInt(formData.customerId));
+                        const deliveryOrderData = {
+                            saleId: savedSale.id, // Usar el ID devuelto por la venta guardada
+                            deliveryEmployeeId: savedSale.employeeId,
+                            deliveryAddress: customer?.address || '',
+                            contactPhone: customer?.phone || '',
+                            deliveryCost: deliveryCost || 0
+                        };
+
+                        await deliveryOrderService.saveDeliveryOrder(deliveryOrderData);
+                        toast.success('Pedido de entrega creado exitosamente.');
+                    } catch (deliveryError) {
+                        console.error('Error saving delivery order:', deliveryError);
+                        toast.error('La venta se guardó pero hubo un error al crear el pedido de entrega.');
+                    }
+                }
+
                 handleLocalCancel();
             }
         } catch (error) {
@@ -345,6 +370,7 @@ export const useSaleForm = (saleSelected) => {
         isEditMode,
         selectedCustomer,
         hasDeliveryRole,
+        canSaveDeliveryOrder,
 
         // Estados de delivery order
         deliveryEmployeeId,

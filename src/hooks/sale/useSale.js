@@ -43,14 +43,15 @@ export const useSale = () => {
             if (result.status === 201 || result.status === 200) {
                 toast.success('Venta guardada exitosamente.');
                 dispatch(onCreateSale(result.data));
+                return result.data; // Devolver los datos de la venta creada/actualizada
             } else {
                 toast.error('Error al guardar la venta.');
+                return null;
             }
-            return true;
         } catch (error) {
             console.error('Error saving sale:', error);
             handleApiError(error);
-            return false;
+            return null;
         }
     }, [handleApiError, dispatch]);
 

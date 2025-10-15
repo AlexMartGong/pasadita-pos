@@ -21,7 +21,6 @@ export const DeliveryOrder = ({selectedCustomer, deliveryCost, onDeliveryCostCha
                             label="Dirección de Entrega"
                             value={deliveryAddress}
                             disabled
-                            // helperText="Obtenida del cliente seleccionado"
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -31,7 +30,6 @@ export const DeliveryOrder = ({selectedCustomer, deliveryCost, onDeliveryCostCha
                             label="Teléfono de Contacto"
                             value={contactPhone}
                             disabled
-                            // helperText="Obtenido del cliente seleccionado"
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -43,7 +41,6 @@ export const DeliveryOrder = ({selectedCustomer, deliveryCost, onDeliveryCostCha
                             value={deliveryCost}
                             onChange={(e) => onDeliveryCostChange(parseFloat(e.target.value) || 0)}
                             inputProps={{min: 0, step: "0.01"}}
-                            // helperText={formatCurrency ? formatCurrency(deliveryCost) : ''}
                         />
                     </Grid>
                 </Grid>
