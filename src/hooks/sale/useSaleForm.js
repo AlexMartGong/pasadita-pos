@@ -2,13 +2,15 @@ import {useCallback, useEffect, useState} from 'react';
 import {useSale} from './useSale';
 import {useCustomer} from '../customer/useCustomer';
 import {useProduct} from '../product/useProduct';
+import {useUser} from '../user/useUser';
 import {useAuth} from '../../auth/hooks/useAuth';
 
 export const useSaleForm = (saleSelected) => {
     const {handleSaveSale, initialSaleForm} = useSale();
     const {customers, handleGetCustomers} = useCustomer();
     const {products, handleGetProducts} = useProduct();
-    const {user, employeeId} = useAuth();
+    const {users, getAllUsers} = useUser();
+    const {user, employeeId, role} = useAuth();
 
     const isEditMode = saleSelected && saleSelected.id !== 0;
 
@@ -29,11 +31,21 @@ export const useSaleForm = (saleSelected) => {
         total: 0
     });
 
-    // Cargar clientes y productos al iniciar
+    // Estados para delivery order
+    const [deliveryEmployeeId, setDeliveryEmployeeId] = useState(null);
+    const [deliveryCost, setDeliveryCost] = useState(0);
+
+    // Verificar si el usuario tiene el rol ROLE_PEDIDOS
+    const hasDeliveryRole = role && role.includes('ROLE_PEDIDOS', 'ROLE_ADMIN');
+
+    // Cargar clientes, productos y empleados al iniciar
     useEffect(() => {
         handleGetCustomers();
         handleGetProducts();
-    }, []);
+        if (hasDeliveryRole) {
+            getAllUsers();
+        }
+    }, [hasDeliveryRole]);
 
     // Cargar datos de venta en modo edición
     useEffect(() => {
@@ -243,6 +255,8 @@ export const useSaleForm = (saleSelected) => {
             price: '',
             total: 0
         });
+        setDeliveryEmployeeId(null);
+        setDeliveryCost(0);
         setErrors({});
 
         // Restablecer el primer cliente como seleccionado
@@ -318,6 +332,7 @@ export const useSaleForm = (saleSelected) => {
         user,
         customers,
         products,
+        employees: users,
         formData,
         saleDetails,
         productSearch,
@@ -329,6 +344,11 @@ export const useSaleForm = (saleSelected) => {
         isSubmitting,
         isEditMode,
         selectedCustomer,
+        hasDeliveryRole,
+
+        // Estados de delivery order
+        deliveryEmployeeId,
+        deliveryCost,
 
         // Setters
         setProductSearch,
@@ -336,6 +356,8 @@ export const useSaleForm = (saleSelected) => {
         setPaymentMethodId,
         setPaid,
         setNotes,
+        setDeliveryEmployeeId,
+        setDeliveryCost,
 
         // Funciones
         handleSelectProduct,

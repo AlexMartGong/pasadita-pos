@@ -2,6 +2,7 @@ import React from 'react';
 import {Box, Grid} from '@mui/material';
 import {ProductsTable} from './ProductsTable';
 import {SaleInfo} from './SaleInfo';
+import {DeliveryOrder} from './DeliveryOrder';
 import {AddProductForm} from './AddProductForm';
 import {ShoppingCart} from './ShoppingCart';
 import {useSaleForm} from '../../hooks/sale/useSaleForm';
@@ -12,6 +13,7 @@ export const SaleForm = ({saleSelected}) => {
         user,
         customers,
         products,
+        employees,
         formData,
         saleDetails,
         productSearch,
@@ -23,11 +25,16 @@ export const SaleForm = ({saleSelected}) => {
         isSubmitting,
         isEditMode,
         selectedCustomer,
+        hasDeliveryRole,
+        deliveryEmployeeId,
+        deliveryCost,
         setProductSearch,
         setSelectedProductData,
         setPaymentMethodId,
         setPaid,
         setNotes,
+        setDeliveryEmployeeId,
+        setDeliveryCost,
         handleSelectProduct,
         handleAddToCart,
         handleRemoveProduct,
@@ -85,6 +92,18 @@ export const SaleForm = ({saleSelected}) => {
                                 onPaidChange={setPaid}
                                 onNotesChange={setNotes}
                             />
+
+                            {hasDeliveryRole && (
+                                <DeliveryOrder
+                                    selectedCustomer={selectedCustomer}
+                                    deliveryEmployeeId={deliveryEmployeeId}
+                                    deliveryCost={deliveryCost}
+                                    employees={employees}
+                                    onDeliveryEmployeeChange={setDeliveryEmployeeId}
+                                    onDeliveryCostChange={setDeliveryCost}
+                                    formatCurrency={formatCurrency}
+                                />
+                            )}
 
                             <AddProductForm
                                 selectedProductData={selectedProductData}
