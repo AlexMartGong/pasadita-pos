@@ -316,7 +316,7 @@ export const useSaleForm = (saleSelected) => {
                     try {
                         const customer = customers.find(c => c.id === parseInt(formData.customerId));
                         const deliveryOrderData = {
-                            saleId: savedSale.id, // Usar el ID devuelto por la venta guardada
+                            saleId: savedSale.id,
                             deliveryEmployeeId: savedSale.employeeId,
                             deliveryAddress: customer?.address || '',
                             contactPhone: customer?.phone || '',
@@ -324,7 +324,6 @@ export const useSaleForm = (saleSelected) => {
                         };
 
                         await deliveryOrderService.saveDeliveryOrder(deliveryOrderData);
-                        toast.success('Pedido de entrega creado exitosamente.');
                     } catch (deliveryError) {
                         console.error('Error saving delivery order:', deliveryError);
                         toast.error('La venta se guardó pero hubo un error al crear el pedido de entrega.');

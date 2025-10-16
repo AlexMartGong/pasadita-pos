@@ -70,7 +70,7 @@ export const useSaleTable = (sales) => {
             width: 80,
         },
         {
-            field: "saleDate",
+            field: "datetime",
             headerName: "Fecha",
             width: 160,
             sortable: true,
