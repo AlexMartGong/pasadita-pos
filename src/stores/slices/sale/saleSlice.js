@@ -4,8 +4,10 @@ export const initialSaleForm = {
     id: 0,
     customerId: null,
     employeeId: null,
-    saleDate: new Date().toISOString(),
+    paid: 0,
+    paymentMethodId: 0,
     total: 0,
+    notes: '',
     saleDetails: [],
 }
 

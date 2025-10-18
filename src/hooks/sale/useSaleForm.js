@@ -63,6 +63,9 @@ export const useSaleForm = (saleSelected) => {
                 total: saleSelected.total || 0,
             });
             setSaleDetails(saleSelected.saleDetails || []);
+            setPaymentMethodId(saleSelected.paymentMethodId || 1);
+            setPaid(saleSelected.paid !== undefined ? saleSelected.paid : true);
+            setNotes(saleSelected.notes || '');
         }
     }, [saleSelected]);
 

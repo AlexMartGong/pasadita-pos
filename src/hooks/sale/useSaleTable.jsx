@@ -89,6 +89,26 @@ export const useSaleTable = (sales) => {
             sortable: true,
         },
         {
+            field: "paymentMethodName",
+            headerName: "Método de Pago",
+            width: 180,
+            sortable: true,
+        },
+        {
+            field: "paid",
+            headerName: "Pagado",
+            width: 180,
+            sortable: true,
+            renderCell: (params) => (
+                <Chip
+                    label={params.value ? "Pagado" : "Pendiente"}
+                    color={params.value ? "success" : "warning"}
+                    variant="outlined"
+                    size="small"
+                />
+            ),
+        },
+        {
             field: "total",
             headerName: "Total",
             width: 140,

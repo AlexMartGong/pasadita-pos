@@ -50,7 +50,7 @@ export const SaleForm = ({saleSelected}) => {
             <form onSubmit={handleSubmit} noValidate style={{height: '100%'}}>
                 <Grid container spacing={3} sx={{height: '100%', flexWrap: 'nowrap !important'}}>
                     {/* Columna Izquierda - Lista de Productos */}
-                    <Grid item xs={6}
+                    <Grid
                           sx={{height: '100%', minWidth: '400px', flex: '1 1 50%', maxWidth: '50% !important'}}>
                         <ProductsTable
                             products={products}
