@@ -5,6 +5,7 @@ import {useProduct} from '../product/useProduct';
 import {useUser} from '../user/useUser';
 import {useAuth} from '../../auth/hooks/useAuth';
 import {deliveryOrderService} from '../../services/deliveryOrderService';
+import {getSaleDetailsById} from '../../services/saleService';
 import {toast} from 'react-toastify';
 
 export const useSaleForm = (saleSelected) => {
@@ -54,19 +55,43 @@ export const useSaleForm = (saleSelected) => {
 
     // Cargar datos de venta en modo edición
     useEffect(() => {
-        if (saleSelected && saleSelected.id !== 0) {
-            setFormData({
-                id: saleSelected.id || 0,
-                customerId: saleSelected.customerId || null,
-                employeeId: saleSelected.employeeId || null,
-                saleDate: saleSelected.saleDate || new Date().toISOString(),
-                total: saleSelected.total || 0,
-            });
-            setSaleDetails(saleSelected.saleDetails || []);
-            setPaymentMethodId(saleSelected.paymentMethodId || 1);
-            setPaid(saleSelected.paid !== undefined ? saleSelected.paid : true);
-            setNotes(saleSelected.notes || '');
-        }
+        const loadSaleData = async () => {
+            if (saleSelected && saleSelected.id !== 0) {
+                setFormData({
+                    id: saleSelected.id || 0,
+                    customerId: saleSelected.customerId || null,
+                    employeeId: saleSelected.employeeId || null,
+                    total: saleSelected.total || 0,
+                });
+                setPaymentMethodId(saleSelected.paymentMethodId || 1);
+                setPaid(saleSelected.paid !== undefined ? saleSelected.paid : true);
+                setNotes(saleSelected.notes || '');
+
+                // Cargar detalles de la venta desde la API
+                try {
+                    const response = await getSaleDetailsById(saleSelected.id);
+                    if (response && response.data) {
+                        // Transformar los datos de la API al formato del carrito
+                        const cartDetails = response.data.map(detail => ({
+                            productId: detail.productId,
+                            productName: detail.productName,
+                            quantity: detail.quantity,
+                            unitPrice: detail.unitPrice,
+                            subtotal: detail.subtotal,
+                            discount: detail.discount,
+                            total: detail.total
+                        }));
+                        setSaleDetails(cartDetails);
+                    }
+                } catch (error) {
+                    console.error('Error loading sale details:', error);
+                    toast.error('Error al cargar los detalles de la venta');
+                    setSaleDetails([]);
+                }
+            }
+        };
+
+        loadSaleData();
     }, [saleSelected]);
 
     // Seleccionar el primer cliente por defecto
