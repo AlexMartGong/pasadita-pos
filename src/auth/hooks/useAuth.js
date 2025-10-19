@@ -5,7 +5,7 @@ import {onInitLogin, onLogin, onLogout} from "../../stores/slices/auth/authSlice
 import {loginValidation} from "../services/authService.js";
 
 export const useAuth = () => {
-    const {isAuth, user, isAdmin, isLoginLoading, role} = useSelector(state => state.auth);
+    const {isAuth, user, isAdmin, isLoginLoading, role, employeeId} = useSelector(state => state.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -22,7 +22,8 @@ export const useAuth = () => {
                 isAuth: true,
                 isAdmin: isAdmin,
                 role: role,
-                user: response.data.username
+                user: response.data.username,
+                employeeId: response.data.id || response.data.employeeId || 0
             };
 
             dispatch(onLogin(login));
@@ -56,6 +57,7 @@ export const useAuth = () => {
         user,
         isAdmin,
         role,
+        employeeId,
         isLoginLoading,
         handlerLogin,
         handlerLogout
