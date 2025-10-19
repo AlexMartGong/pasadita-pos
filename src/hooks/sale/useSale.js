@@ -3,6 +3,7 @@ import {useCallback} from "react";
 import {
     initialSaleForm,
     onCreateSale,
+    onUpdateSale,
     setSales,
     onSelectSale,
     onClearSaleSelected
@@ -37,17 +38,21 @@ export const useSale = () => {
         try {
             if (saleData.id === 0) {
                 result = await saleService.saveSale(saleData);
+                if (result.status === 201 || result.status === 200) {
+                    toast.success('Venta creada exitosamente.');
+                    dispatch(onCreateSale(result.data));
+                    return result.data;
+                }
             } else {
                 result = await saleService.updateSale(saleData.id, saleData);
+                if (result.status === 200) {
+                    toast.success('Venta actualizada exitosamente.');
+                    dispatch(onUpdateSale(result.data));
+                    return result.data;
+                }
             }
-            if (result.status === 201 || result.status === 200) {
-                toast.success('Venta guardada exitosamente.');
-                dispatch(onCreateSale(result.data));
-                return result.data; // Devolver los datos de la venta creada/actualizada
-            } else {
-                toast.error('Error al guardar la venta.');
-                return null;
-            }
+            toast.error('Error al guardar la venta.');
+            return null;
         } catch (error) {
             console.error('Error saving sale:', error);
             handleApiError(error);

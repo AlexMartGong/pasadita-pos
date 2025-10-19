@@ -344,8 +344,7 @@ export const useSaleForm = (saleSelected) => {
             const savedSale = await handleSaveSale(saleData);
 
             if (savedSale) {
-                // Si el usuario tiene ROLE_PEDIDOS y hay datos de delivery order, guardar el pedido
-                if (hasDeliveryRole && saleData.employeeId) {
+                if (canSaveDeliveryOrder && saleData.employeeId) {
                     try {
                         const customer = customers.find(c => c.id === parseInt(formData.customerId));
                         const deliveryOrderData = {
