@@ -30,11 +30,33 @@ export const updateSale = async (id, saleUpdateDto) => {
     }
 };
 
+// Get sale by ID (general info)
+export const getSaleById = async (id) => {
+    try {
+        return await saleApi.get(`/${id}`);
+    } catch (error) {
+        console.error('Error fetching sale by ID:', error);
+        throw error;
+    }
+}
+
+// Get sale details by ID (products)
+export const getSaleDetailsById = async (id) => {
+    try {
+        return await saleApi.get(`/${id}/details`);
+    } catch (error) {
+        console.error('Error fetching sale details by ID:', error);
+        throw error;
+    }
+}
+
 // Export all functions as default object for easier importing
 const saleService = {
     getAllSales,
     saveSale,
-    updateSale
+    updateSale,
+    getSaleById,
+    getSaleDetailsById,
 };
 
 export default saleService;
