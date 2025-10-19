@@ -301,6 +301,11 @@ export const useSaleForm = (saleSelected) => {
         }
     };
 
+    // Formatear número a 2 decimales
+    const formatToTwoDecimals = (value) => {
+        return Math.round((value || 0) * 100) / 100;
+    };
+
     // Manejar envío del formulario
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -321,18 +326,18 @@ export const useSaleForm = (saleSelected) => {
                 employeeId: employeeId,
                 customerId: parseInt(formData.customerId),
                 paymentMethodId: paymentMethodId,
-                subtotal: subtotal,
-                discountAmount: discountAmount,
-                total: formData.total,
+                subtotal: formatToTwoDecimals(subtotal),
+                discountAmount: formatToTwoDecimals(discountAmount),
+                total: formatToTwoDecimals(formData.total),
                 paid: paid,
                 notes: notes || '',
                 saleDetails: saleDetails.map(detail => ({
                     productId: detail.productId,
-                    quantity: detail.quantity,
-                    unitPrice: detail.unitPrice,
-                    subtotal: detail.subtotal,
-                    discount: detail.discount,
-                    total: detail.total
+                    quantity: formatToTwoDecimals(detail.quantity),
+                    unitPrice: formatToTwoDecimals(detail.unitPrice),
+                    subtotal: formatToTwoDecimals(detail.subtotal),
+                    discount: formatToTwoDecimals(detail.discount),
+                    total: formatToTwoDecimals(detail.total)
                 }))
             };
 
