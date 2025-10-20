@@ -5,7 +5,6 @@ export const initialDeliveryOrderForm = {
     saleId: null,
     deliveryEmployeeId: null,
     status: '',
-    requestDate: new Date().toISOString(),
     deliveryAddress: '',
     contactPhone: '',
     deliveryCost: 0,

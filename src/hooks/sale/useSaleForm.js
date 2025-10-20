@@ -21,6 +21,7 @@ export const useSaleForm = (saleSelected) => {
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState(initialSaleForm);
+    const [deliveryOrderId, setDeliveryOrderId] = useState(null);
     const [saleDetails, setSaleDetails] = useState([]);
     const [productSearch, setProductSearch] = useState('');
     const [paymentMethodId, setPaymentMethodId] = useState(1);
@@ -87,6 +88,22 @@ export const useSaleForm = (saleSelected) => {
                     console.error('Error loading sale details:', error);
                     toast.error('Error al cargar los detalles de la venta');
                     setSaleDetails([]);
+                }
+                if (hasDeliveryRole) {
+                    try {
+                        const deliveryOrders = await deliveryOrderService.getAllDeliveryOrders();
+                        const existingDeliveryOrder = deliveryOrders.find(
+                            order => order.saleId === saleSelected.id
+                        );
+
+                        if (existingDeliveryOrder) {
+                            setDeliveryOrderId(existingDeliveryOrder.id);
+                            setDeliveryEmployeeId(existingDeliveryOrder.deliveryEmployeeId);
+                            setDeliveryCost(existingDeliveryOrder.deliveryCost);
+                        }
+                    } catch (error) {
+                        console.error('Error loading delivery order:', error);
+                    }
                 }
             }
         };
@@ -344,7 +361,7 @@ export const useSaleForm = (saleSelected) => {
             const savedSale = await handleSaveSale(saleData);
 
             if (savedSale) {
-                if (canSaveDeliveryOrder && saleData.employeeId) {
+                if (hasDeliveryRole && saleData.employeeId) {
                     try {
                         const customer = customers.find(c => c.id === parseInt(formData.customerId));
                         const deliveryOrderData = {
@@ -355,7 +372,11 @@ export const useSaleForm = (saleSelected) => {
                             deliveryCost: deliveryCost || 0
                         };
 
-                        await deliveryOrderService.saveDeliveryOrder(deliveryOrderData);
+                        if (isEditMode) {
+                            await deliveryOrderService.updateDeliveryOrder(deliveryOrderId, deliveryOrderData);
+                        } else {
+                            await deliveryOrderService.saveDeliveryOrder(deliveryOrderData);
+                        }
                     } catch (deliveryError) {
                         console.error('Error saving delivery order:', deliveryError);
                         toast.error('La venta se guardó pero hubo un error al crear el pedido de entrega.');

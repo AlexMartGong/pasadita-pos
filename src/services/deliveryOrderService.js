@@ -30,6 +30,15 @@ class DeliveryOrderService {
             throw error;
         }
     }
+
+    async updateDeliveryOrder(id, deliveryOrderData) {
+        try {
+            const response = await deliveryOrderApi.put(`/update/${id}`, deliveryOrderData);
+            return response.data;
+        } catch (error) {
+            console.error('Error updating delivery order:', error);
+        }
+    }
 }
 
 export const deliveryOrderService = new DeliveryOrderService();
