@@ -44,6 +44,18 @@ export const useDeliveryOrder = () => {
         }
     }, [handleApiError, dispatch]);
 
+    const handleUpdateDeliveryOrder = useCallback(async (id, deliveryOrderData) => {
+        try {
+            const result = await deliveryOrderService.updateDeliveryOrder(id, deliveryOrderData);
+            dispatch(onUpdateDeliveryOrderStatus(result));
+            toast.success('Orden de entrega actualizada exitosamente.');
+            return true;
+        } catch (error) {
+            console.error('Error updating delivery order:', error);
+            handleApiError(error);
+        }
+    }, [handleApiError, dispatch]);
+
     const handleChangeDeliveryOrderStatus = useCallback(async (id, statusData) => {
         try {
             const result = await deliveryOrderService.changeDeliveryOrderStatus(id, statusData);
@@ -83,6 +95,7 @@ export const useDeliveryOrder = () => {
         deliveryOrderSelected,
         handleGetDeliveryOrders,
         handleSaveDeliveryOrder,
+        handleUpdateDeliveryOrder,
         handleChangeDeliveryOrderStatus,
         handleDeliveryOrderEdit,
         handleDeliveryOrderView,
