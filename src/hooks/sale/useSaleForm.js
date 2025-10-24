@@ -39,11 +39,21 @@ export const useSaleForm = (saleSelected) => {
     const [deliveryEmployeeId, setDeliveryEmployeeId] = useState(null);
     const [deliveryCost, setDeliveryCost] = useState(0);
 
+    // Estado para tipo de operación (solo para ROLE_ADMIN)
+    const [operationType, setOperationType] = useState('venta'); // 'venta' o 'pedido'
+
     // Verificar si el usuario tiene el rol ROLE_PEDIDOS o ROLE_ADMIN (para visualizar el componente)
     const hasDeliveryRole = role && (role.includes('ROLE_PEDIDOS') || role.includes('ROLE_ADMIN'));
 
-    // Verificar si el usuario puede guardar delivery orders (solo ROLE_PEDIDOS)
-    const canSaveDeliveryOrder = role && role.includes('ROLE_PEDIDOS');
+    // Verificar si el usuario puede guardar delivery orders
+    // ROLE_PEDIDOS siempre puede, ROLE_ADMIN solo si operationType es 'pedido'
+    const canSaveDeliveryOrder = role && (
+        role.includes('ROLE_PEDIDOS') ||
+        (role.includes('ROLE_ADMIN') && operationType === 'pedido')
+    );
+
+    // Verificar si es ROLE_ADMIN (para mostrar el selector de tipo de operación)
+    const isAdmin = role && role.includes('ROLE_ADMIN');
 
     // Cargar clientes, productos y empleados al iniciar
     useEffect(() => {
@@ -109,7 +119,7 @@ export const useSaleForm = (saleSelected) => {
         };
 
         loadSaleData();
-    }, [saleSelected]);
+    }, [hasDeliveryRole, saleSelected]);
 
     // Seleccionar el primer cliente por defecto
     useEffect(() => {
@@ -307,6 +317,7 @@ export const useSaleForm = (saleSelected) => {
         });
         setDeliveryEmployeeId(null);
         setDeliveryCost(0);
+        setOperationType('venta'); // Resetear a venta por defecto
         setErrors({});
 
         // Restablecer el primer cliente como seleccionado
@@ -361,7 +372,8 @@ export const useSaleForm = (saleSelected) => {
             const savedSale = await handleSaveSale(saleData);
 
             if (savedSale) {
-                if (hasDeliveryRole && saleData.employeeId) {
+                // Solo guardar delivery order si canSaveDeliveryOrder es true
+                if (canSaveDeliveryOrder && saleData.employeeId) {
                     try {
                         const customer = customers.find(c => c.id === parseInt(formData.customerId));
                         const deliveryOrderData = {
@@ -423,6 +435,8 @@ export const useSaleForm = (saleSelected) => {
         selectedCustomer,
         hasDeliveryRole,
         canSaveDeliveryOrder,
+        isAdmin,
+        operationType,
 
         // Estados de delivery order
         deliveryEmployeeId,
@@ -436,6 +450,7 @@ export const useSaleForm = (saleSelected) => {
         setNotes,
         setDeliveryEmployeeId,
         setDeliveryCost,
+        setOperationType,
 
         // Funciones
         handleSelectProduct,
