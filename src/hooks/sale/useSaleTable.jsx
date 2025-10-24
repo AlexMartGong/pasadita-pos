@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 import {useSale} from "./useSale.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {Edit, Visibility} from "@mui/icons-material";
+import {Edit, Visibility, Payment} from "@mui/icons-material";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -23,7 +23,7 @@ const useDebounce = (value, delay) => {
 export const useSaleTable = (sales) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
-    const {handleSaleEdit} = useSale();
+    const {handleSaleEdit, handleChangeStatus, handleGetSales} = useSale();
 
     const filteredSales = useMemo(() => {
         if (!sales || !debouncedSearchText) return sales || [];
@@ -42,6 +42,14 @@ export const useSaleTable = (sales) => {
     const handleSearchChange = useCallback((value) => {
         setSearchText(value);
     }, []);
+
+    const handlePaymentToggle = useCallback(async (id, currentPaidStatus) => {
+        const newStatus = !currentPaidStatus;
+        const result = await handleChangeStatus(id, newStatus);
+        if (result) {
+            await handleGetSales();
+        }
+    }, [handleChangeStatus, handleGetSales]);
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -125,7 +133,7 @@ export const useSaleTable = (sales) => {
         {
             field: "actions",
             headerName: "Acciones",
-            width: 200,
+            width: 250,
             sortable: false,
             filterable: false,
             renderCell: (params) => (
@@ -135,7 +143,7 @@ export const useSaleTable = (sales) => {
                             size="small"
                             color="info"
                             onClick={() => handleSaleEdit(params.row.id)}>
-                            <Visibility/> Ver
+                            <Visibility/>
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Editar">
@@ -143,13 +151,21 @@ export const useSaleTable = (sales) => {
                             size="small"
                             color="primary"
                             onClick={() => handleSaleEdit(params.row.id)}>
-                            <Edit/> Editar
+                            <Edit/>
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title={params.row.paid ? "Marcar como Pendiente" : "Marcar como Pagado"}>
+                        <IconButton
+                            size="small"
+                            color={params.row.paid ? "warning" : "success"}
+                            onClick={() => handlePaymentToggle(params.row.id, params.row.paid)}>
+                            <Payment/>
                         </IconButton>
                     </Tooltip>
                 </Box>
             ),
         },
-    ], [handleSaleEdit]);
+    ], [handleSaleEdit, handlePaymentToggle]);
 
     return {
         searchText,

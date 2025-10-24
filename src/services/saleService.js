@@ -50,11 +50,21 @@ export const getSaleDetailsById = async (id) => {
     }
 }
 
+export const changeStatusSale = async (id, statusData) => {
+    try {
+        return await saleApi.put(`/change-status/${id}`, statusData);
+    } catch (error) {
+        console.error('Error changing status:', error);
+        throw error;
+    }
+}
+
 // Export all functions as default object for easier importing
 const saleService = {
     getAllSales,
     saveSale,
     updateSale,
+    changeStatusSale,
     getSaleById,
     getSaleDetailsById,
 };

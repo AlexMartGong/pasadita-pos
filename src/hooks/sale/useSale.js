@@ -60,6 +60,24 @@ export const useSale = () => {
         }
     }, [handleApiError, dispatch]);
 
+    const handleChangeStatus = useCallback(async (id, paid) => {
+        try {
+            const statusData = { paid };
+            const result = await saleService.changeStatusSale(id, statusData);
+            if (result && (result.status === 200 || result.status === 204)) {
+                toast.success('Estado de venta actualizado exitosamente.');
+                dispatch(onUpdateSale(result.data));
+                return result.data;
+            }
+            toast.error('Error al cambiar el estado de la venta.');
+            return null;
+        } catch (error) {
+            console.error('Error changing sale status:', error);
+            handleApiError(error);
+            return null;
+        }
+    }, [dispatch, handleApiError])
+
     const handleSelectSale = useCallback((sale) => {
         dispatch(onSelectSale(sale));
     }, [dispatch]);
@@ -82,6 +100,7 @@ export const useSale = () => {
         saleSelected,
         handleGetSales,
         handleSaveSale,
+        handleChangeStatus,
         handleSaleEdit,
         handleSelectSale,
         handleClearSaleSelected,
