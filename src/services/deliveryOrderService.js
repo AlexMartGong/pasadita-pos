@@ -23,7 +23,7 @@ class DeliveryOrderService {
 
     async changeDeliveryOrderStatus(id, statusData) {
         try {
-            const response = await deliveryOrderApi.patch(`/change-status/${id}`, statusData);
+            const response = await deliveryOrderApi.put(`/change-status/${id}`, statusData);
             return response.data;
         } catch (error) {
             console.error('Error changing delivery order status:', error);

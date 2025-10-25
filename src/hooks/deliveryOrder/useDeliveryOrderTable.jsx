@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 import {useDeliveryOrder} from "./useDeliveryOrder.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {Edit, Visibility, LocalShipping} from "@mui/icons-material";
+import {Visibility, LocalShipping, Cancel, CheckCircle} from "@mui/icons-material";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -23,7 +23,7 @@ const useDebounce = (value, delay) => {
 export const useDeliveryOrderTable = (deliveryOrders) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
-    const {handleDeliveryOrderView, handleChangeDeliveryOrderStatus} = useDeliveryOrder();
+    const {handleDeliveryOrderView, handleChangeDeliveryOrderStatus, handleGetDeliveryOrders} = useDeliveryOrder();
 
     const filteredDeliveryOrders = useMemo(() => {
         if (!deliveryOrders || !debouncedSearchText) return deliveryOrders || [];
@@ -43,6 +43,14 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
     const handleSearchChange = useCallback((value) => {
         setSearchText(value);
     }, []);
+
+    const handleStatusToggle = useCallback(async (id, currentStatus) => {
+        const newStatus = currentStatus === 'ACTIVO' ? 'CANCELADO' : 'ACTIVO';
+        const result = await handleChangeDeliveryOrderStatus(id, {status: newStatus});
+        if (result) {
+            await handleGetDeliveryOrders();
+        }
+    }, [handleChangeDeliveryOrderStatus, handleGetDeliveryOrders]);
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -66,22 +74,16 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
 
     const getStatusColor = (status) => {
         const statusColors = {
-            'PENDING': 'warning',
-            'IN_PROGRESS': 'info',
-            'DELIVERED': 'success',
-            'CANCELLED': 'error',
-            'RETURNED': 'default'
+            'ACTIVO': 'success',
+            'CANCELADO': 'error'
         };
         return statusColors[status] || 'default';
     };
 
     const getStatusLabel = (status) => {
         const statusLabels = {
-            'PENDING': 'Pendiente',
-            'IN_PROGRESS': 'En Progreso',
-            'DELIVERED': 'Entregado',
-            'CANCELLED': 'Cancelado',
-            'RETURNED': 'Devuelto'
+            'ACTIVO': 'Activo',
+            'CANCELADO': 'Cancelado'
         };
         return statusLabels[status] || status;
     };
@@ -148,7 +150,7 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
         {
             field: "actions",
             headerName: "Acciones",
-            width: 120,
+            width: 150,
             sortable: false,
             renderCell: (params) => (
                 <Box sx={userTableStyles.actionsContainer}>
@@ -161,26 +163,19 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
                             <Visibility/>
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title="Cambiar estado">
+                    <Tooltip title={params.row.status === 'ACTIVO' ? "Cancelar pedido" : "Activar pedido"}>
                         <IconButton
-                            color="secondary"
                             size="small"
-                            onClick={() => {
-                                // This could open a dialog to change status
-                                const newStatus = prompt('Ingrese el nuevo estado (PENDING, IN_PROGRESS, DELIVERED, CANCELLED, RETURNED):');
-                                if (newStatus) {
-                                    handleChangeDeliveryOrderStatus(params.row.id, {status: newStatus.toUpperCase()});
-                                }
-                            }}
-                            disabled={params.row.status === 'DELIVERED' || params.row.status === 'CANCELLED'}
+                            color={params.row.status === 'ACTIVO' ? "error" : "success"}
+                            onClick={() => handleStatusToggle(params.row.id, params.row.status)}
                         >
-                            <Edit/>
+                            {params.row.status === 'ACTIVO' ? <Cancel/> : <CheckCircle/>}
                         </IconButton>
                     </Tooltip>
                 </Box>
             ),
         },
-    ], [handleDeliveryOrderView, handleChangeDeliveryOrderStatus]);
+    ], [handleDeliveryOrderView, handleStatusToggle]);
 
     return {
         columns,
