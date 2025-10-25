@@ -14,6 +14,7 @@ import {CustomerTypePage} from "../pages/customer/CustomerTypePage.jsx";
 import {RegisterCustomerTypePage} from "../pages/customer/RegisterCustomerTypePage.jsx";
 import {SalePage} from "../pages/sale/SalePage.jsx";
 import {RegisterSalePage} from "../pages/sale/RegisterSalePage.jsx";
+import {DeliveryPage} from "../pages/delivery/deliveryPage.jsx";
 
 export const FruitRoute = () => {
     return (
@@ -113,6 +114,11 @@ export const FruitRoute = () => {
                     <Route path="sale/edit/:id" element={
                         <AdminRoute>
                             <RegisterSalePage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path={"delivery"} element={
+                        <AdminRoute>
+                            <DeliveryPage/>
                         </AdminRoute>
                     }/>
                 </Routes>

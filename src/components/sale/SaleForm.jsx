@@ -91,6 +91,7 @@ export const SaleForm = ({saleSelected}) => {
                                             id="operation-type-select"
                                             value={operationType}
                                             label="Tipo de Operación"
+                                            variant="outlined"
                                             onChange={(e) => setOperationType(e.target.value)}
                                         >
                                             <MenuItem value="venta">Venta</MenuItem>
