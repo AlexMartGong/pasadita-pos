@@ -3,6 +3,7 @@ import {userTableStyles} from "../../styles/js/UserTable.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
 import {Edit, Payment} from "@mui/icons-material";
 import {useSale} from "../sale/useSale.js";
+import {formatDate, formatCurrency} from "../../utils/formatters.js";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -44,25 +45,6 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
         setSearchText(value);
     }, []);
 
-    const formatDate = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0
-        }).format(value || 0);
-    };
 
     const columns = useMemo(() => [
         {
