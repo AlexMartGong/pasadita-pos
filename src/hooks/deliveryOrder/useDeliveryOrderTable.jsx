@@ -1,10 +1,8 @@
 import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
-import {useDeliveryOrder} from "./useDeliveryOrder.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {Visibility, LocalShipping, Cancel, CheckCircle, Edit, Payment} from "@mui/icons-material";
+import {Edit, Payment} from "@mui/icons-material";
 import {useSale} from "../sale/useSale.js";
-import {useSaleTable} from "../sale/useSaleTable.jsx";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
