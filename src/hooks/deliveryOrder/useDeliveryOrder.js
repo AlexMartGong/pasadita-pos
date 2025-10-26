@@ -11,13 +11,11 @@ import {
 import {toast} from "react-toastify";
 import {useApiErrorHandler} from "../useApiErrorHandler.js";
 import {deliveryOrderService} from "../../services/deliveryOrderService.js";
-import {useNavigate} from "react-router-dom";
 
 export const useDeliveryOrder = () => {
     const {deliveryOrders, deliveryOrderSelected} = useSelector(state => state.deliveryOrder);
     const {handleApiError} = useApiErrorHandler();
     const dispatch = useDispatch();
-    const navigate = useNavigate();
 
     const handleGetDeliveryOrders = useCallback(async () => {
         try {
@@ -77,17 +75,6 @@ export const useDeliveryOrder = () => {
         dispatch(resetDeliveryOrderSelected());
     }, [dispatch]);
 
-    const handleCancel = useCallback(() => {
-        navigate('/delivery-orders');
-    }, [navigate]);
-
-    const handleDeliveryOrderEdit = useCallback((id) => {
-        navigate(`/delivery-order/edit/${id}`);
-    }, [navigate]);
-
-    const handleDeliveryOrderView = useCallback((id) => {
-        navigate(`/delivery-order/view/${id}`);
-    }, [navigate]);
 
     return {
         initialDeliveryOrderForm,
@@ -97,10 +84,7 @@ export const useDeliveryOrder = () => {
         handleSaveDeliveryOrder,
         handleUpdateDeliveryOrder,
         handleChangeDeliveryOrderStatus,
-        handleDeliveryOrderEdit,
-        handleDeliveryOrderView,
         handleSelectDeliveryOrder,
         handleResetDeliveryOrderSelection,
-        handleCancel,
     }
 }

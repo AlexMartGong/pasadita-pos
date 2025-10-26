@@ -23,7 +23,7 @@ const useDebounce = (value, delay) => {
 export const useSaleTable = (sales) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
-    const {handleSaleEdit, handleChangeStatus, handleGetSales} = useSale();
+    const {handleSaleEdit, handlePaymentToggle} = useSale();
 
     const filteredSales = useMemo(() => {
         if (!sales || !debouncedSearchText) return sales || [];
@@ -43,13 +43,7 @@ export const useSaleTable = (sales) => {
         setSearchText(value);
     }, []);
 
-    const handlePaymentToggle = useCallback(async (id, currentPaidStatus) => {
-        const newStatus = !currentPaidStatus;
-        const result = await handleChangeStatus(id, newStatus);
-        if (result) {
-            await handleGetSales();
-        }
-    }, [handleChangeStatus, handleGetSales]);
+
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -138,14 +132,6 @@ export const useSaleTable = (sales) => {
             filterable: false,
             renderCell: (params) => (
                 <Box sx={userTableStyles.actionsContainer}>
-                    <Tooltip title="Ver Detalles">
-                        <IconButton
-                            size="small"
-                            color="info"
-                            onClick={() => handleSaleEdit(params.row.id)}>
-                            <Visibility/>
-                        </IconButton>
-                    </Tooltip>
                     <Tooltip title="Editar">
                         <IconButton
                             size="small"
@@ -168,8 +154,8 @@ export const useSaleTable = (sales) => {
     ], [handleSaleEdit, handlePaymentToggle]);
 
     return {
-        searchText,
         setSearchText: handleSearchChange,
+        searchText,
         filteredSales,
         columns,
     };

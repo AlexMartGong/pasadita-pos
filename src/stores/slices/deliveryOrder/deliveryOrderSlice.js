@@ -3,11 +3,12 @@ import {createSlice} from "@reduxjs/toolkit";
 export const initialDeliveryOrderForm = {
     id: 0,
     saleId: null,
-    deliveryEmployeeId: null,
-    status: '',
+    requestDate: '',
+    customerName: '',
     deliveryAddress: '',
     contactPhone: '',
-    deliveryCost: 0,
+    paid: false,
+    total: 0,
 }
 
 export const deliveryOrderSlice = createSlice({
@@ -35,6 +36,14 @@ export const deliveryOrderSlice = createSlice({
                 }
             }
         },
+        onChangeStatusDeliveryOrder: (state, action) => {
+            state.deliveryOrders = state.deliveryOrders.map(order => {
+                return (order.id === action.payload.id) ? {
+                    ...order,
+                    paid: action.payload.paid,
+                } : order;
+            });
+        },
         setDeliveryOrderSelected: (state, action) => {
             state.deliveryOrderSelected = action.payload;
         },
@@ -48,6 +57,7 @@ export const {
     setDeliveryOrders,
     onCreateDeliveryOrder,
     onUpdateDeliveryOrderStatus,
+    onChangeStatusDeliveryOrder,
     setDeliveryOrderSelected,
     resetDeliveryOrderSelected,
 } = deliveryOrderSlice.actions;

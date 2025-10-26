@@ -25,7 +25,7 @@ export const DeliveryPage = () => {
                     <Box sx={pageHeaderStyles.buttonContainer}>
                         <Button
                             component={NavLink}
-                            to="/delivery/register"
+                            to="/sale/register"
                             variant="contained"
                             size="large"
                             startIcon={<Add/>}

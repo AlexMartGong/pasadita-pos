@@ -2,7 +2,9 @@ import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 import {useDeliveryOrder} from "./useDeliveryOrder.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {Visibility, LocalShipping, Cancel, CheckCircle} from "@mui/icons-material";
+import {Visibility, LocalShipping, Cancel, CheckCircle, Edit, Payment} from "@mui/icons-material";
+import {useSale} from "../sale/useSale.js";
+import {useSaleTable} from "../sale/useSaleTable.jsx";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -23,7 +25,7 @@ const useDebounce = (value, delay) => {
 export const useDeliveryOrderTable = (deliveryOrders) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
-    const {handleDeliveryOrderView, handleChangeDeliveryOrderStatus, handleGetDeliveryOrders} = useDeliveryOrder();
+    const {handleSaleEdit, handlePaymentToggle} = useSale();
 
     const filteredDeliveryOrders = useMemo(() => {
         if (!deliveryOrders || !debouncedSearchText) return deliveryOrders || [];
@@ -43,14 +45,6 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
     const handleSearchChange = useCallback((value) => {
         setSearchText(value);
     }, []);
-
-    const handleStatusToggle = useCallback(async (id, currentStatus) => {
-        const newStatus = currentStatus === 'ACTIVO' ? 'CANCELADO' : 'ACTIVO';
-        const result = await handleChangeDeliveryOrderStatus(id, {status: newStatus});
-        if (result) {
-            await handleGetDeliveryOrders();
-        }
-    }, [handleChangeDeliveryOrderStatus, handleGetDeliveryOrders]);
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -72,22 +66,6 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
         }).format(value || 0);
     };
 
-    const getStatusColor = (status) => {
-        const statusColors = {
-            'ACTIVO': 'success',
-            'CANCELADO': 'error'
-        };
-        return statusColors[status] || 'default';
-    };
-
-    const getStatusLabel = (status) => {
-        const statusLabels = {
-            'ACTIVO': 'Activo',
-            'CANCELADO': 'Cancelado'
-        };
-        return statusLabels[status] || status;
-    };
-
     const columns = useMemo(() => [
         {
             field: "id",
@@ -96,7 +74,7 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
         },
         {
             field: "saleId",
-            headerName: "Venta #",
+            headerName: "Venta",
             width: 100,
             sortable: true,
         },
@@ -106,6 +84,11 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
             width: 160,
             sortable: true,
             renderCell: (params) => formatDate(params.value),
+        },
+        {
+            field: "customerName",
+            headerName: "Cliente",
+            width: 180,
         },
         {
             field: "deliveryAddress",
@@ -120,30 +103,30 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
             sortable: true,
         },
         {
-            field: "deliveryCost",
-            headerName: "Costo de Entrega",
-            width: 140,
+            field: "paid",
+            headerName: "Pagado",
+            width: 180,
             sortable: true,
             renderCell: (params) => (
                 <Chip
-                    label={formatCurrency(params.value)}
-                    color="primary"
+                    label={params.value ? "Pagado" : "Pendiente"}
+                    color={params.value ? "success" : "warning"}
                     variant="outlined"
                     size="small"
                 />
             ),
         },
         {
-            field: "status",
-            headerName: "Estado",
+            field: "total",
+            headerName: "Total",
             width: 140,
             sortable: true,
             renderCell: (params) => (
                 <Chip
-                    label={getStatusLabel(params.value)}
-                    color={getStatusColor(params.value)}
+                    label={formatCurrency(params.value)}
+                    color="success"
+                    variant="outlined"
                     size="small"
-                    icon={<LocalShipping/>}
                 />
             ),
         },
@@ -154,28 +137,27 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
             sortable: false,
             renderCell: (params) => (
                 <Box sx={userTableStyles.actionsContainer}>
-                    <Tooltip title="Ver detalles">
+                    <Tooltip title="Editar">
                         <IconButton
                             color="primary"
                             size="small"
-                            onClick={() => handleDeliveryOrderView(params.row.id)}
+                            onClick={() => handleSaleEdit(params.row.saleId)}
                         >
-                            <Visibility/>
+                            <Edit/>
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title={params.row.status === 'ACTIVO' ? "Cancelar pedido" : "Activar pedido"}>
+                    <Tooltip title={params.row.paid ? "Marcar como Pendiente" : "Marcar como Pagado"}>
                         <IconButton
                             size="small"
-                            color={params.row.status === 'ACTIVO' ? "error" : "success"}
-                            onClick={() => handleStatusToggle(params.row.id, params.row.status)}
-                        >
-                            {params.row.status === 'ACTIVO' ? <Cancel/> : <CheckCircle/>}
+                            color={params.row.paid ? "warning" : "success"}
+                            onClick={() => handlePaymentToggle(params.row.saleId, params.row.paid)}>
+                            <Payment/>
                         </IconButton>
                     </Tooltip>
                 </Box>
             ),
         },
-    ], [handleDeliveryOrderView, handleStatusToggle]);
+    ], [handleSaleEdit, handlePaymentToggle]);
 
     return {
         columns,

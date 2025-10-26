@@ -6,12 +6,13 @@ import {
     onUpdateSale,
     setSales,
     onSelectSale,
-    onClearSaleSelected
+    onClearSaleSelected, onChangeStatusSale
 } from "../../stores/slices/sale/saleSlice.js";
 import saleService from "../../services/saleService.js";
 import {toast} from "react-toastify";
 import {useApiErrorHandler} from "../useApiErrorHandler.js";
 import {useNavigate} from "react-router-dom";
+import {onChangeStatusDeliveryOrder} from "../../stores/slices/deliveryOrder/deliveryOrderSlice.js";
 
 export const useSale = () => {
     const {sales, saleSelected} = useSelector(state => state.sale);
@@ -62,7 +63,7 @@ export const useSale = () => {
 
     const handleChangeStatus = useCallback(async (id, paid) => {
         try {
-            const statusData = { paid };
+            const statusData = {paid};
             const result = await saleService.changeStatusSale(id, statusData);
             if (result && (result.status === 200 || result.status === 204)) {
                 toast.success('Estado de venta actualizado exitosamente.');
@@ -76,7 +77,16 @@ export const useSale = () => {
             handleApiError(error);
             return null;
         }
-    }, [dispatch, handleApiError])
+    }, [dispatch, handleApiError]);
+
+    const handlePaymentToggle = useCallback(async (id, currentPaidStatus) => {
+        const newStatus = !currentPaidStatus;
+        const result = await handleChangeStatus(id, newStatus);
+        if (result) {
+            dispatch(onChangeStatusSale({id, paid: newStatus}));
+            dispatch(onChangeStatusDeliveryOrder({id, paid: newStatus}));
+        }
+    }, [handleChangeStatus, dispatch]);
 
     const handleSelectSale = useCallback((sale) => {
         dispatch(onSelectSale(sale));
@@ -103,6 +113,7 @@ export const useSale = () => {
         handleChangeStatus,
         handleSaleEdit,
         handleSelectSale,
+        handlePaymentToggle,
         handleClearSaleSelected,
         handleCancel,
     }
