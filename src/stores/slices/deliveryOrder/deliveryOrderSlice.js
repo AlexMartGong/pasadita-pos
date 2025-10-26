@@ -2,7 +2,7 @@ import {createSlice} from "@reduxjs/toolkit";
 
 export const initialDeliveryOrderForm = {
     id: 0,
-    saleId: null,
+    saleId: 0,
     requestDate: '',
     customerName: '',
     deliveryAddress: '',
@@ -38,12 +38,12 @@ export const deliveryOrderSlice = createSlice({
         },
         onChangeStatusDeliveryOrder: (state, action) => {
             state.deliveryOrders = state.deliveryOrders.map(order => {
-                return (order.id === action.payload.id) ? {
+                return (order.saleId === action.payload.id) ? {
                     ...order,
                     paid: action.payload.paid,
                 } : order;
             });
-        },
+            },
         setDeliveryOrderSelected: (state, action) => {
             state.deliveryOrderSelected = action.payload;
         },
