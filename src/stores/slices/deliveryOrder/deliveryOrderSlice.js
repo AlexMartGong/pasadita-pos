@@ -16,10 +16,16 @@ export const deliveryOrderSlice = createSlice({
     initialState: {
         deliveryOrders: [],
         deliveryOrderSelected: initialDeliveryOrderForm,
+        totalOrders: 0,
+        totalAmount: 0,
     },
     reducers: {
         setDeliveryOrders: (state, action) => {
             state.deliveryOrders = action.payload;
+        },
+        setTotalAmountAndOrders: (state, action) => {
+            state.totalOrders = action.payload.totalOrders;
+            state.totalAmount = action.payload.totalAmount;
         },
         onCreateDeliveryOrder: (state, action) => {
             state.deliveryOrders.push({
@@ -43,7 +49,7 @@ export const deliveryOrderSlice = createSlice({
                     paid: action.payload.paid,
                 } : order;
             });
-            },
+        },
         setDeliveryOrderSelected: (state, action) => {
             state.deliveryOrderSelected = action.payload;
         },
@@ -55,6 +61,7 @@ export const deliveryOrderSlice = createSlice({
 
 export const {
     setDeliveryOrders,
+    setTotalAmountAndOrders,
     onCreateDeliveryOrder,
     onUpdateDeliveryOrderStatus,
     onChangeStatusDeliveryOrder,
