@@ -22,8 +22,15 @@ export const useDeliveryOrder = () => {
         try {
             const result = await deliveryOrderService.getAllDeliveryOrders();
             dispatch(setDeliveryOrders(result.orders));
-            dispatch(setTotalAmountAndOrders(result));
-            console.log(result);
+
+            // Calcular totalAmount solo de las órdenes pagadas
+            const paidOrders = result.orders.filter(order => order.paid === true);
+            const totalAmountPaid = paidOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+
+            dispatch(setTotalAmountAndOrders({
+                totalOrders: result.totalOrders,
+                totalAmount: totalAmountPaid
+            }));
             return true;
         } catch (error) {
             console.error('Error fetching all delivery orders:', error);

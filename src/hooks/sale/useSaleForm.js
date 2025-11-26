@@ -101,8 +101,8 @@ export const useSaleForm = (saleSelected) => {
                 }
                 if (hasDeliveryRole) {
                     try {
-                        const deliveryOrders = await deliveryOrderService.getAllDeliveryOrders();
-                        const existingDeliveryOrder = deliveryOrders.find(
+                        const result = await deliveryOrderService.getAllDeliveryOrders();
+                        const existingDeliveryOrder = result.orders.find(
                             order => order.saleId === saleSelected.id
                         );
 

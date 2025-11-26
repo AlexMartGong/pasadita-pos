@@ -41,6 +41,10 @@ export const deliveryOrderSlice = createSlice({
                     ...action.payload,
                 }
             }
+
+            // Recalcular totalAmount solo de las órdenes pagadas
+            const paidOrders = state.deliveryOrders.filter(order => order.paid === true);
+            state.totalAmount = paidOrders.reduce((sum, order) => sum + (order.total || 0), 0);
         },
         onChangeStatusDeliveryOrder: (state, action) => {
             state.deliveryOrders = state.deliveryOrders.map(order => {
@@ -49,6 +53,10 @@ export const deliveryOrderSlice = createSlice({
                     paid: action.payload.paid,
                 } : order;
             });
+
+            // Recalcular totalAmount solo de las órdenes pagadas
+            const paidOrders = state.deliveryOrders.filter(order => order.paid === true);
+            state.totalAmount = paidOrders.reduce((sum, order) => sum + (order.total || 0), 0);
         },
         setDeliveryOrderSelected: (state, action) => {
             state.deliveryOrderSelected = action.payload;
