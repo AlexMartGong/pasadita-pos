@@ -63,6 +63,10 @@ Three-layer architecture for each domain (user, product, customer, customerType,
 ### Component Organization
 - `src/components/layout/`: Layout components (Sidebar)
 - `src/components/auth/`: Auth guards (AdminRoute)
+- `src/components/common/`: Reusable UI components
+  - `StatsCard.jsx`: Reusable statistics card with icon, label, and value
+  - `StatsCardContainer.jsx`: Container for grouping multiple StatsCards
+  - See `src/components/common/README.md` for usage examples
 - `src/components/{domain}/`: Domain-specific components
   - `{Domain}Table.jsx`: Data grid/table component
   - `{Domain}Form.jsx`: Create/edit form component
