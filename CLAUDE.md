@@ -27,11 +27,11 @@ npm run preview
 ### State Management
 - **Redux Toolkit** for global state management
 - Store location: `src/stores/store.js`
-- Slices: `auth`, `user`, `product`, `customer`, `customerType`, `sale`
+- Slices: `auth`, `user`, `product`, `customer`, `customerType`, `sale`, `deliveryOrder`
 - Each slice located in `src/stores/slices/{domain}/{domain}Slice.js`
 
 ### API Communication Pattern
-Three-layer architecture for each domain (user, product, customer, customerType, sale):
+Three-layer architecture for each domain (user, product, customer, customerType, sale, deliveryOrder):
 
 1. **API Layer** (`src/apis/{domain}Api.js`):
    - Axios instance with base URL from `VITE_API_BASE_URL` environment variable
@@ -63,6 +63,10 @@ Three-layer architecture for each domain (user, product, customer, customerType,
 ### Component Organization
 - `src/components/layout/`: Layout components (Sidebar)
 - `src/components/auth/`: Auth guards (AdminRoute)
+- `src/components/common/`: Reusable UI components
+  - `StatsCard.jsx`: Reusable statistics card with icon, label, and value
+  - `StatsCardContainer.jsx`: Container for grouping multiple StatsCards
+  - See `src/components/common/README.md` for usage examples
 - `src/components/{domain}/`: Domain-specific components
   - `{Domain}Table.jsx`: Data grid/table component
   - `{Domain}Form.jsx`: Create/edit form component
@@ -73,7 +77,8 @@ Three-layer architecture for each domain (user, product, customer, customerType,
   - Handles HTTP status codes (400-503)
   - Shows toast notifications via react-toastify
   - Auto-logout on 401 responses
-- Domain hooks (`useUser`, `useProduct`, `useCustomer`, `useCustomerType`, `useSale`): Combine service calls with Redux
+- Domain hooks (`useUser`, `useProduct`, `useCustomer`, `useCustomerType`, `useSale`, `useDeliveryOrder`): Combine service calls with Redux
+- Special hooks: `useSaleForm` - Complex form hook for sales with validation, product search, cart management, and delivery order integration
 
 ### Environment Configuration
 Backend API URL configured via `.env`:

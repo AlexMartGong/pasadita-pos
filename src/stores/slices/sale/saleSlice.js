@@ -4,7 +4,7 @@ export const initialSaleForm = {
     id: 0,
     customerId: null,
     employeeId: null,
-    paid: 0,
+    paid: false,
     paymentMethodId: 0,
     total: 0,
     notes: '',
@@ -35,6 +35,14 @@ export const saleSlice = createSlice({
                 }
             }
         },
+        onChangeStatusSale: (state, action) => {
+            state.sales = state.sales.map(sale => {
+                return (sale.id === action.payload.id) ? {
+                    ...sale,
+                    paid: action.payload.paid,
+                } : sale;
+            });
+        },
         onSelectSale: (state, action) => {
             state.saleSelected = action.payload;
         },
@@ -48,6 +56,7 @@ export const {
     setSales,
     onCreateSale,
     onUpdateSale,
+    onChangeStatusSale,
     onSelectSale,
     onClearSaleSelected,
 } = saleSlice.actions;

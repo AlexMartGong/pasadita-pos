@@ -1,8 +1,9 @@
 import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
-import {useDeliveryOrder} from "./useDeliveryOrder.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {Edit, Visibility, LocalShipping} from "@mui/icons-material";
+import {Edit, Payment} from "@mui/icons-material";
+import {useSale} from "../sale/useSale.js";
+import {formatDate, formatCurrency} from "../../utils/formatters.js";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -23,7 +24,7 @@ const useDebounce = (value, delay) => {
 export const useDeliveryOrderTable = (deliveryOrders) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
-    const {handleDeliveryOrderView, handleChangeDeliveryOrderStatus} = useDeliveryOrder();
+    const {handleSaleEdit, handlePaymentToggle} = useSale();
 
     const filteredDeliveryOrders = useMemo(() => {
         if (!deliveryOrders || !debouncedSearchText) return deliveryOrders || [];
@@ -44,47 +45,6 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
         setSearchText(value);
     }, []);
 
-    const formatDate = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0
-        }).format(value || 0);
-    };
-
-    const getStatusColor = (status) => {
-        const statusColors = {
-            'PENDING': 'warning',
-            'IN_PROGRESS': 'info',
-            'DELIVERED': 'success',
-            'CANCELLED': 'error',
-            'RETURNED': 'default'
-        };
-        return statusColors[status] || 'default';
-    };
-
-    const getStatusLabel = (status) => {
-        const statusLabels = {
-            'PENDING': 'Pendiente',
-            'IN_PROGRESS': 'En Progreso',
-            'DELIVERED': 'Entregado',
-            'CANCELLED': 'Cancelado',
-            'RETURNED': 'Devuelto'
-        };
-        return statusLabels[status] || status;
-    };
 
     const columns = useMemo(() => [
         {
@@ -94,7 +54,7 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
         },
         {
             field: "saleId",
-            headerName: "Venta #",
+            headerName: "Venta",
             width: 100,
             sortable: true,
         },
@@ -104,6 +64,11 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
             width: 160,
             sortable: true,
             renderCell: (params) => formatDate(params.value),
+        },
+        {
+            field: "customerName",
+            headerName: "Cliente",
+            width: 180,
         },
         {
             field: "deliveryAddress",
@@ -118,69 +83,61 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
             sortable: true,
         },
         {
-            field: "deliveryCost",
-            headerName: "Costo de Entrega",
-            width: 140,
+            field: "paid",
+            headerName: "Pagado",
+            width: 180,
             sortable: true,
             renderCell: (params) => (
                 <Chip
-                    label={formatCurrency(params.value)}
-                    color="primary"
+                    label={params.value ? "Pagado" : "Pendiente"}
+                    color={params.value ? "success" : "warning"}
                     variant="outlined"
                     size="small"
                 />
             ),
         },
         {
-            field: "status",
-            headerName: "Estado",
+            field: "total",
+            headerName: "Total",
             width: 140,
             sortable: true,
             renderCell: (params) => (
                 <Chip
-                    label={getStatusLabel(params.value)}
-                    color={getStatusColor(params.value)}
+                    label={formatCurrency(params.value)}
+                    color="success"
+                    variant="outlined"
                     size="small"
-                    icon={<LocalShipping/>}
                 />
             ),
         },
         {
             field: "actions",
             headerName: "Acciones",
-            width: 120,
+            width: 150,
             sortable: false,
             renderCell: (params) => (
                 <Box sx={userTableStyles.actionsContainer}>
-                    <Tooltip title="Ver detalles">
+                    <Tooltip title="Editar">
                         <IconButton
                             color="primary"
                             size="small"
-                            onClick={() => handleDeliveryOrderView(params.row.id)}
-                        >
-                            <Visibility/>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Cambiar estado">
-                        <IconButton
-                            color="secondary"
-                            size="small"
-                            onClick={() => {
-                                // This could open a dialog to change status
-                                const newStatus = prompt('Ingrese el nuevo estado (PENDING, IN_PROGRESS, DELIVERED, CANCELLED, RETURNED):');
-                                if (newStatus) {
-                                    handleChangeDeliveryOrderStatus(params.row.id, {status: newStatus.toUpperCase()});
-                                }
-                            }}
-                            disabled={params.row.status === 'DELIVERED' || params.row.status === 'CANCELLED'}
+                            onClick={() => handleSaleEdit(params.row.saleId)}
                         >
                             <Edit/>
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title={params.row.paid ? "Marcar como Pendiente" : "Marcar como Pagado"}>
+                        <IconButton
+                            size="small"
+                            color={params.row.paid ? "warning" : "success"}
+                            onClick={() => handlePaymentToggle(params.row.saleId, params.row.paid)}>
+                            <Payment/>
                         </IconButton>
                     </Tooltip>
                 </Box>
             ),
         },
-    ], [handleDeliveryOrderView, handleChangeDeliveryOrderStatus]);
+    ], [handleSaleEdit, handlePaymentToggle]);
 
     return {
         columns,

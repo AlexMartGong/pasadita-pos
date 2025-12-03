@@ -2,7 +2,8 @@ import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 import {useSale} from "./useSale.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {Edit, Visibility} from "@mui/icons-material";
+import {Edit, Payment} from "@mui/icons-material";
+import {formatDate, formatCurrency} from "../../utils/formatters.js";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -23,7 +24,7 @@ const useDebounce = (value, delay) => {
 export const useSaleTable = (sales) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
-    const {handleSaleEdit} = useSale();
+    const {handleSaleEdit, handlePaymentToggle} = useSale();
 
     const filteredSales = useMemo(() => {
         if (!sales || !debouncedSearchText) return sales || [];
@@ -43,25 +44,6 @@ export const useSaleTable = (sales) => {
         setSearchText(value);
     }, []);
 
-    const formatDate = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0
-        }).format(value || 0);
-    };
 
     const columns = useMemo(() => [
         {
@@ -125,35 +107,35 @@ export const useSaleTable = (sales) => {
         {
             field: "actions",
             headerName: "Acciones",
-            width: 200,
+            width: 250,
             sortable: false,
             filterable: false,
             renderCell: (params) => (
                 <Box sx={userTableStyles.actionsContainer}>
-                    <Tooltip title="Ver Detalles">
-                        <IconButton
-                            size="small"
-                            color="info"
-                            onClick={() => handleSaleEdit(params.row.id)}>
-                            <Visibility/> Ver
-                        </IconButton>
-                    </Tooltip>
                     <Tooltip title="Editar">
                         <IconButton
                             size="small"
                             color="primary"
                             onClick={() => handleSaleEdit(params.row.id)}>
-                            <Edit/> Editar
+                            <Edit/>
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title={params.row.paid ? "Marcar como Pendiente" : "Marcar como Pagado"}>
+                        <IconButton
+                            size="small"
+                            color={params.row.paid ? "warning" : "success"}
+                            onClick={() => handlePaymentToggle(params.row.id, params.row.paid)}>
+                            <Payment/>
                         </IconButton>
                     </Tooltip>
                 </Box>
             ),
         },
-    ], [handleSaleEdit]);
+    ], [handleSaleEdit, handlePaymentToggle]);
 
     return {
-        searchText,
         setSearchText: handleSearchChange,
+        searchText,
         filteredSales,
         columns,
     };

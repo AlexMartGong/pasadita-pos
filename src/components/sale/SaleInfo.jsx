@@ -10,12 +10,10 @@ export const SaleInfo = ({
                              formData,
                              selectedCustomer,
                              paymentMethodId,
-                             paid,
                              notes,
                              errors,
                              onInputChange,
                              onPaymentMethodChange,
-                             onPaidChange,
                              onNotesChange
                          }) => {
     return (
@@ -64,16 +62,6 @@ export const SaleInfo = ({
                                 <option value={1}>Efectivo</option>
                                 <option value={2}>Tarjeta</option>
                                 <option value={3}>Transferencia</option>
-                            </select>
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <select
-                                className="form-select"
-                                value={paid}
-                                onChange={(e) => onPaidChange(e.target.value === 'true')}
-                            >
-                                <option value={true}>Pagado</option>
-                                <option value={false}>Pendiente</option>
                             </select>
                         </Grid>
                     </Grid>

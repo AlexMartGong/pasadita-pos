@@ -1,5 +1,5 @@
 import React from 'react';
-import {Box, Grid} from '@mui/material';
+import {Box, Grid, FormControl, InputLabel, Select, MenuItem, Paper, Typography} from '@mui/material';
 import {ProductsTable} from './ProductsTable';
 import {SaleInfo} from './SaleInfo';
 import {DeliveryOrder} from './DeliveryOrder';
@@ -25,8 +25,9 @@ export const SaleForm = ({saleSelected}) => {
         isSubmitting,
         isEditMode,
         selectedCustomer,
-        hasDeliveryRole,
         canSaveDeliveryOrder,
+        isAdmin,
+        operationType,
         deliveryEmployeeId,
         deliveryCost,
         setProductSearch,
@@ -36,6 +37,7 @@ export const SaleForm = ({saleSelected}) => {
         setNotes,
         setDeliveryEmployeeId,
         setDeliveryCost,
+        setOperationType,
         handleSelectProduct,
         handleAddToCart,
         handleRemoveProduct,
@@ -51,7 +53,7 @@ export const SaleForm = ({saleSelected}) => {
                 <Grid container spacing={3} sx={{height: '100%', flexWrap: 'nowrap !important'}}>
                     {/* Columna Izquierda - Lista de Productos */}
                     <Grid
-                          sx={{height: '100%', minWidth: '400px', flex: '1 1 50%', maxWidth: '50% !important'}}>
+                        sx={{height: '100%', minWidth: '400px', flex: '1 1 50%', maxWidth: '50% !important'}}>
                         <ProductsTable
                             products={products}
                             productSearch={productSearch}
@@ -79,6 +81,37 @@ export const SaleForm = ({saleSelected}) => {
                             overflow: 'auto',
                             minHeight: 0
                         }}>
+                            {/* Selector de tipo de operación para ROLE_ADMIN */}
+                            {isAdmin && (
+                                <Paper elevation={2} sx={{p: 2}}>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="operation-type-label">Tipo de Operación</InputLabel>
+                                        <Select
+                                            labelId="operation-type-label"
+                                            id="operation-type-select"
+                                            value={operationType}
+                                            label="Tipo de Operación"
+                                            variant="outlined"
+                                            onChange={(e) => setOperationType(e.target.value)}
+                                        >
+                                            <MenuItem value="venta">Venta</MenuItem>
+                                            <MenuItem value="pedido">Pedido</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                    {operationType === 'venta' && (
+                                        <Typography variant="caption" color="text.secondary"
+                                                    sx={{mt: 1, display: 'block'}}>
+                                            Modo Venta: No se creará pedido de entrega
+                                        </Typography>
+                                    )}
+                                    {operationType === 'pedido' && (
+                                        <Typography variant="caption" color="primary" sx={{mt: 1, display: 'block'}}>
+                                            Modo Pedido: Se creará pedido de entrega
+                                        </Typography>
+                                    )}
+                                </Paper>
+                            )}
+
                             <SaleInfo
                                 user={user}
                                 customers={customers}
@@ -94,7 +127,7 @@ export const SaleForm = ({saleSelected}) => {
                                 onNotesChange={setNotes}
                             />
 
-                            {hasDeliveryRole && (
+                            {canSaveDeliveryOrder && (
                                 <DeliveryOrder
                                     selectedCustomer={selectedCustomer}
                                     deliveryEmployeeId={deliveryEmployeeId}

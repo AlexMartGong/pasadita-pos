@@ -6,23 +6,31 @@ import {
     onUpdateDeliveryOrderStatus,
     setDeliveryOrders,
     setDeliveryOrderSelected,
-    resetDeliveryOrderSelected
+    resetDeliveryOrderSelected,
+    setTotalAmountAndOrders
 } from "../../stores/slices/deliveryOrder/deliveryOrderSlice.js";
 import {toast} from "react-toastify";
 import {useApiErrorHandler} from "../useApiErrorHandler.js";
 import {deliveryOrderService} from "../../services/deliveryOrderService.js";
-import {useNavigate} from "react-router-dom";
 
 export const useDeliveryOrder = () => {
-    const {deliveryOrders, deliveryOrderSelected} = useSelector(state => state.deliveryOrder);
+    const {deliveryOrders, deliveryOrderSelected, totalOrders, totalAmount} = useSelector(state => state.deliveryOrder);
     const {handleApiError} = useApiErrorHandler();
     const dispatch = useDispatch();
-    const navigate = useNavigate();
 
     const handleGetDeliveryOrders = useCallback(async () => {
         try {
             const result = await deliveryOrderService.getAllDeliveryOrders();
-            dispatch(setDeliveryOrders(result));
+            dispatch(setDeliveryOrders(result.orders));
+
+            // Calcular totalAmount solo de las órdenes pagadas
+            const paidOrders = result.orders.filter(order => order.paid === true);
+            const totalAmountPaid = paidOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+
+            dispatch(setTotalAmountAndOrders({
+                totalOrders: result.totalOrders,
+                totalAmount: totalAmountPaid
+            }));
             return true;
         } catch (error) {
             console.error('Error fetching all delivery orders:', error);
@@ -77,30 +85,18 @@ export const useDeliveryOrder = () => {
         dispatch(resetDeliveryOrderSelected());
     }, [dispatch]);
 
-    const handleCancel = useCallback(() => {
-        navigate('/delivery-orders');
-    }, [navigate]);
-
-    const handleDeliveryOrderEdit = useCallback((id) => {
-        navigate(`/delivery-order/edit/${id}`);
-    }, [navigate]);
-
-    const handleDeliveryOrderView = useCallback((id) => {
-        navigate(`/delivery-order/view/${id}`);
-    }, [navigate]);
 
     return {
         initialDeliveryOrderForm,
         deliveryOrders,
         deliveryOrderSelected,
+        totalOrders,
+        totalAmount,
         handleGetDeliveryOrders,
         handleSaveDeliveryOrder,
         handleUpdateDeliveryOrder,
         handleChangeDeliveryOrderStatus,
-        handleDeliveryOrderEdit,
-        handleDeliveryOrderView,
         handleSelectDeliveryOrder,
         handleResetDeliveryOrderSelection,
-        handleCancel,
     }
 }
