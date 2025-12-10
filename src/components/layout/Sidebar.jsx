@@ -18,7 +18,6 @@ import {
     Dashboard,
     Inventory,
     People,
-    Settings,
     Person,
     Logout,
     Category,
@@ -29,7 +28,7 @@ import {sidebarStyles} from '../../styles/js/SidebarStyles.js';
 
 export const Sidebar = () => {
     const location = useLocation();
-    const {user, isAdmin, handlerLogout} = useAuth();
+    const {user, isAdmin, hasLimitedAccess, handlerLogout} = useAuth();
 
     const getIcon = (iconName) => {
         const icons = {
@@ -38,7 +37,7 @@ export const Sidebar = () => {
             'bi bi-people': <People/>,
             'bi-people': <People/>,
             'bi-category': <Category/>,
-            'bi-gear': <Settings/>,
+            // 'bi-gear': <Settings/>,
             'bi-receipt': <ReceiptLong/>,
             'bi-truck': <PointOfSale/>,
             'bi-cart-plus': <PointOfSale/>
@@ -46,17 +45,26 @@ export const Sidebar = () => {
         return icons[iconName] || <Dashboard/>;
     };
 
-    const menuItems = [
+    // Menú para usuarios con acceso limitado (ROLE_CAJERO, ROLE_PEDIDOS)
+    const limitedMenuItems = [
+        {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
+    ];
+
+    // Menú completo para admin
+    const fullMenuItems = [
         {path: '/dashboard', icon: 'bi-speedometer2', label: 'Dashboard'},
         {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
         {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
         {path: '/delivery', icon: 'bi-truck', label: 'Entregas'},
-        {path: '/products', icon: 'bi-box-seam', label: 'Products'},
-        ...(isAdmin ? [{path: '/users', icon: 'bi bi-people', label: 'Users'}] : []),
-        {path: '/customers', icon: 'bi-people', label: 'Customers'},
-        {path: '/customer-types', icon: 'bi-category', label: 'Customer Types'},
-        {path: '/settings', icon: 'bi-gear', label: 'Settings'}
+        {path: '/products', icon: 'bi-box-seam', label: 'Productos'},
+        ...(isAdmin ? [{path: '/users', icon: 'bi bi-people', label: 'Usuarios'}] : []),
+        {path: '/customers', icon: 'bi-people', label: 'Clientes'},
+        {path: '/customer-types', icon: 'bi-category', label: 'Tipos de Clientes'},
+        // {path: '/settings', icon: 'bi-gear', label: 'Settings'}
     ];
+
+    // Seleccionar menú según el tipo de acceso
+    const menuItems = hasLimitedAccess ? limitedMenuItems : fullMenuItems;
 
     return (
         <Drawer

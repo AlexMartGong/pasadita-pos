@@ -31,7 +31,16 @@ export const useAuth = () => {
             sessionStorage.setItem("token", `Bearer ${token}`);
 
             toast.success(`¡Bienvenido ${response.data.username}!`);
-            navigate("/dashboard");
+
+            // Redirigir según el rol
+            const isCajeroRole = role.includes("ROLE_CAJERO");
+            const isPedidosRole = role.includes("ROLE_PEDIDOS");
+
+            if ((isCajeroRole || isPedidosRole) && !isAdmin) {
+                navigate("/sale/register");
+            } else {
+                navigate("/dashboard");
+            }
 
         } catch (error) {
             console.error("Error in handlerLogin:", error);
@@ -52,10 +61,20 @@ export const useAuth = () => {
         navigate("/login");
     };
 
+    // Verificar roles específicos
+    const isCajero = role?.includes("ROLE_CAJERO") || false;
+    const isPedidos = role?.includes("ROLE_PEDIDOS") || false;
+
+    // Solo cajero y pedidos tienen acceso limitado a Nueva Venta
+    const hasLimitedAccess = (isCajero || isPedidos) && !isAdmin;
+
     return {
         isAuth,
         user,
         isAdmin,
+        isCajero,
+        isPedidos,
+        hasLimitedAccess,
         role,
         employeeId,
         isLoginLoading,

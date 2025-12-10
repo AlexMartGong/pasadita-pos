@@ -5,6 +5,7 @@ import {ProductPage} from "../pages/product/ProductPage.jsx";
 import {UserPage} from "../pages/user/UserPage.jsx";
 import {RegisterUserPage} from "../pages/user/RegisterUserPage.jsx";
 import {AdminRoute} from "../components/auth/AdminRoute.jsx";
+import {ProtectedRoute} from "../components/auth/ProtectedRoute.jsx";
 import {Box} from '@mui/material';
 import {RegisterProductPage} from "../pages/product/RegisterProductPage.jsx";
 import {SimpleProductTable} from "../components/product/SimpleProductTable.jsx";
@@ -107,9 +108,9 @@ export const FruitRoute = () => {
                         </AdminRoute>
                     }/>
                     <Route path="sale/register" element={
-                        <AdminRoute>
+                        <ProtectedRoute>
                             <RegisterSalePage/>
-                        </AdminRoute>
+                        </ProtectedRoute>
                     }/>
                     <Route path="sale/edit/:id" element={
                         <AdminRoute>
