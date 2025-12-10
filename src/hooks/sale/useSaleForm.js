@@ -9,7 +9,7 @@ import {getSaleDetailsById} from '../../services/saleService';
 import {toast} from 'react-toastify';
 
 export const useSaleForm = (saleSelected) => {
-    const {handleSaveSale, initialSaleForm} = useSale();
+    const {handleSaveSale, handleGetTicket, initialSaleForm} = useSale();
     const {customers, handleGetCustomers} = useCustomer();
     const {products, handleGetProducts} = useProduct();
     const {users, getAllUsers} = useUser();
@@ -372,7 +372,8 @@ export const useSaleForm = (saleSelected) => {
             const savedSale = await handleSaveSale(saleData);
 
             if (savedSale) {
-                // Solo guardar delivery order si canSaveDeliveryOrder es true
+                const ticketResult = await handleGetTicket(savedSale.id);
+                console.log('Ticket:', ticketResult);
                 if (canSaveDeliveryOrder && saleData.employeeId) {
                     try {
                         const customer = customers.find(c => c.id === parseInt(formData.customerId));
@@ -388,6 +389,13 @@ export const useSaleForm = (saleSelected) => {
                             await deliveryOrderService.updateDeliveryOrder(deliveryOrderId, deliveryOrderData);
                         } else {
                             await deliveryOrderService.saveDeliveryOrder(deliveryOrderData);
+                        }
+
+                        try {
+                            const ticketResult = await handleGetTicket(savedSale.id);
+                            console.log('Ticket con orden de entrega:', ticketResult);
+                        } catch (ticketError) {
+                            console.error('Error obteniendo ticket:', ticketError);
                         }
                     } catch (deliveryError) {
                         console.error('Error saving delivery order:', deliveryError);

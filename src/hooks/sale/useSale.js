@@ -59,7 +59,7 @@ export const useSale = () => {
             handleApiError(error);
             return null;
         }
-    }, [handleApiError, dispatch]);
+    }, [dispatch, handleApiError]);
 
     const handleChangeStatus = useCallback(async (id, paid) => {
         try {
@@ -88,6 +88,15 @@ export const useSale = () => {
         }
     }, [handleChangeStatus, dispatch]);
 
+    const handleGetTicket = useCallback(async (saleId) => {
+        try {
+            const result = await saleService.getTicketBySaleId(saleId);
+            return result.data;
+        } catch (error) {
+            handleApiError(error);
+        }
+    }, [handleApiError]);
+
     const handleSelectSale = useCallback((sale) => {
         dispatch(onSelectSale(sale));
     }, [dispatch]);
@@ -112,6 +121,7 @@ export const useSale = () => {
         handleSaveSale,
         handleChangeStatus,
         handleSaleEdit,
+        handleGetTicket,
         handleSelectSale,
         handlePaymentToggle,
         handleClearSaleSelected,
