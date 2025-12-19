@@ -118,9 +118,13 @@ export const FruitRoute = () => {
                         </AdminRoute>
                     }/>
                     <Route path={"delivery"} element={
-                        <AdminRoute>
+                        <ProtectedRoute>
                             <DeliveryPage/>
-                        </AdminRoute>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path={"print-ticket/:id"} element={
+                        <ProtectedRoute>
+                        </ProtectedRoute>
                     }/>
                 </Routes>
             </Box>

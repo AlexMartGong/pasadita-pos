@@ -48,6 +48,7 @@ export const Sidebar = () => {
     // Menú para usuarios con acceso limitado (ROLE_CAJERO, ROLE_PEDIDOS)
     const limitedMenuItems = [
         {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
+        {path: '/delivery', icon: 'bi-truck', label: 'Entregas'},
     ];
 
     // Menú completo para admin
