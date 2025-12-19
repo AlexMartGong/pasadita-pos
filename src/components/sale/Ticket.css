@@ -153,28 +153,43 @@
 
 /* Estilos específicos para impresión */
 @media print {
-    /* Ocultar todo el contenido de la página */
+    /* Configuración de página */
+    @page {
+        size: 80mm auto;
+        margin: 0;
+    }
+
+    /* Ocultar todo excepto el contenedor de impresión */
     body > *:not(#print-ticket-container) {
         display: none !important;
     }
 
-    /* Asegurar que el contenedor del ticket y todo su contenido sea visible */
+    /* Asegurar que el contenedor del ticket sea visible */
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     #print-ticket-container {
         display: block !important;
-        position: static !important;
+        position: relative !important;
         width: 80mm !important;
         max-width: 80mm !important;
         margin: 0 !important;
         padding: 0 !important;
         background: white !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        left: 0 !important;
     }
 
+    /* Hacer visibles todos los elementos dentro del contenedor */
     #print-ticket-container * {
         visibility: visible !important;
     }
 
+    /* Contenido del ticket */
     .ticket-container {
-        position: static !important;
         width: 80mm !important;
         max-width: 80mm !important;
         margin: 0 !important;
@@ -184,51 +199,51 @@
     }
 
     .ticket-header h2 {
-        font-size: 16px;
+        font-size: 16px !important;
     }
 
     .ticket-type {
-        font-size: 12px;
+        font-size: 12px !important;
     }
 
     .order-number {
-        font-size: 11px;
+        font-size: 11px !important;
     }
 
     .ticket-date {
-        font-size: 9px;
+        font-size: 9px !important;
     }
 
     .ticket-section h3 {
-        font-size: 11px;
+        font-size: 11px !important;
     }
 
     .ticket-products {
-        font-size: 9px;
+        font-size: 9px !important;
     }
 
     .ticket-total-row {
-        font-size: 10px;
+        font-size: 10px !important;
     }
 
     .ticket-final-total {
-        font-size: 12px;
+        font-size: 12px !important;
     }
 
     .delivery-info {
-        background: #f0f0f0;
+        background: #f0f0f0 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 
     .ticket-notes {
-        background: #fffef0;
+        background: #fffef0 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 
     .ticket-divider {
-        border-top: 1px dashed #000;
+        border-top: 1px dashed #000 !important;
     }
 
     /* Evitar saltos de página dentro de secciones */

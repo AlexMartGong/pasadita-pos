@@ -12,15 +12,14 @@ export const printTicket = async (ticketData) => {
         return;
     }
 
-    // Crear un contenedor temporal para el ticket
+    // Crear un contenedor temporal para el ticket (invisible en pantalla, visible en impresión)
     const printContainer = document.createElement('div');
     printContainer.id = 'print-ticket-container';
-    printContainer.style.position = 'fixed';
+    printContainer.style.position = 'absolute';
     printContainer.style.top = '0';
-    printContainer.style.left = '0';
+    printContainer.style.left = '-9999px';
     printContainer.style.width = '80mm';
-    printContainer.style.zIndex = '10000';
-    printContainer.style.backgroundColor = 'white';
+    printContainer.style.visibility = 'hidden';
 
     document.body.appendChild(printContainer);
 
