@@ -16,6 +16,7 @@ import {RegisterCustomerTypePage} from "../pages/customer/RegisterCustomerTypePa
 import {SalePage} from "../pages/sale/SalePage.jsx";
 import {RegisterSalePage} from "../pages/sale/RegisterSalePage.jsx";
 import {DeliveryPage} from "../pages/delivery/deliveryPage.jsx";
+import {TicketPage} from "../pages/sale/TicketPage.jsx";
 
 export const FruitRoute = () => {
     return (
@@ -122,8 +123,9 @@ export const FruitRoute = () => {
                             <DeliveryPage/>
                         </ProtectedRoute>
                     }/>
-                    <Route path={"print-ticket/:id"} element={
+                    <Route path={"sale/ticket/:id"} element={
                         <ProtectedRoute>
+                            <TicketPage/>
                         </ProtectedRoute>
                     }/>
                 </Routes>

@@ -25,7 +25,7 @@ const useDebounce = (value, delay) => {
 export const useDeliveryOrderTable = (deliveryOrders) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
-    const {handleSaleEdit, handlePaymentToggle} = useSale();
+    const {handleSaleEdit, handlePaymentToggle, handlePrintTicket} = useSale();
     const {isAdmin} = useAuth();
 
     const filteredDeliveryOrders = useMemo(() => {
@@ -143,14 +143,15 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
                     <Tooltip title={"Ticket"}>
                         <IconButton
                             size="small"
-                            color="info">
+                            color="info"
+                            onClick={() => handlePrintTicket(params.row.saleId)}>
                             <DocumentScanner/>
                         </IconButton>
                     </Tooltip>
                 </Box>
             ),
         },
-    ], [handleSaleEdit, handlePaymentToggle, isAdmin]);
+    ], [handleSaleEdit, handlePaymentToggle, handlePrintTicket, isAdmin]);
 
     return {
         columns,

@@ -113,10 +113,15 @@ export const useSale = () => {
         navigate(`/sale/edit/${id}`);
     }, [navigate]);
 
+    const handlePrintTicket = useCallback((saleId) => {
+        navigate(`/sale/ticket/${saleId}`);
+    }, [navigate]);
+
     return {
         initialSaleForm,
         sales,
         saleSelected,
+        handlePrintTicket,
         handleGetSales,
         handleSaveSale,
         handleChangeStatus,
