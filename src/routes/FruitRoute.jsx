@@ -104,9 +104,9 @@ export const FruitRoute = () => {
                         </AdminRoute>
                     }/>
                     <Route path="sales" element={
-                        <AdminRoute>
+                        <ProtectedRoute>
                             <SalePage/>
-                        </AdminRoute>
+                        </ProtectedRoute>
                     }/>
                     <Route path="sale/register" element={
                         <ProtectedRoute>

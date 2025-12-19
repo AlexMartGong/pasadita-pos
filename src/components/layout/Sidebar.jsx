@@ -28,7 +28,7 @@ import {sidebarStyles} from '../../styles/js/SidebarStyles.js';
 
 export const Sidebar = () => {
     const location = useLocation();
-    const {user, isAdmin, hasLimitedAccess, handlerLogout} = useAuth();
+    const {user, hasLimitedAccess, handlerLogout} = useAuth();
 
     const getIcon = (iconName) => {
         const icons = {
@@ -49,6 +49,7 @@ export const Sidebar = () => {
     const limitedMenuItems = [
         {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
         {path: '/delivery', icon: 'bi-truck', label: 'Entregas'},
+        {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
     ];
 
     // Menú completo para admin
@@ -58,7 +59,7 @@ export const Sidebar = () => {
         {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
         {path: '/delivery', icon: 'bi-truck', label: 'Entregas'},
         {path: '/products', icon: 'bi-box-seam', label: 'Productos'},
-        ...(isAdmin ? [{path: '/users', icon: 'bi bi-people', label: 'Usuarios'}] : []),
+        {path: '/users', icon: 'bi bi-people', label: 'Usuarios'},
         {path: '/customers', icon: 'bi-people', label: 'Clientes'},
         {path: '/customer-types', icon: 'bi-category', label: 'Tipos de Clientes'},
         // {path: '/settings', icon: 'bi-gear', label: 'Settings'}
