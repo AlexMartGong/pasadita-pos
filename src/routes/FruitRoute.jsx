@@ -5,6 +5,7 @@ import {ProductPage} from "../pages/product/ProductPage.jsx";
 import {UserPage} from "../pages/user/UserPage.jsx";
 import {RegisterUserPage} from "../pages/user/RegisterUserPage.jsx";
 import {AdminRoute} from "../components/auth/AdminRoute.jsx";
+import {ProtectedRoute} from "../components/auth/ProtectedRoute.jsx";
 import {Box} from '@mui/material';
 import {RegisterProductPage} from "../pages/product/RegisterProductPage.jsx";
 import {SimpleProductTable} from "../components/product/SimpleProductTable.jsx";
@@ -15,6 +16,7 @@ import {RegisterCustomerTypePage} from "../pages/customer/RegisterCustomerTypePa
 import {SalePage} from "../pages/sale/SalePage.jsx";
 import {RegisterSalePage} from "../pages/sale/RegisterSalePage.jsx";
 import {DeliveryPage} from "../pages/delivery/deliveryPage.jsx";
+import {TicketPage} from "../pages/sale/TicketPage.jsx";
 
 export const FruitRoute = () => {
     return (
@@ -102,14 +104,14 @@ export const FruitRoute = () => {
                         </AdminRoute>
                     }/>
                     <Route path="sales" element={
-                        <AdminRoute>
+                        <ProtectedRoute>
                             <SalePage/>
-                        </AdminRoute>
+                        </ProtectedRoute>
                     }/>
                     <Route path="sale/register" element={
-                        <AdminRoute>
+                        <ProtectedRoute>
                             <RegisterSalePage/>
-                        </AdminRoute>
+                        </ProtectedRoute>
                     }/>
                     <Route path="sale/edit/:id" element={
                         <AdminRoute>
@@ -117,9 +119,14 @@ export const FruitRoute = () => {
                         </AdminRoute>
                     }/>
                     <Route path={"delivery"} element={
-                        <AdminRoute>
+                        <ProtectedRoute>
                             <DeliveryPage/>
-                        </AdminRoute>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path={"sale/ticket/:id"} element={
+                        <ProtectedRoute>
+                            <TicketPage/>
+                        </ProtectedRoute>
                     }/>
                 </Routes>
             </Box>

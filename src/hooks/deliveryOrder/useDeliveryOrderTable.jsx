@@ -1,9 +1,10 @@
 import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {Edit, Payment} from "@mui/icons-material";
+import {DocumentScanner, Edit, Info, Payment} from "@mui/icons-material";
 import {useSale} from "../sale/useSale.js";
 import {formatDate, formatCurrency} from "../../utils/formatters.js";
+import {useAuth} from "../../auth/hooks/useAuth.js";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -24,7 +25,8 @@ const useDebounce = (value, delay) => {
 export const useDeliveryOrderTable = (deliveryOrders) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
-    const {handleSaleEdit, handlePaymentToggle} = useSale();
+    const {handleSaleEdit, handlePaymentToggle, handlePrintTicket} = useSale();
+    const {isAdmin} = useAuth();
 
     const filteredDeliveryOrders = useMemo(() => {
         if (!deliveryOrders || !debouncedSearchText) return deliveryOrders || [];
@@ -117,27 +119,39 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
             sortable: false,
             renderCell: (params) => (
                 <Box sx={userTableStyles.actionsContainer}>
-                    <Tooltip title="Editar">
+                    {isAdmin && (
+                        <>
+                            <Tooltip title="Editar">
+                                <IconButton
+                                    color="primary"
+                                    size="small"
+                                    onClick={() => handleSaleEdit(params.row.saleId)}
+                                >
+                                    <Edit/>
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={params.row.paid ? "Marcar como Pendiente" : "Marcar como Pagado"}>
+                                <IconButton
+                                    size="small"
+                                    color={params.row.paid ? "warning" : "success"}
+                                    onClick={() => handlePaymentToggle(params.row.saleId, params.row.paid)}>
+                                    <Payment/>
+                                </IconButton>
+                            </Tooltip>
+                        </>
+                    )}
+                    <Tooltip title={"Ticket"}>
                         <IconButton
-                            color="primary"
                             size="small"
-                            onClick={() => handleSaleEdit(params.row.saleId)}
-                        >
-                            <Edit/>
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={params.row.paid ? "Marcar como Pendiente" : "Marcar como Pagado"}>
-                        <IconButton
-                            size="small"
-                            color={params.row.paid ? "warning" : "success"}
-                            onClick={() => handlePaymentToggle(params.row.saleId, params.row.paid)}>
-                            <Payment/>
+                            color="info"
+                            onClick={() => handlePrintTicket(params.row.saleId)}>
+                            <DocumentScanner/>
                         </IconButton>
                     </Tooltip>
                 </Box>
             ),
         },
-    ], [handleSaleEdit, handlePaymentToggle]);
+    ], [handleSaleEdit, handlePaymentToggle, handlePrintTicket, isAdmin]);
 
     return {
         columns,

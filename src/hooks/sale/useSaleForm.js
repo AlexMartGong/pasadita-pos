@@ -7,9 +7,10 @@ import {useAuth} from '../../auth/hooks/useAuth';
 import {deliveryOrderService} from '../../services/deliveryOrderService';
 import {getSaleDetailsById} from '../../services/saleService';
 import {toast} from 'react-toastify';
+import {printTicket} from '../../utils/printTicket.jsx';
 
 export const useSaleForm = (saleSelected) => {
-    const {handleSaveSale, initialSaleForm} = useSale();
+    const {handleSaveSale, handleGetTicket, initialSaleForm} = useSale();
     const {customers, handleGetCustomers} = useCustomer();
     const {products, handleGetProducts} = useProduct();
     const {users, getAllUsers} = useUser();
@@ -372,7 +373,19 @@ export const useSaleForm = (saleSelected) => {
             const savedSale = await handleSaveSale(saleData);
 
             if (savedSale) {
-                // Solo guardar delivery order si canSaveDeliveryOrder es true
+                // Si no se va a crear delivery order, generar e imprimir el ticket de venta
+                if (!canSaveDeliveryOrder || !saleData.employeeId) {
+                    try {
+                        const ticketResult = await handleGetTicket(savedSale.id);
+                        console.log('Ticket de venta:', ticketResult);
+                        // Imprimir el ticket automáticamente
+                        await printTicket(ticketResult);
+                    } catch (ticketError) {
+                        console.error('Error obteniendo/imprimiendo ticket:', ticketError);
+                        toast.error('La venta se guardó pero hubo un error al imprimir el ticket.');
+                    }
+                }
+
                 if (canSaveDeliveryOrder && saleData.employeeId) {
                     try {
                         const customer = customers.find(c => c.id === parseInt(formData.customerId));
@@ -388,6 +401,17 @@ export const useSaleForm = (saleSelected) => {
                             await deliveryOrderService.updateDeliveryOrder(deliveryOrderId, deliveryOrderData);
                         } else {
                             await deliveryOrderService.saveDeliveryOrder(deliveryOrderData);
+                        }
+
+                        // Obtener e imprimir el ticket del pedido de entrega
+                        try {
+                            const ticketResult = await handleGetTicket(savedSale.id);
+                            console.log('Ticket con orden de entrega:', ticketResult);
+                            // Imprimir el ticket automáticamente
+                            await printTicket(ticketResult);
+                        } catch (ticketError) {
+                            console.error('Error obteniendo/imprimiendo ticket:', ticketError);
+                            toast.error('El pedido se guardó pero hubo un error al imprimir el ticket.');
                         }
                     } catch (deliveryError) {
                         console.error('Error saving delivery order:', deliveryError);

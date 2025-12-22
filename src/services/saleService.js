@@ -1,6 +1,5 @@
 import {saleApi} from '../apis/saleApi.js';
 
-// Get all sales
 export const getAllSales = async () => {
     try {
         return await saleApi.get('/all');
@@ -10,7 +9,6 @@ export const getAllSales = async () => {
     }
 };
 
-// Save new sale
 export const saveSale = async (saleCreateDto) => {
     try {
         return await saleApi.post('/save', saleCreateDto);
@@ -20,7 +18,6 @@ export const saveSale = async (saleCreateDto) => {
     }
 };
 
-// Update sale
 export const updateSale = async (id, saleUpdateDto) => {
     try {
         return await saleApi.put(`/update/${id}`, saleUpdateDto);
@@ -30,7 +27,6 @@ export const updateSale = async (id, saleUpdateDto) => {
     }
 };
 
-// Get sale by ID (general info)
 export const getSaleById = async (id) => {
     try {
         return await saleApi.get(`/${id}`);
@@ -40,7 +36,6 @@ export const getSaleById = async (id) => {
     }
 }
 
-// Get sale details by ID (products)
 export const getSaleDetailsById = async (id) => {
     try {
         return await saleApi.get(`/${id}/details`);
@@ -59,7 +54,15 @@ export const changeStatusSale = async (id, statusData) => {
     }
 }
 
-// Export all functions as default object for easier importing
+export const getTicketBySaleId = async (id) => {
+    try {
+        return await saleApi.get(`/${id}/ticket`);
+    } catch (error) {
+        console.error('Error fetching ticket by sale ID:', error);
+        throw error;
+    }
+}
+
 const saleService = {
     getAllSales,
     saveSale,
@@ -67,6 +70,7 @@ const saleService = {
     changeStatusSale,
     getSaleById,
     getSaleDetailsById,
+    getTicketBySaleId,
 };
 
 export default saleService;
