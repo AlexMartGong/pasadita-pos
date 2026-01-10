@@ -49,7 +49,7 @@ export const AddProductForm = ({
                                 ...selectedProductData,
                                 quantity: e.target.value
                             })}
-                            inputProps={{step: '0.01', min: '0'}}
+                            inputProps={{step: '0.1', min: '0'}}
                         />
                     </Grid>
                     <Grid item xs={4}>
@@ -63,7 +63,7 @@ export const AddProductForm = ({
                                 ...selectedProductData,
                                 price: e.target.value
                             })}
-                            inputProps={{step: '0.01', min: '0'}}
+                            inputProps={{step: '0.1', min: '0'}}
                         />
                     </Grid>
                     <Grid item xs={4}>

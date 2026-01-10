@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import './Ticket.css';
+import '../../styles/css/Ticket.css';
 
 export const Ticket = ({ ticketData }) => {
     if (!ticketData) return null;

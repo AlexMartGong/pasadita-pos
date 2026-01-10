@@ -63,6 +63,7 @@ export const ProductsTable = ({
                                 <TableCell>ID</TableCell>
                                 <TableCell>Producto</TableCell>
                                 <TableCell align="right">Precio</TableCell>
+                                <TableCell align="center">Unidad</TableCell>
                                 <TableCell align="center">Acción</TableCell>
                             </TableRow>
                         </TableHead>
@@ -83,6 +84,7 @@ export const ProductsTable = ({
                                         <TableCell>{product.id}</TableCell>
                                         <TableCell>{product.name}</TableCell>
                                         <TableCell align="right">{formatCurrency(product.price)}</TableCell>
+                                        <TableCell align="center">{product.unitMeasure}</TableCell>
                                         <TableCell align="center">
                                             <IconButton
                                                 size="small"

@@ -108,9 +108,11 @@ export const useProduct = () => {
     ];
 
     const unitMeasures = [
-        {value: 'PIEZA', label: 'Pieza'},
-        {value: 'PORCION', label: 'Porción'},
         {value: 'KILOGRAMO', label: 'Kilogramo'},
+        {value: 'PIEZA', label: 'Pieza'},
+        {value: 'CAJA', label: 'Caja'},
+        {value: 'ARPILLA', label: 'Arpilla'},
+        {value: 'PORCION', label: 'Porción'},
         {value: 'GRAMO', label: 'Gramo'},
         {value: 'LITRO', label: 'Litro'},
         {value: 'MILILITRO', label: 'Mililitro'},
