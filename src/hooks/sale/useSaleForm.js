@@ -348,6 +348,7 @@ export const useSaleForm = (saleSelected) => {
             // Calcular subtotal y descuento total
             const subtotal = saleDetails.reduce((sum, detail) => sum + detail.subtotal, 0);
             const discountAmount = saleDetails.reduce((sum, detail) => sum + detail.discount, 0);
+            const customer = customers.find(c => c.id === parseInt(formData.customerId));
 
             const saleData = {
                 id: saleSelected?.id || 0,
@@ -366,36 +367,17 @@ export const useSaleForm = (saleSelected) => {
                     subtotal: formatToTwoDecimals(detail.subtotal),
                     discount: formatToTwoDecimals(detail.discount),
                     total: formatToTwoDecimals(detail.total)
-                }))
+                })),
+                deliveryOrder: canSaveDeliveryOrder ? {
+                    deliveryEmployeeId: employeeId,
+                    deliveryAddress: customer?.address || '',
+                    contactPhone: customer?.phone || '',
+                    deliveryCost: deliveryCost || 0
+                } : null
             };
 
-            const savedSale = await handleSaveSale(saleData);
-
-            if (savedSale) {
-                if (canSaveDeliveryOrder && saleData.employeeId) {
-                    try {
-                        const customer = customers.find(c => c.id === parseInt(formData.customerId));
-                        const deliveryOrderData = {
-                            saleId: savedSale.id,
-                            deliveryEmployeeId: savedSale.employeeId,
-                            deliveryAddress: customer?.address || '',
-                            contactPhone: customer?.phone || '',
-                            deliveryCost: deliveryCost || 0
-                        };
-
-                        if (isEditMode) {
-                            await deliveryOrderService.updateDeliveryOrder(deliveryOrderId, deliveryOrderData);
-                        } else {
-                            await deliveryOrderService.saveDeliveryOrder(deliveryOrderData);
-                        }
-
-                    } catch (deliveryError) {
-                        console.error('Error saving delivery order:', deliveryError);
-                        toast.error('La venta se guardó pero hubo un error al crear el pedido de entrega.');
-                    }
-                }
-                handleLocalCancel();
-            }
+            handleSaveSale(saleData);
+            handleLocalCancel();
         } catch (error) {
             console.error('Error submitting form:', error);
         } finally {
