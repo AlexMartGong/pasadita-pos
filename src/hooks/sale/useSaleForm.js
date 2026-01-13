@@ -21,7 +21,7 @@ export const useSaleForm = (saleSelected) => {
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState(initialSaleForm);
-    const [deliveryOrderId, setDeliveryOrderId] = useState(null);
+    const [setDeliveryOrderId] = useState(null);
     const [saleDetails, setSaleDetails] = useState([]);
     const [productSearch, setProductSearch] = useState('');
     const [paymentMethodId, setPaymentMethodId] = useState(1);
@@ -32,7 +32,8 @@ export const useSaleForm = (saleSelected) => {
         name: '',
         quantity: '',
         price: '',
-        total: 0
+        total: 0,
+        unitMeasure: ''
     });
 
     // Estados para delivery order
@@ -189,15 +190,17 @@ export const useSaleForm = (saleSelected) => {
     const handleSelectProduct = (product) => {
         const discountAmount = getCustomerDiscount();
         const discountedPrice = product.price - discountAmount;
+        const isKilogram = product.unitMeasure === 'KILOGRAMO';
 
         setSelectedProductData({
             id: product.id,
             name: product.name,
-            quantity: product.unitMeasure === 'kg' ? '' : '1',
+            quantity: isKilogram ? '' : '1',
             price: discountedPrice,
             originalPrice: product.price,
             discount: discountAmount,
-            total: product.unitMeasure === 'kg' ? 0 : discountedPrice
+            total: isKilogram ? 0 : discountedPrice,
+            unitMeasure: product.unitMeasure || ''
         });
     };
 

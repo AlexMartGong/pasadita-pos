@@ -5,6 +5,7 @@ import {
     Grid, TextField, Typography
 } from '@mui/material';
 import {Add} from '@mui/icons-material';
+import {QuantityInput} from './QuantityInput';
 
 export const AddProductForm = ({
     selectedProductData,
@@ -39,17 +40,14 @@ export const AddProductForm = ({
                         />
                     </Grid>
                     <Grid item xs={4}>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            type="number"
-                            label="Cantidad"
+                        <QuantityInput
                             value={selectedProductData.quantity}
-                            onChange={(e) => onSelectedProductChange({
+                            onChange={(value) => onSelectedProductChange({
                                 ...selectedProductData,
-                                quantity: e.target.value
+                                quantity: value
                             })}
-                            inputProps={{step: '0.1', min: '0'}}
+                            unitMeasure={selectedProductData.unitMeasure}
+                            productId={selectedProductData.id}
                         />
                     </Grid>
                     <Grid item xs={4}>

@@ -63,7 +63,7 @@ export const ProductsTable = ({
                                 <TableCell>ID</TableCell>
                                 <TableCell>Producto</TableCell>
                                 <TableCell align="right">Precio</TableCell>
-                                <TableCell align="center">Unidad</TableCell>
+                                <TableCell align="center">Medida</TableCell>
                                 <TableCell align="center">Acción</TableCell>
                             </TableRow>
                         </TableHead>
