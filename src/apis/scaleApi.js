@@ -3,7 +3,7 @@ import axios from "axios";
 // Scale REST server runs on port 8081 (separate from main backend)
 const scaleApi = axios.create({
     baseURL: 'http://localhost:8081/api/scale',
-    timeout: 3000, // Shorter timeout for local hardware
+    timeout: 10000, // Timeout for local hardware (10 seconds)
 });
 
 // Scale API doesn't require authentication (local hardware access)

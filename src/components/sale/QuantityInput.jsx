@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     TextField,
     InputAdornment,
@@ -24,6 +24,9 @@ export const QuantityInput = ({
     disabled = false
 }) => {
     const isKilogram = unitMeasure === 'KILOGRAMO';
+    const [autoConnected, setAutoConnected] = useState(false);
+    const timeoutRef = useRef(null);
+    const previousProductIdRef = useRef(null);
 
     const {
         weight,
@@ -32,21 +35,74 @@ export const QuantityInput = ({
         isLoading,
         connectScale,
         disconnectScale,
-    } = useScale(isKilogram && productId, 500);
+    } = useScale(autoConnected, 500); // Hacer polling solo cuando autoConnected es true
 
-    // Conectar automáticamente la báscula cuando el producto sea KILOGRAMO
+    // Conectar automáticamente cuando cambia el producto y es KILOGRAMO
     useEffect(() => {
-        if (isKilogram && productId && !isConnected) {
+        const productChanged = productId && productId !== previousProductIdRef.current;
+        previousProductIdRef.current = productId;
+
+        if (isKilogram && productId && productChanged && !isConnected) {
+            setAutoConnected(true);
             connectScale();
-        }
-    }, [isKilogram, productId, isConnected, connectScale]);
 
-    // Actualizar el campo de cantidad automáticamente cuando el peso es estable
-    useEffect(() => {
-        if (isKilogram && isConnected && isStable && weight > 0) {
-            onChange(weight.toFixed(3));
+            // Desconectar automáticamente después de 15 segundos
+            timeoutRef.current = setTimeout(() => {
+                console.log('Auto-disconnect: tiempo límite alcanzado');
+                disconnectScale();
+                setAutoConnected(false);
+            }, 15000);
         }
-    }, [isKilogram, isConnected, isStable, weight, onChange]);
+
+        // Limpiar timeout cuando se desmonta o cambia el producto
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+                timeoutRef.current = null;
+            }
+        };
+    }, [isKilogram, productId, isConnected, connectScale, disconnectScale]);
+
+    // Capturar peso automáticamente cuando es estable y desconectar
+    useEffect(() => {
+        if (isKilogram && isConnected && isStable && weight > 0 && autoConnected) {
+            console.log('Peso estable detectado:', weight);
+            onChange(weight.toFixed(3));
+
+            // Desconectar después de capturar el peso
+            setTimeout(() => {
+                console.log('Auto-disconnect: peso capturado');
+                disconnectScale();
+                setAutoConnected(false);
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                    timeoutRef.current = null;
+                }
+            }, 1000); // Esperar 1 segundo después de capturar para que el usuario vea el peso
+        }
+    }, [isKilogram, isConnected, isStable, weight, autoConnected, onChange, disconnectScale]);
+
+    // Función para reconectar manualmente
+    const handleReconnect = () => {
+        if (!isConnected) {
+            setAutoConnected(true);
+            connectScale();
+
+            // Desconectar automáticamente después de 15 segundos
+            timeoutRef.current = setTimeout(() => {
+                console.log('Auto-disconnect manual: tiempo límite alcanzado');
+                disconnectScale();
+                setAutoConnected(false);
+            }, 15000);
+        } else {
+            disconnectScale();
+            setAutoConnected(false);
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+                timeoutRef.current = null;
+            }
+        }
+    };
 
     return (
         <Stack spacing={1}>
@@ -70,10 +126,10 @@ export const QuantityInput = ({
                     ),
                     endAdornment: (
                         <InputAdornment position="end">
-                            <Tooltip title={isConnected ? "Desconectar báscula" : "Conectar báscula"}>
+                            <Tooltip title={isConnected ? "Desconectar báscula" : "Reconectar báscula"}>
                                 <IconButton
                                     size="small"
-                                    onClick={isConnected ? disconnectScale : connectScale}
+                                    onClick={handleReconnect}
                                     disabled={isLoading}
                                     edge="end"
                                 >
@@ -96,12 +152,21 @@ export const QuantityInput = ({
                         size="small"
                     />
                     {isConnected && (
-                        <Chip
-                            icon={isStable ? <Check/> : undefined}
-                            label={isStable ? "Estable" : "Inestable"}
-                            color={isStable ? "success" : "warning"}
-                            size="small"
-                        />
+                        <>
+                            <Chip
+                                icon={isStable ? <Check/> : undefined}
+                                label={isStable ? "Estable" : "Inestable"}
+                                color={isStable ? "success" : "warning"}
+                                size="small"
+                            />
+                            {weight > 0 && (
+                                <Chip
+                                    label={`${weight.toFixed(3)} kg`}
+                                    color="primary"
+                                    size="small"
+                                />
+                            )}
+                        </>
                     )}
                 </Stack>
             )}
