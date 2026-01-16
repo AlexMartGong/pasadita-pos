@@ -72,7 +72,7 @@ export const QuantityInput = ({
                 size="small"
                 type="number"
                 label={isKilogram ? "Cantidad (kg)" : "Cantidad"}
-                value={value}
+                value={value ?? ''}
                 onChange={(e) => onChange(e.target.value)}
                 disabled={disabled}
                 inputProps={{

@@ -42,10 +42,7 @@ export const AddProductForm = ({
                     <Grid item xs={4}>
                         <QuantityInput
                             value={selectedProductData.quantity}
-                            onChange={(value) => onSelectedProductChange({
-                                ...selectedProductData,
-                                quantity: value
-                            })}
+                            onChange={(value) => onSelectedProductChange({quantity: value})}
                             unitMeasure={selectedProductData.unitMeasure}
                             productId={selectedProductData.id}
                         />
