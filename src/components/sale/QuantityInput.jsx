@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {
     TextField,
     InputAdornment,
@@ -12,95 +12,56 @@ import {
     Check,
     Link as LinkIcon,
     LinkOff,
-    PowerSettingsNew
+    Refresh
 } from '@mui/icons-material';
 import {useScale} from '../../hooks/useScale';
 
 export const QuantityInput = ({
-    value,
-    onChange,
-    unitMeasure,
-    productId,
-    disabled = false
-}) => {
+                                  value,
+                                  onChange,
+                                  unitMeasure,
+                                  productId,
+                                  disabled = false
+                              }) => {
     const isKilogram = unitMeasure === 'KILOGRAMO';
-    const [autoConnected, setAutoConnected] = useState(false);
-    const timeoutRef = useRef(null);
     const previousProductIdRef = useRef(null);
+    const weightCapturedRef = useRef(false);
 
+    // Modo persistente: báscula siempre conectada con polling cada 800ms
     const {
         weight,
         isStable,
         isConnected,
         isLoading,
         connectScale,
-        disconnectScale,
-    } = useScale(autoConnected, 500); // Hacer polling solo cuando autoConnected es true
+    } = useScale({persistent: true, intervalMs: 800});
 
-    // Conectar automáticamente cuando cambia el producto y es KILOGRAMO
+    // Detectar cambio de producto
     useEffect(() => {
-        const productChanged = productId && productId !== previousProductIdRef.current;
-        previousProductIdRef.current = productId;
-
-        if (isKilogram && productId && productChanged && !isConnected) {
-            setAutoConnected(true);
-            connectScale();
-
-            // Desconectar automáticamente después de 15 segundos
-            timeoutRef.current = setTimeout(() => {
-                console.log('Auto-disconnect: tiempo límite alcanzado');
-                disconnectScale();
-                setAutoConnected(false);
-            }, 15000);
+        if (productId && productId !== previousProductIdRef.current) {
+            previousProductIdRef.current = productId;
+            weightCapturedRef.current = false; // Reset para nuevo producto
         }
+    }, [productId]);
 
-        // Limpiar timeout cuando se desmonta o cambia el producto
-        return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-                timeoutRef.current = null;
-            }
-        };
-    }, [isKilogram, productId, isConnected, connectScale, disconnectScale]);
-
-    // Capturar peso automáticamente cuando es estable y desconectar
+    // Capturar peso instantáneamente cuando se selecciona un producto KILOGRAMO
     useEffect(() => {
-        if (isKilogram && isConnected && isStable && weight > 0 && autoConnected) {
-            console.log('Peso estable detectado:', weight);
+        // Si es KILOGRAMO, no se ha capturado, conectado, y hay peso > 0, capturar
+        if (isKilogram && productId && !weightCapturedRef.current && isConnected && weight > 0) {
+            console.log('Peso capturado instantáneamente:', weight);
             onChange(weight.toFixed(3));
-
-            // Desconectar después de capturar el peso
-            setTimeout(() => {
-                console.log('Auto-disconnect: peso capturado');
-                disconnectScale();
-                setAutoConnected(false);
-                if (timeoutRef.current) {
-                    clearTimeout(timeoutRef.current);
-                    timeoutRef.current = null;
-                }
-            }, 1000); // Esperar 1 segundo después de capturar para que el usuario vea el peso
+            weightCapturedRef.current = true;
         }
-    }, [isKilogram, isConnected, isStable, weight, autoConnected, onChange, disconnectScale]);
+    }, [isKilogram, productId, isConnected, weight, onChange]);
 
-    // Función para reconectar manualmente
-    const handleReconnect = () => {
-        if (!isConnected) {
-            setAutoConnected(true);
+    // Función para recapturar peso manualmente (refrescar lectura)
+    const handleRefreshWeight = () => {
+        if (isConnected && weight > 0) {
+            console.log('Peso recapturado manualmente:', weight);
+            onChange(weight.toFixed(3));
+        } else if (!isConnected) {
+            // Si no está conectada, intentar reconectar
             connectScale();
-
-            // Desconectar automáticamente después de 15 segundos
-            timeoutRef.current = setTimeout(() => {
-                console.log('Auto-disconnect manual: tiempo límite alcanzado');
-                disconnectScale();
-                setAutoConnected(false);
-            }, 15000);
-        } else {
-            disconnectScale();
-            setAutoConnected(false);
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-                timeoutRef.current = null;
-            }
         }
     };
 
@@ -126,16 +87,16 @@ export const QuantityInput = ({
                     ),
                     endAdornment: (
                         <InputAdornment position="end">
-                            <Tooltip title={isConnected ? "Desconectar báscula" : "Reconectar báscula"}>
+                            <Tooltip title={isConnected ? "Recapturar peso" : "Reconectar báscula"}>
                                 <IconButton
                                     size="small"
-                                    onClick={handleReconnect}
+                                    onClick={handleRefreshWeight}
                                     disabled={isLoading}
                                     edge="end"
                                 >
-                                    <PowerSettingsNew
+                                    <Refresh
                                         fontSize="small"
-                                        color={isConnected ? "error" : "primary"}
+                                        color={isConnected ? "primary" : "error"}
                                     />
                                 </IconButton>
                             </Tooltip>
