@@ -49,10 +49,13 @@ Three-layer architecture for each domain (user, product, customer, customerType,
 
 ### Authentication & Authorization
 - JWT-based authentication stored in sessionStorage
+- Three user roles: `ROLE_ADMIN`, `ROLE_CAJERO`, `ROLE_PEDIDOS`
 - Two-level routing in `src/AppRoutes.jsx`:
   - Unauthenticated users → `/login`
   - Authenticated users → `FruitRoute` (main app routes)
-- `AdminRoute` component wraps admin-only routes
+- Route guards:
+  - `AdminRoute`: Admin-only routes (user management, products, customers)
+  - `ProtectedRoute`: Any authenticated user (sales, delivery, tickets)
 - Check `isAdmin` status via `useAuth()` hook
 
 ### Routing Structure
@@ -78,7 +81,19 @@ Three-layer architecture for each domain (user, product, customer, customerType,
   - Shows toast notifications via react-toastify
   - Auto-logout on 401 responses
 - Domain hooks (`useUser`, `useProduct`, `useCustomer`, `useCustomerType`, `useSale`, `useDeliveryOrder`): Combine service calls with Redux
-- Special hooks: `useSaleForm` - Complex form hook for sales with validation, product search, cart management, and delivery order integration
+- Special hooks:
+  - `useSaleForm`: Complex form hook for sales with validation, product search, cart management, and delivery order integration
+  - `useScale`: Hardware integration for digital scales with weight reading, connection management, and polling
+
+### Utilities
+- `src/utils/formatters.js`: Localized formatting functions
+  - `formatCurrency(value)`: Mexican peso formatting (MXN)
+  - `formatDate(dateString)`: Spanish date formatting
+
+### Hardware Integration
+- Scale API (`src/apis/scaleApi.js`): Connects to a local scale service
+- Endpoints: `/connect`, `/disconnect`, `/weight`, `/status`
+- Used in `QuantityInput` component for weighing products
 
 ### Environment Configuration
 Backend API URL configured via `.env`:
