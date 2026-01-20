@@ -75,62 +75,63 @@ export const QuantityInput = ({
                 value={value ?? ''}
                 onChange={(e) => onChange(e.target.value)}
                 disabled={disabled}
-                inputProps={{
-                    step: isKilogram ? '0.001' : '1',
-                    min: '0'
+                slotProps={{
+                    htmlInput: {
+                        step: '0.1',
+                        min: '0'
+                    },
+                    input: (isKilogram && productId) ? {
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Scale color={isConnected ? "primary" : "disabled"} fontSize="small"/>
+                            </InputAdornment>
+                        ),
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <Tooltip title={isConnected ? "Recapturar peso" : "Reconectar báscula"}>
+                                    <IconButton
+                                        size="small"
+                                        onClick={handleRefreshWeight}
+                                        disabled={isLoading}
+                                        edge="end"
+                                    >
+                                        <Refresh
+                                            fontSize="small"
+                                            color={isConnected ? "primary" : "error"}
+                                        />
+                                    </IconButton>
+                                </Tooltip>
+                            </InputAdornment>
+                        )
+                    } : undefined
                 }}
-                InputProps={isKilogram && productId ? {
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <Scale color={isConnected ? "primary" : "disabled"} fontSize="small"/>
-                        </InputAdornment>
-                    ),
-                    endAdornment: (
-                        <InputAdornment position="end">
-                            <Tooltip title={isConnected ? "Recapturar peso" : "Reconectar báscula"}>
-                                <IconButton
-                                    size="small"
-                                    onClick={handleRefreshWeight}
-                                    disabled={isLoading}
-                                    edge="end"
-                                >
-                                    <Refresh
-                                        fontSize="small"
-                                        color={isConnected ? "primary" : "error"}
-                                    />
-                                </IconButton>
-                            </Tooltip>
-                        </InputAdornment>
-                    )
-                } : undefined}
             />
-            {isKilogram && productId && (
-                <Stack direction="row" spacing={1} justifyContent="flex-end">
-                    <Chip
-                        icon={isConnected ? <LinkIcon/> : <LinkOff/>}
-                        label={isConnected ? "Conectada" : "Desconectada"}
-                        color={isConnected ? "success" : "error"}
-                        size="small"
-                    />
-                    {isConnected && (
-                        <>
+
+            <Stack direction="row" spacing={1} justifyContent="flex-end">
+                {isConnected && (
+                    <>
+                        <Chip
+                            icon={isStable ? <Check/> : undefined}
+                            label={isStable ? "Estable" : "Inestable"}
+                            color={isStable ? "success" : "warning"}
+                            size="small"
+                        />
+                        {weight > 0 && (
                             <Chip
-                                icon={isStable ? <Check/> : undefined}
-                                label={isStable ? "Estable" : "Inestable"}
-                                color={isStable ? "success" : "warning"}
+                                label={`${weight.toFixed(3)} kg`}
+                                color="primary"
                                 size="small"
                             />
-                            {weight > 0 && (
-                                <Chip
-                                    label={`${weight.toFixed(3)} kg`}
-                                    color="primary"
-                                    size="small"
-                                />
-                            )}
-                        </>
-                    )}
-                </Stack>
-            )}
+                        )}
+                    </>
+                )}
+                <Chip
+                    icon={isConnected ? <LinkIcon/> : <LinkOff/>}
+                    label={isConnected ? "Conectada" : "Desconectada"}
+                    color={isConnected ? "success" : "error"}
+                    size="small"
+                />
+            </Stack>
         </Stack>
     );
 };

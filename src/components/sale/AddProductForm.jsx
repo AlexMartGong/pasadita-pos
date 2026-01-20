@@ -8,12 +8,12 @@ import {Add} from '@mui/icons-material';
 import {QuantityInput} from './QuantityInput';
 
 export const AddProductForm = ({
-    selectedProductData,
-    errors,
-    onSelectedProductChange,
-    onAddToCart,
-    formatCurrency
-}) => {
+                                   selectedProductData,
+                                   errors,
+                                   onSelectedProductChange,
+                                   onAddToCart,
+                                   formatCurrency
+                               }) => {
     return (
         <Card sx={{flexShrink: 0}}>
             <CardContent sx={{pb: 2}}>
@@ -21,16 +21,7 @@ export const AddProductForm = ({
                     Agregar Producto
                 </Typography>
                 <Grid container spacing={2} sx={{mb: 2}}>
-                    <Grid item xs={6} sm={3}>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            label="ID"
-                            value={selectedProductData.id}
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={6} sm={9}>
+                    <Grid item xs={4} sx={{width: '70%'}}>
                         <TextField
                             fullWidth
                             size="small"
@@ -39,15 +30,7 @@ export const AddProductForm = ({
                             disabled
                         />
                     </Grid>
-                    <Grid item xs={4}>
-                        <QuantityInput
-                            value={selectedProductData.quantity}
-                            onChange={(value) => onSelectedProductChange({quantity: value})}
-                            unitMeasure={selectedProductData.unitMeasure}
-                            productId={selectedProductData.id}
-                        />
-                    </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={4} sx={{width: '30%'}}>
                         <TextField
                             fullWidth
                             size="small"
@@ -58,10 +41,26 @@ export const AddProductForm = ({
                                 ...selectedProductData,
                                 price: e.target.value
                             })}
-                            inputProps={{step: '0.1', min: '0'}}
+                            slotProps={{
+                                htmlInput: {
+                                    step: '0.1',
+                                    min: '0'
+                                }
+                            }}
                         />
                     </Grid>
-                    <Grid item xs={4}>
+                </Grid>
+                <Grid container spacing={2} sx={{mb: 2}}>
+                    <Grid item xs={4} sx={{width: '70%'}}>
+                        <QuantityInput
+                            value={selectedProductData.quantity}
+                            onChange={(value) => onSelectedProductChange({quantity: value})}
+                            unitMeasure={selectedProductData.unitMeasure}
+                            productId={selectedProductData.id}
+                        />
+                    </Grid>
+
+                    <Grid item xs={4} sx={{width: '30%'}}>
                         <TextField
                             fullWidth
                             size="small"
