@@ -79,7 +79,7 @@ export const Sidebar = () => {
                     variant="h5"
                     sx={sidebarStyles.title}
                 >
-                    FruitApp
+                    La Pasadita
                 </Typography>
             </Box>
 
@@ -123,7 +123,7 @@ export const Sidebar = () => {
                                 {user || 'Admin User'}
                             </Typography>
                             <Typography variant="caption" sx={sidebarStyles.userRole}>
-                                Administrator
+                                {hasLimitedAccess ? 'Usuario Limitado' : 'Administrador'}
                             </Typography>
                         </Box>
                     </Box>
