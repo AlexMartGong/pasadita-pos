@@ -7,13 +7,6 @@ export default defineConfig({
         host: '0.0.0.0',
         port: 5173,
         strictPort: true,
-        proxy: {
-            '/api/scale': {
-                target: 'http://localhost:8081/api/scale',
-                changeOrigin: true,
-                secure: false,
-            }
-        }
     },
     build: {
         target: 'esnext',
