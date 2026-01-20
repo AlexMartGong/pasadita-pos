@@ -9,7 +9,7 @@ export default defineConfig({
         strictPort: true,
         proxy: {
             '/api/scale': {
-                target: 'http://localhost:8081',
+                target: 'http://localhost:8081/api/scale',
                 changeOrigin: true,
                 secure: false,
             }
