@@ -1,12 +1,9 @@
 import axios from "axios";
 
 // Scale REST server runs on port 8081 (separate from main backend)
-// En desarrollo: usa proxy de Vite → localhost:8081
-// En producción: apunta directamente al agente local
+// Using environment variable for production flexibility
 const scaleApi = axios.create({
-    baseURL: import.meta.env.PROD
-        ? 'http://localhost:8081'  // Producción: directo al agente local
-        : '/api/scale',            // Desarrollo: usa proxy de Vite
+    baseURL: 'http://localhost:8081/api/scale',
     timeout: 10000, // Timeout for local hardware (10 seconds)
 });
 
