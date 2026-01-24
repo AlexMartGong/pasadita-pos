@@ -2,10 +2,16 @@ import {NavLink} from "react-router-dom";
 import {pageContainerStyles} from "../../styles/js/PageContainer.js";
 import {pageHeaderStyles} from "../../styles/js/PageHeader.js";
 import {Box, Button, Card, CardContent, Container, Paper, Typography} from "@mui/material";
-import {Add, ReceiptLong} from "@mui/icons-material";
+import {Add, ReceiptLong, ShoppingCart, AttachMoney} from "@mui/icons-material";
 import {SaleTable} from "../../components/sale/SaleTable.jsx";
+import {useSale} from "../../hooks/sale/useSale.js";
+import {formatCurrency} from "../../utils/formatters.js";
+import {StatsCard} from "../../components/common/StatsCard.jsx";
+import {StatsCardContainer} from "../../components/common/StatsCardContainer.jsx";
 
 export const SalePage = () => {
+    const {totalSales, totalAmount} = useSale();
+
     return (
         <Container maxWidth="xl" sx={pageContainerStyles.main}>
             <Paper elevation={2} sx={pageHeaderStyles.container}>
@@ -35,6 +41,21 @@ export const SalePage = () => {
                     </Box>
                 </Box>
             </Paper>
+
+            <StatsCardContainer>
+                <StatsCard
+                    label="Ventas de Hoy"
+                    value={totalSales}
+                    icon={ShoppingCart}
+                    color="primary"
+                />
+                <StatsCard
+                    label="Monto Total (Pagado)"
+                    value={formatCurrency(totalAmount)}
+                    icon={AttachMoney}
+                    color="success"
+                />
+            </StatsCardContainer>
 
             <Card elevation={4} sx={pageContainerStyles.contentCard}>
                 <Box sx={pageContainerStyles.contentHeader}>

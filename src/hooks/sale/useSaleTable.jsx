@@ -23,25 +23,50 @@ const useDebounce = (value, delay) => {
     return debouncedValue;
 };
 
+const isToday = (dateString) => {
+    const saleDate = new Date(dateString);
+    const today = new Date();
+    return (
+        saleDate.getDate() === today.getDate() &&
+        saleDate.getMonth() === today.getMonth() &&
+        saleDate.getFullYear() === today.getFullYear()
+    );
+};
+
 export const useSaleTable = (sales) => {
     const [searchText, setSearchText] = useState("");
+    const [showAllSales, setShowAllSales] = useState(false);
     const debouncedSearchText = useDebounce(searchText, 300);
     const {handleSaleEdit, handlePaymentToggle, handlePrintTicket} = useSale();
     const {isAdmin} = useAuth();
 
     const filteredSales = useMemo(() => {
-        if (!sales || !debouncedSearchText) return sales || [];
+        if (!sales) return [];
 
-        const searchLower = debouncedSearchText.toLowerCase();
-        return sales.filter((sale) => {
-            return (
-                sale.id?.toString().includes(searchLower) ||
-                sale.customerName?.toLowerCase().includes(searchLower) ||
-                sale.employeeName?.toLowerCase().includes(searchLower) ||
-                sale.total?.toString().includes(searchLower)
-            );
-        });
-    }, [sales, debouncedSearchText]);
+        // Primero filtrar por día si no se muestran todas
+        let result = showAllSales
+            ? sales
+            : sales.filter((sale) => isToday(sale.datetime));
+
+        // Luego aplicar el filtro de búsqueda
+        if (debouncedSearchText) {
+            const searchLower = debouncedSearchText.toLowerCase();
+            result = result.filter((sale) => {
+                return (
+                    sale.id?.toString().includes(searchLower) ||
+                    sale.customerName?.toLowerCase().includes(searchLower) ||
+                    sale.employeeName?.toLowerCase().includes(searchLower) ||
+                    sale.total?.toString().includes(searchLower)
+                );
+            });
+        }
+
+        return result;
+    }, [sales, debouncedSearchText, showAllSales]);
+
+    const handleToggleShowAll = useCallback(() => {
+        setShowAllSales((prev) => !prev);
+    }, []);
 
     const handleSearchChange = useCallback((value) => {
         setSearchText(value);
@@ -153,5 +178,7 @@ export const useSaleTable = (sales) => {
         searchText,
         filteredSales,
         columns,
+        showAllSales,
+        handleToggleShowAll,
     };
 };

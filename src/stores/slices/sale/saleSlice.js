@@ -16,10 +16,16 @@ export const saleSlice = createSlice({
     initialState: {
         sales: [],
         saleSelected: initialSaleForm,
+        totalSales: 0,
+        totalAmount: 0,
     },
     reducers: {
         setSales: (state, action) => {
             state.sales = action.payload;
+        },
+        setTotalAmountAndSales: (state, action) => {
+            state.totalSales = action.payload.totalSales;
+            state.totalAmount = action.payload.totalAmount;
         },
         onCreateSale: (state, action) => {
             state.sales.push({
@@ -54,6 +60,7 @@ export const saleSlice = createSlice({
 
 export const {
     setSales,
+    setTotalAmountAndSales,
     onCreateSale,
     onUpdateSale,
     onChangeStatusSale,

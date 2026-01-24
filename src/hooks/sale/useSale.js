@@ -5,6 +5,7 @@ import {
     onCreateSale,
     onUpdateSale,
     setSales,
+    setTotalAmountAndSales,
     onSelectSale,
     onClearSaleSelected, onChangeStatusSale
 } from "../../stores/slices/sale/saleSlice.js";
@@ -15,7 +16,7 @@ import {useNavigate} from "react-router-dom";
 import {onChangeStatusDeliveryOrder} from "../../stores/slices/deliveryOrder/deliveryOrderSlice.js";
 
 export const useSale = () => {
-    const {sales, saleSelected} = useSelector(state => state.sale);
+    const {sales, saleSelected, totalSales, totalAmount} = useSelector(state => state.sale);
     const {handleApiError} = useApiErrorHandler();
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -25,6 +26,26 @@ export const useSale = () => {
             const result = await saleService.getAllSales();
             if (result.status === 200) {
                 dispatch(setSales(result.data));
+
+                // Filtrar ventas de hoy
+                const today = new Date();
+                const todaySales = result.data.filter(sale => {
+                    const saleDate = new Date(sale.datetime);
+                    return (
+                        saleDate.getDate() === today.getDate() &&
+                        saleDate.getMonth() === today.getMonth() &&
+                        saleDate.getFullYear() === today.getFullYear()
+                    );
+                });
+
+                // Calcular totalAmount solo de las ventas pagadas de hoy
+                const paidSales = todaySales.filter(sale => sale.paid === true);
+                const totalAmountPaid = paidSales.reduce((sum, sale) => sum + (sale.total || 0), 0);
+
+                dispatch(setTotalAmountAndSales({
+                    totalSales: todaySales.length,
+                    totalAmount: totalAmountPaid
+                }));
             } else {
                 toast.error('Error al encontrar ventas.');
             }
@@ -121,6 +142,8 @@ export const useSale = () => {
         initialSaleForm,
         sales,
         saleSelected,
+        totalSales,
+        totalAmount,
         handlePrintTicket,
         handleGetSales,
         handleSaveSale,
