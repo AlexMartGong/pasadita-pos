@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect} from 'react';
 import {
     TextField,
     InputAdornment,
@@ -24,10 +24,7 @@ export const QuantityInput = ({
                                   disabled = false
                               }) => {
     const isKilogram = unitMeasure === 'KILOGRAMO';
-    const previousProductIdRef = useRef(null);
-    const weightCapturedRef = useRef(false);
 
-    // Modo persistente: báscula siempre conectada con polling cada 800ms
     const {
         weight,
         isStable,
@@ -36,31 +33,17 @@ export const QuantityInput = ({
         connectScale,
     } = useScale({persistent: true, intervalMs: 800});
 
-    // Detectar cambio de producto
     useEffect(() => {
-        if (productId && productId !== previousProductIdRef.current) {
-            previousProductIdRef.current = productId;
-            weightCapturedRef.current = false; // Reset para nuevo producto
-        }
-    }, [productId]);
-
-    // Capturar peso instantáneamente cuando se selecciona un producto KILOGRAMO
-    useEffect(() => {
-        // Si es KILOGRAMO, no se ha capturado, conectado, y hay peso > 0, capturar
-        if (isKilogram && productId && !weightCapturedRef.current && isConnected && weight > 0) {
-            console.log('Peso capturado instantáneamente:', weight);
+        if (isKilogram && productId && isConnected && weight > 0) {
             onChange(weight.toFixed(3));
-            weightCapturedRef.current = true;
         }
     }, [isKilogram, productId, isConnected, weight, onChange]);
 
-    // Función para recapturar peso manualmente (refrescar lectura)
     const handleRefreshWeight = () => {
         if (isConnected && weight > 0) {
             console.log('Peso recapturado manualmente:', weight);
             onChange(weight.toFixed(3));
         } else if (!isConnected) {
-            // Si no está conectada, intentar reconectar
             connectScale();
         }
     };
@@ -116,13 +99,11 @@ export const QuantityInput = ({
                             color={isStable ? "success" : "warning"}
                             size="small"
                         />
-                        {weight > 0 && (
-                            <Chip
-                                label={`${weight.toFixed(3)} kg`}
-                                color="primary"
-                                size="small"
-                            />
-                        )}
+                        <Chip
+                            label={`${weight.toFixed(3)} kg`}
+                            color="primary"
+                            size="small"
+                        />
                     </>
                 )}
                 <Chip
