@@ -27,7 +27,6 @@ export const useSale = () => {
             if (result.status === 200) {
                 dispatch(setSales(result.data));
 
-                // Filtrar ventas de hoy
                 const today = new Date();
                 const todaySales = result.data.filter(sale => {
                     const saleDate = new Date(sale.datetime);
@@ -38,7 +37,6 @@ export const useSale = () => {
                     );
                 });
 
-                // Calcular totalAmount solo de las ventas pagadas de hoy
                 const paidSales = todaySales.filter(sale => sale.paid === true);
                 const totalAmountPaid = paidSales.reduce((sum, sale) => sum + (sale.total || 0), 0);
 
@@ -109,6 +107,15 @@ export const useSale = () => {
         }
     }, [handleChangeStatus, dispatch]);
 
+    const handleGetSaleDetails = useCallback(async (saleId) => {
+        try {
+            const result = await saleService.getSaleDetailsById(saleId);
+            return result.data;
+        } catch (error) {
+            handleApiError(error);
+        }
+    }, [handleApiError]);
+
     const handleGetTicket = useCallback(async (saleId) => {
         try {
             const result = await saleService.getTicketBySaleId(saleId);
@@ -149,6 +156,7 @@ export const useSale = () => {
         handleSaveSale,
         handleChangeStatus,
         handleSaleEdit,
+        handleGetSaleDetails,
         handleGetTicket,
         handleSelectSale,
         handlePaymentToggle,

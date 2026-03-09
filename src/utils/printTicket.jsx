@@ -1,18 +1,12 @@
 import { createRoot } from 'react-dom/client';
 import { Ticket } from '../components/sale/Ticket';
 
-/**
- * Imprime un ticket de venta o pedido
- * @param {Object} ticketData - Datos del ticket obtenidos del backend
- * @returns {Promise<void>}
- */
 export const printTicket = async (ticketData) => {
     if (!ticketData) {
         console.error('No hay datos del ticket para imprimir');
         return;
     }
 
-    // Crear un contenedor temporal para el ticket (invisible en pantalla, visible en impresión)
     const printContainer = document.createElement('div');
     printContainer.id = 'print-ticket-container';
     printContainer.style.position = 'absolute';
@@ -24,20 +18,15 @@ export const printTicket = async (ticketData) => {
     document.body.appendChild(printContainer);
 
     try {
-        // Renderizar el componente Ticket en el contenedor temporal
         const root = createRoot(printContainer);
         root.render(<Ticket ticketData={ticketData} />);
 
-        // Log para debugging
         console.log('Ticket renderizado, datos:', ticketData);
         console.log('Número de productos:', ticketData.saleDetails?.length || 0);
 
-        // Esperar a que el navegador complete el renderizado
         await new Promise((resolve) => {
-            // Usar requestAnimationFrame para esperar a que el navegador termine de pintar
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    // Esperar un poco más para asegurar que los estilos se apliquen
                     setTimeout(resolve, 500);
                 });
             });
@@ -45,10 +34,8 @@ export const printTicket = async (ticketData) => {
 
         console.log('Abriendo diálogo de impresión...');
 
-        // Abrir el diálogo de impresión
         window.print();
 
-        // Esperar un momento antes de limpiar
         setTimeout(() => {
             root.unmount();
             if (document.body.contains(printContainer)) {
@@ -58,18 +45,12 @@ export const printTicket = async (ticketData) => {
     } catch (error) {
         console.error('Error al imprimir el ticket:', error);
         console.error('Datos del ticket:', ticketData);
-        // Limpiar el contenedor en caso de error
         if (document.body.contains(printContainer)) {
             document.body.removeChild(printContainer);
         }
     }
 };
 
-/**
- * Vista previa del ticket sin imprimir (útil para debugging)
- * @param {Object} ticketData - Datos del ticket obtenidos del backend
- * @returns {void}
- */
 export const previewTicket = (ticketData) => {
     if (!ticketData) {
         console.error('No hay datos del ticket para previsualizar');
@@ -78,7 +59,6 @@ export const previewTicket = (ticketData) => {
 
     console.log('Vista previa del ticket:', ticketData);
 
-    // Crear un contenedor temporal para previsualización
     const previewContainer = document.createElement('div');
     previewContainer.id = 'preview-ticket-container';
     previewContainer.style.position = 'fixed';
@@ -92,7 +72,6 @@ export const previewTicket = (ticketData) => {
     previewContainer.style.maxHeight = '90vh';
     previewContainer.style.overflow = 'auto';
 
-    // Botón de cerrar
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Cerrar';
     closeButton.style.position = 'absolute';

@@ -4,38 +4,31 @@ import {Box, Button, CircularProgress, Paper, Typography} from '@mui/material';
 import {Print, ArrowBack} from '@mui/icons-material';
 import {Ticket} from '../../components/sale/Ticket.jsx';
 import {useSale} from '../../hooks/sale/useSale.js';
-import {printTicket} from '../../utils/printTicket.jsx';
 
 export const TicketPage = () => {
     const {id} = useParams();
     const navigate = useNavigate();
-    const {handleGetTicket} = useSale();
+    const {handleGetSaleDetails, handleGetTicket} = useSale();
     const [ticketData, setTicketData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchTicketData = async () => {
-            if (id) {
-                setLoading(true);
-                try {
-                    const data = await handleGetTicket(parseInt(id));
-                    setTicketData(data);
-                } catch (error) {
-                    console.error('Error fetching ticket:', error);
-                } finally {
-                    setLoading(false);
-                }
+        const fetchTicket = async () => {
+            setLoading(true);
+            try {
+                const data = await handleGetSaleDetails(parseInt(id));
+                setTicketData(data);
+            } catch (error) {
+                console.error('Error fetching ticket:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
-        fetchTicketData();
-    }, [id]);
-
-    const handlePrint = async () => {
-        if (ticketData) {
-            await printTicket(ticketData);
+        if (id) {
+            fetchTicket();
         }
-    };
+    }, []);
 
     const handleBack = () => {
         navigate('/delivery');
@@ -75,7 +68,6 @@ export const TicketPage = () => {
 
     return (
         <Box sx={{p: 3}}>
-            {/* Botones de acción */}
             <Box
                 sx={{
                     display: 'flex',
@@ -93,14 +85,13 @@ export const TicketPage = () => {
                 <Button
                     variant="contained"
                     startIcon={<Print/>}
-                    onClick={handlePrint}
+                    onClick={() => handleGetTicket(parseInt(id))}
                     color="primary"
                 >
                     Imprimir Ticket
                 </Button>
             </Box>
 
-            {/* Contenedor del ticket */}
             <Paper
                 elevation={3}
                 sx={{

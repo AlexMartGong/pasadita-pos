@@ -17,7 +17,6 @@ export const useSaleForm = (saleSelected) => {
 
     const isEditMode = saleSelected && saleSelected.id !== 0;
 
-    // Estados del formulario
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState(initialSaleForm);
@@ -36,27 +35,20 @@ export const useSaleForm = (saleSelected) => {
         unitMeasure: ''
     });
 
-    // Estados para delivery order
     const [deliveryEmployeeId, setDeliveryEmployeeId] = useState(null);
     const [deliveryCost, setDeliveryCost] = useState(0);
 
-    // Estado para tipo de operación (solo para ROLE_ADMIN)
     const [operationType, setOperationType] = useState('venta'); // 'venta' o 'pedido'
 
-    // Verificar si el usuario tiene el rol ROLE_PEDIDOS o ROLE_ADMIN (para visualizar el componente)
     const hasDeliveryRole = role && (role.includes('ROLE_PEDIDOS') || role.includes('ROLE_ADMIN'));
 
-    // Verificar si el usuario puede guardar delivery orders
-    // ROLE_PEDIDOS siempre puede, ROLE_ADMIN solo si operationType es 'pedido'
     const canSaveDeliveryOrder = role && (
         role.includes('ROLE_PEDIDOS') ||
         (role.includes('ROLE_ADMIN') && operationType === 'pedido')
     );
 
-    // Verificar si es ROLE_ADMIN (para mostrar el selector de tipo de operación)
     const isAdmin = role && role.includes('ROLE_ADMIN');
 
-    // Cargar clientes, productos y empleados al iniciar
     useEffect(() => {
         handleGetCustomers();
         handleGetProducts();
@@ -65,7 +57,6 @@ export const useSaleForm = (saleSelected) => {
         }
     }, [hasDeliveryRole]);
 
-    // Cargar datos de venta en modo edición
     useEffect(() => {
         const loadSaleData = async () => {
             if (saleSelected && saleSelected.id !== 0) {
@@ -79,11 +70,9 @@ export const useSaleForm = (saleSelected) => {
                 setPaid(saleSelected.paid !== undefined ? saleSelected.paid : true);
                 setNotes(saleSelected.notes || '');
 
-                // Cargar detalles de la venta desde la API
                 try {
                     const response = await getSaleDetailsById(saleSelected.id);
                     if (response && response.data) {
-                        // Transformar los datos de la API al formato del carrito
                         const cartDetails = response.data.map(detail => ({
                             productId: detail.productId,
                             productName: detail.productName,
@@ -122,7 +111,6 @@ export const useSaleForm = (saleSelected) => {
         loadSaleData();
     }, [hasDeliveryRole, saleSelected]);
 
-    // Seleccionar el primer cliente por defecto
     useEffect(() => {
         if (customers.length > 0 && !formData.customerId && !isEditMode) {
             setFormData(prev => ({
@@ -132,19 +120,16 @@ export const useSaleForm = (saleSelected) => {
         }
     }, [customers, formData.customerId, isEditMode]);
 
-    // Calcular total de detalles de venta
     const calculateTotal = (details) => {
         return details.reduce((sum, detail) => sum + detail.total, 0);
     };
 
-    // Obtener descuento del cliente
     const getCustomerDiscount = useCallback(() => {
         if (!formData.customerId) return 0;
         const customer = customers.find(c => c.id === parseInt(formData.customerId));
         return customer?.customerType?.discountPercentage || customer?.customDiscount || 0;
     }, [customers, formData.customerId]);
 
-    // Recalcular carrito cuando cambia el cliente seleccionado
     useEffect(() => {
         if (formData.customerId) {
             setSaleDetails(prevDetails => {
@@ -173,7 +158,6 @@ export const useSaleForm = (saleSelected) => {
         }
     }, [formData.customerId, getCustomerDiscount]);
 
-    // Setter mejorado para selectedProductData que calcula el total automáticamente
     const updateSelectedProductData = useCallback((updates) => {
         setSelectedProductData(prev => {
             const updated = typeof updates === 'function' ? updates(prev) : {...prev, ...updates};
@@ -186,7 +170,6 @@ export const useSaleForm = (saleSelected) => {
         });
     }, []);
 
-    // Manejar selección de producto desde la tabla
     const handleSelectProduct = (product) => {
         const discountAmount = getCustomerDiscount();
         const discountedPrice = product.price - discountAmount;
@@ -204,7 +187,6 @@ export const useSaleForm = (saleSelected) => {
         });
     };
 
-    // Agregar producto al carrito
     const handleAddToCart = () => {
         if (!selectedProductData.id || !selectedProductData.quantity || selectedProductData.quantity <= 0) {
             setErrors({...errors, cart: 'Complete todos los campos del producto'});
@@ -253,7 +235,6 @@ export const useSaleForm = (saleSelected) => {
         setSaleDetails(newDetails);
         setFormData({...formData, total: calculateTotal(newDetails)});
 
-        // Limpiar formulario de producto
         setSelectedProductData({
             id: '',
             name: '',
@@ -264,14 +245,12 @@ export const useSaleForm = (saleSelected) => {
         setErrors({...errors, cart: ''});
     };
 
-    // Remover producto del carrito
     const handleRemoveProduct = (productId) => {
         const newDetails = saleDetails.filter(d => d.productId !== productId);
         setSaleDetails(newDetails);
         setFormData({...formData, total: calculateTotal(newDetails)});
     };
 
-    // Validar formulario
     const validateForm = () => {
         const newErrors = {};
 
@@ -287,7 +266,6 @@ export const useSaleForm = (saleSelected) => {
         return Object.keys(newErrors).length === 0;
     };
 
-    // Manejar cambios en inputs
     const handleInputChange = (field) => (event) => {
         const value = event.target.value;
         setFormData(prev => ({
@@ -303,7 +281,6 @@ export const useSaleForm = (saleSelected) => {
         }
     };
 
-    // Limpiar formulario y preparar para nueva venta
     const handleLocalCancel = () => {
         setFormData(initialSaleForm);
         setSaleDetails([]);
@@ -320,10 +297,9 @@ export const useSaleForm = (saleSelected) => {
         });
         setDeliveryEmployeeId(null);
         setDeliveryCost(0);
-        setOperationType('venta'); // Resetear a venta por defecto
+        setOperationType('venta');
         setErrors({});
 
-        // Restablecer el primer cliente como seleccionado
         if (customers.length > 0) {
             setFormData(prev => ({
                 ...prev,
@@ -332,12 +308,10 @@ export const useSaleForm = (saleSelected) => {
         }
     };
 
-    // Formatear número a 2 decimales
     const formatToTwoDecimals = (value) => {
         return Math.round((value || 0) * 100) / 100;
     };
 
-    // Manejar envío del formulario
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -348,7 +322,6 @@ export const useSaleForm = (saleSelected) => {
         setIsSubmitting(true);
 
         try {
-            // Calcular subtotal y descuento total
             const subtotal = saleDetails.reduce((sum, detail) => sum + detail.subtotal, 0);
             const discountAmount = saleDetails.reduce((sum, detail) => sum + detail.discount, 0);
             const customer = customers.find(c => c.id === parseInt(formData.customerId));
@@ -388,7 +361,6 @@ export const useSaleForm = (saleSelected) => {
         }
     };
 
-    // Formatear moneda
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('es-CO', {
             style: 'currency',
@@ -397,11 +369,9 @@ export const useSaleForm = (saleSelected) => {
         }).format(value || 0);
     };
 
-    // Obtener cliente seleccionado
     const selectedCustomer = customers.find(c => c.id === parseInt(formData.customerId));
 
     return {
-        // Estados
         user,
         customers,
         products,
@@ -421,12 +391,8 @@ export const useSaleForm = (saleSelected) => {
         canSaveDeliveryOrder,
         isAdmin,
         operationType,
-
-        // Estados de delivery order
         deliveryEmployeeId,
         deliveryCost,
-
-        // Setters
         setProductSearch,
         setSelectedProductData: updateSelectedProductData,
         setPaymentMethodId,
@@ -435,8 +401,6 @@ export const useSaleForm = (saleSelected) => {
         setDeliveryEmployeeId,
         setDeliveryCost,
         setOperationType,
-
-        // Funciones
         handleSelectProduct,
         handleAddToCart,
         handleRemoveProduct,
