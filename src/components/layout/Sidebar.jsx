@@ -1,5 +1,6 @@
 import {Link, useLocation} from 'react-router-dom';
 import {useAuth} from '../../auth/hooks/useAuth.js';
+import {useState} from 'react';
 import {
     Drawer,
     List,
@@ -12,7 +13,12 @@ import {
     Avatar,
     Divider,
     Button,
-    Paper
+    Paper,
+    IconButton,
+    AppBar,
+    Toolbar,
+    useMediaQuery,
+    useTheme
 } from '@mui/material';
 import {
     Dashboard,
@@ -22,13 +28,27 @@ import {
     Logout,
     Category,
     PointOfSale,
-    ReceiptLong
+    ReceiptLong,
+    Menu as MenuIcon
 } from '@mui/icons-material';
 import {sidebarStyles} from '../../styles/js/SidebarStyles.js';
 
 export const Sidebar = () => {
     const location = useLocation();
     const {user, hasLimitedAccess, handlerLogout} = useAuth();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const [mobileOpen, setMobileOpen] = useState(false);
+
+    const handleDrawerToggle = () => {
+        setMobileOpen(!mobileOpen);
+    };
+
+    const handleMenuItemClick = () => {
+        if (isMobile) {
+            setMobileOpen(false);
+        }
+    };
 
     const getIcon = (iconName) => {
         const icons = {
@@ -37,7 +57,6 @@ export const Sidebar = () => {
             'bi bi-people': <People/>,
             'bi-people': <People/>,
             'bi-category': <Category/>,
-            // 'bi-gear': <Settings/>,
             'bi-receipt': <ReceiptLong/>,
             'bi-truck': <PointOfSale/>,
             'bi-cart-plus': <PointOfSale/>
@@ -45,14 +64,12 @@ export const Sidebar = () => {
         return icons[iconName] || <Dashboard/>;
     };
 
-    // Menú para usuarios con acceso limitado (ROLE_CAJERO, ROLE_PEDIDOS)
     const limitedMenuItems = [
         {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
         {path: '/delivery', icon: 'bi-truck', label: 'Entregas'},
         {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
     ];
 
-    // Menú completo para admin
     const fullMenuItems = [
         {path: '/dashboard', icon: 'bi-speedometer2', label: 'Dashboard'},
         {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
@@ -62,17 +79,12 @@ export const Sidebar = () => {
         {path: '/users', icon: 'bi bi-people', label: 'Usuarios'},
         {path: '/customers', icon: 'bi-people', label: 'Clientes'},
         {path: '/customer-types', icon: 'bi-category', label: 'Tipos de Clientes'},
-        // {path: '/settings', icon: 'bi-gear', label: 'Settings'}
     ];
 
-    // Seleccionar menú según el tipo de acceso
     const menuItems = hasLimitedAccess ? limitedMenuItems : fullMenuItems;
 
-    return (
-        <Drawer
-            variant="permanent"
-            sx={sidebarStyles.drawer}
-        >
+    const drawerContent = (
+        <>
             {/* Header */}
             <Box sx={sidebarStyles.header}>
                 <Typography
@@ -94,6 +106,7 @@ export const Sidebar = () => {
                                     component={Link}
                                     to={item.path}
                                     selected={isSelected}
+                                    onClick={handleMenuItemClick}
                                     sx={sidebarStyles.listItemButton(index, isSelected)}
                                 >
                                     <ListItemIcon sx={sidebarStyles.listItemIcon(isSelected)}>
@@ -138,6 +151,69 @@ export const Sidebar = () => {
                     </Button>
                 </Paper>
             </Box>
-        </Drawer>
+        </>
+    );
+
+    return (
+        <>
+            {/* Mobile AppBar with hamburger menu */}
+            {isMobile && (
+                <AppBar
+                    position="fixed"
+                    sx={{
+                        backgroundColor: '#1a1a1a',
+                        zIndex: theme.zIndex.drawer + 1
+                    }}
+                >
+                    <Toolbar>
+                        <IconButton
+                            color="inherit"
+                            aria-label="abrir menú"
+                            edge="start"
+                            onClick={handleDrawerToggle}
+                            sx={{mr: 2}}
+                        >
+                            <MenuIcon/>
+                        </IconButton>
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            sx={{
+                                background: 'linear-gradient(45deg, #ff6b35, #f7931e)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                backgroundClip: 'text',
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            La Pasadita
+                        </Typography>
+                    </Toolbar>
+                </AppBar>
+            )}
+
+            {/* Mobile Drawer (temporary) */}
+            {isMobile ? (
+                <Drawer
+                    variant="temporary"
+                    open={mobileOpen}
+                    onClose={handleDrawerToggle}
+                    ModalProps={{
+                        keepMounted: true,
+                    }}
+                    sx={sidebarStyles.drawerMobile}
+                >
+                    {drawerContent}
+                </Drawer>
+            ) : (
+                /* Desktop Drawer (permanent) */
+                <Drawer
+                    variant="permanent"
+                    sx={sidebarStyles.drawer}
+                >
+                    {drawerContent}
+                </Drawer>
+            )}
+        </>
     );
 };

@@ -100,16 +100,16 @@ export const UserForm = ({userSelected}) => {
 
 
     return (
-        <div className="container">
+        <div className="container-fluid px-2 px-sm-3">
             <div className="row justify-content-center">
-                <div className="col-md-8 col-lg-6">
+                <div className="col-12 col-md-10 col-lg-8 col-xl-6">
                     <div className="card shadow">
                         <div className="card-header" style={formStyles.cardHeader}>
-                            <h5 className="card-title mb-4 fw-bold">
+                            <h5 className="card-title mb-0 fw-bold fs-6 fs-md-5">
                                 {isPasswordEditMode ? 'Editar Contraseña' : (isEditMode ? 'Editar Usuario' : 'Registrar Nuevo Usuario')}
                             </h5>
                         </div>
-                        <div className="card-body p-4">
+                        <div className="card-body p-2 p-sm-3 p-md-4">
                             <form onSubmit={handleSubmit} noValidate>
                                 <div className="row g-3">
                                     {!isPasswordEditMode && (
@@ -140,7 +140,7 @@ export const UserForm = ({userSelected}) => {
                                     )}
 
                                     {!isPasswordEditMode && (
-                                        <div className="col-md-6">
+                                        <div className="col-12 col-sm-6">
                                             <label htmlFor="username" className="form-label">
                                                 Nombre de Usuario <span className="text-danger">*</span>
                                             </label>
@@ -164,7 +164,7 @@ export const UserForm = ({userSelected}) => {
                                     )}
 
                                     {(isPasswordEditMode || formData.id === 0) && (
-                                        <div className={isPasswordEditMode ? "col-12" : "col-md-6"}>
+                                        <div className={isPasswordEditMode ? "col-12" : "col-12 col-sm-6"}>
                                             <label htmlFor="password" className="form-label">
                                                 {isPasswordEditMode ? "Nueva Contraseña" : (isEditMode ? "Nueva Contraseña (opcional)" : "Contraseña")}
                                                 {(isPasswordEditMode || !isEditMode) &&
@@ -193,7 +193,7 @@ export const UserForm = ({userSelected}) => {
                                     )}
 
                                     {!isPasswordEditMode && (
-                                        <div className="col-md-6">
+                                        <div className="col-12 col-sm-6">
                                             <label htmlFor="position" className="form-label">
                                                 Posición <span className="text-danger">*</span>
                                             </label>
@@ -221,7 +221,7 @@ export const UserForm = ({userSelected}) => {
                                     )}
 
                                     {!isPasswordEditMode && (
-                                        <div className="col-md-6">
+                                        <div className="col-12 col-sm-6">
                                             <label htmlFor="phone" className="form-label">
                                                 Teléfono <span className="text-danger">*</span>
                                             </label>
@@ -232,6 +232,7 @@ export const UserForm = ({userSelected}) => {
                                                 maxLength="10"
                                                 name="phone"
                                                 pattern="[0-9]{10}"
+                                                inputMode="tel"
                                                 value={formData.phone}
                                                 onChange={handleInputChange}
                                                 onKeyPress={(e) => {
@@ -268,20 +269,18 @@ export const UserForm = ({userSelected}) => {
                                     <input type="hidden" name="id" value={formData.id}/>
 
                                     <div className="col-12">
-                                        <div className="d-flex gap-2 justify-content-end mt-3">
+                                        <div className="d-flex flex-column flex-sm-row gap-2 justify-content-end mt-3">
                                             <button
                                                 type="button"
-                                                className="btn btn-outline-secondary"
+                                                className="btn btn-outline-secondary order-2 order-sm-1"
                                                 onClick={handleCancel}
-                                                style={{minWidth: '120px'}}
                                             >
                                                 <i className="fas fa-times me-2"></i>
                                                 Cancelar
                                             </button>
                                             <button
                                                 type="submit"
-                                                className="btn btn-primary"
-                                                style={{minWidth: '120px'}}
+                                                className="btn btn-primary order-1 order-sm-2"
                                             >
                                                 <i className="fas fa-save me-2"></i>
                                                 {isPasswordEditMode ? 'Actualizar Contraseña' : (isEditMode ? 'Actualizar' : 'Guardar')}

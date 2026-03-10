@@ -165,19 +165,19 @@ export const CustomerForm = ({customerSelected}) => {
     };
 
     return (
-        <div className="container">
+        <div className="container-fluid px-2 px-sm-3">
             <div className="row justify-content-center">
-                <div className="col-md-10 col-lg-8">
+                <div className="col-12 col-md-10 col-lg-8">
                     <div className="card shadow">
                         <div className="card-header" style={formStyles.cardHeader}>
-                            <h5 className="card-title mb-4 fw-bold">
+                            <h5 className="card-title mb-0 fw-bold fs-6 fs-md-5">
                                 {isEditMode ? 'Editar Cliente' : 'Registrar Nuevo Cliente'}
                             </h5>
                         </div>
-                        <div className="card-body p-4">
+                        <div className="card-body p-2 p-sm-3 p-md-4">
                             <form onSubmit={handleSubmit} noValidate>
                                 <div className="row g-3">
-                                    <div className="col-md-6">
+                                    <div className="col-12 col-sm-6">
                                         <label htmlFor="name" className="form-label">
                                             Nombre del Cliente <span className="text-danger">*</span>
                                         </label>
@@ -199,7 +199,7 @@ export const CustomerForm = ({customerSelected}) => {
                                         )}
                                     </div>
 
-                                    <div className="col-md-6">
+                                    <div className="col-12 col-sm-6">
                                         <label htmlFor="customerTypeId" className="form-label">
                                             Tipo de Cliente <span className="text-danger">*</span>
                                         </label>
@@ -224,7 +224,7 @@ export const CustomerForm = ({customerSelected}) => {
                                         )}
                                     </div>
 
-                                    <div className="col-md-6">
+                                    <div className="col-12 col-sm-6">
                                         <label htmlFor="phone" className="form-label">
                                             Teléfono <span className="text-danger">*</span>
                                         </label>
@@ -233,6 +233,7 @@ export const CustomerForm = ({customerSelected}) => {
                                             className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
                                             id="phone"
                                             maxLength="10"
+                                            inputMode="tel"
                                             value={formData.phone}
                                             onChange={handleInputChange('phone')}
                                             onKeyDown={(e) => {
@@ -247,7 +248,7 @@ export const CustomerForm = ({customerSelected}) => {
                                         )}
                                     </div>
 
-                                    <div className="col-md-6">
+                                    <div className="col-12 col-sm-6">
                                         <label htmlFor="customDiscount" className="form-label">
                                             Descuento Personalizado ($)<span className="text-danger">*</span>
                                         </label>
@@ -257,6 +258,7 @@ export const CustomerForm = ({customerSelected}) => {
                                             id="customDiscount"
                                             value={formData.customDiscount}
                                             onChange={handleInputChange('customDiscount')}
+                                            inputMode="decimal"
                                             step="1"
                                             min="0"
                                             max="15"
@@ -291,7 +293,7 @@ export const CustomerForm = ({customerSelected}) => {
                                         )}
                                     </div>
 
-                                    <div className="col-md-6">
+                                    <div className="col-12 col-sm-6">
                                         <label htmlFor="city" className="form-label">
                                             Ciudad <span className="text-danger">*</span>
                                         </label>
@@ -313,7 +315,7 @@ export const CustomerForm = ({customerSelected}) => {
                                         )}
                                     </div>
 
-                                    <div className="col-md-6">
+                                    <div className="col-12 col-sm-6">
                                         <label htmlFor="postalCode" className="form-label">
                                             Código Postal <span className="text-danger">*</span>
                                         </label>
@@ -361,10 +363,10 @@ export const CustomerForm = ({customerSelected}) => {
                                     <input type="hidden" name="id" value={formData.id}/>
 
                                     <div className="col-12">
-                                        <div className="d-flex gap-2 justify-content-end mt-3">
+                                        <div className="d-flex flex-column flex-sm-row gap-2 justify-content-end mt-3">
                                             <button
                                                 type="button"
-                                                className="btn btn-outline-secondary"
+                                                className="btn btn-outline-secondary order-2 order-sm-1"
                                                 onClick={handleCancel}
                                                 disabled={isSubmitting}
                                             >
@@ -373,7 +375,7 @@ export const CustomerForm = ({customerSelected}) => {
                                             </button>
                                             <button
                                                 type="submit"
-                                                className="btn btn-primary"
+                                                className="btn btn-primary order-1 order-sm-2"
                                                 disabled={isSubmitting}
                                             >
                                                 <i className="fas fa-save me-2"></i>

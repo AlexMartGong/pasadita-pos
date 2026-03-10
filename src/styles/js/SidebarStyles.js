@@ -2,8 +2,21 @@ export const sidebarStyles = {
   drawer: {
     width: 250,
     flexShrink: 0,
+    display: { xs: 'none', md: 'block' },
     '& .MuiDrawer-paper': {
       width: 250,
+      boxSizing: 'border-box',
+      backgroundColor: '#1a1a1a',
+      color: 'white',
+      borderRight: 'none',
+      boxShadow: '2px 0 10px rgba(0,0,0,0.15)'
+    },
+  },
+
+  drawerMobile: {
+    display: { xs: 'block', md: 'none' },
+    '& .MuiDrawer-paper': {
+      width: 280,
       boxSizing: 'border-box',
       backgroundColor: '#1a1a1a',
       color: 'white',

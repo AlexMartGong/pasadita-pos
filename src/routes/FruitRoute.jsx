@@ -6,7 +6,7 @@ import {UserPage} from "../pages/user/UserPage.jsx";
 import {RegisterUserPage} from "../pages/user/RegisterUserPage.jsx";
 import {AdminRoute} from "../components/auth/AdminRoute.jsx";
 import {ProtectedRoute} from "../components/auth/ProtectedRoute.jsx";
-import {Box} from '@mui/material';
+import {Box, useMediaQuery, useTheme} from '@mui/material';
 import {RegisterProductPage} from "../pages/product/RegisterProductPage.jsx";
 import {SimpleProductTable} from "../components/product/SimpleProductTable.jsx";
 import {CustomerPage} from "../pages/customer/CustomerPage.jsx";
@@ -19,6 +19,9 @@ import {DeliveryPage} from "../pages/delivery/deliveryPage.jsx";
 import {TicketPage} from "../pages/sale/TicketPage.jsx";
 
 export const FruitRoute = () => {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
     return (
         <Box sx={{display: 'flex'}}>
             <Sidebar/>
@@ -26,9 +29,12 @@ export const FruitRoute = () => {
                 component="main"
                 sx={{
                     flexGrow: 1,
-                    p: 3,
+                    p: { xs: 1, sm: 2, md: 3 },
+                    pt: isMobile ? 8 : 3, // Extra top padding on mobile for AppBar
+                    ml: { xs: 0, md: '250px' }, // Margin for sidebar on desktop
                     backgroundColor: '#f5f5f5',
-                    minHeight: '100vh'
+                    minHeight: '100vh',
+                    width: { xs: '100%', md: 'calc(100% - 250px)' }
                 }}
             >
                 <Routes>
