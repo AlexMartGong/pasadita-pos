@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Point of Sale (POS) system built with React + Vite frontend. The application manages employees, products, customers, customer types, and sales with role-based access control.
+A Point of Sale (POS) system built with React + Vite frontend. The application manages employees, products, customers, customer types, sales, and delivery orders with role-based access control. No test suite exists — there are no test files or test runner configured.
 
 ## Development Commands
 
@@ -48,15 +48,17 @@ Three-layer architecture for each domain (user, product, customer, customerType,
    - Used by components for data operations
 
 ### Authentication & Authorization
-- JWT-based authentication stored in sessionStorage
+- Auth lives in `src/auth/` (separate from domain pattern): `hooks/useAuth.js`, `services/authService.js`, `pages/LoginPage.jsx`
+- JWT-based authentication; both `login` (JSON) and `token` stored in sessionStorage
 - Three user roles: `ROLE_ADMIN`, `ROLE_CAJERO`, `ROLE_PEDIDOS`
+- `hasLimitedAccess` flag on auth state for non-admin users (CAJERO/PEDIDOS)
+- Login redirects: non-admin → `/sale/register`, admin → `/dashboard`
 - Two-level routing in `src/AppRoutes.jsx`:
   - Unauthenticated users → `/login`
   - Authenticated users → `FruitRoute` (main app routes)
 - Route guards:
   - `AdminRoute`: Admin-only routes (user management, products, customers)
   - `ProtectedRoute`: Any authenticated user (sales, delivery, tickets)
-- Check `isAdmin` status via `useAuth()` hook
 
 ### Routing Structure
 - `src/AppRoutes.jsx`: Top-level auth routing
@@ -66,14 +68,10 @@ Three-layer architecture for each domain (user, product, customer, customerType,
 ### Component Organization
 - `src/components/layout/`: Layout components (Sidebar)
 - `src/components/auth/`: Auth guards (AdminRoute)
-- `src/components/common/`: Reusable UI components
-  - `StatsCard.jsx`: Reusable statistics card with icon, label, and value
-  - `StatsCardContainer.jsx`: Container for grouping multiple StatsCards
-  - See `src/components/common/README.md` for usage examples
+- `src/components/common/`: Reusable UI components (StatsCard, StatsCardContainer, ConfirmDialog)
 - `src/components/{domain}/`: Domain-specific components
   - `{Domain}Table.jsx`: Data grid/table component
   - `{Domain}Form.jsx`: Create/edit form component
-  - `ConfirmDialog.jsx`: Reusable confirmation dialogs
 
 ### Custom Hooks
 - `useApiErrorHandler`: Centralized error handling with Spanish messages
@@ -81,25 +79,37 @@ Three-layer architecture for each domain (user, product, customer, customerType,
   - Shows toast notifications via react-toastify
   - Auto-logout on 401 responses
 - Domain hooks (`useUser`, `useProduct`, `useCustomer`, `useCustomerType`, `useSale`, `useDeliveryOrder`): Combine service calls with Redux
+- **Table hooks** (`use{Domain}Table.jsx`): Each table component has a companion hook that provides debounced search (300ms), filtered data, and MUI DataGrid column configuration
 - Special hooks:
-  - `useSaleForm`: Complex form hook for sales with validation, product search, cart management, and delivery order integration
+  - `useSaleForm`: Complex form hook managing cart state, customer discounts, product search, validation, and delivery order integration. Supports two operation types: `'venta'` (sale) and `'pedido'` (delivery order)
   - `useScale`: Hardware integration for digital scales with weight reading, connection management, and polling
+
+### Ticket/Printing System
+- `src/utils/printTicket.jsx`: `printTicket()` and `previewTicket()` functions
+- `src/components/sale/Ticket.jsx`: Ticket layout component (80mm thermal printer width)
+- Uses React portals for print rendering
+- Distinguishes between "VENTA EN CAJA" and "PEDIDO A DOMICILIO" on tickets
+- `TicketPage.jsx` allows viewing and reprinting historical tickets
 
 ### Utilities
 - `src/utils/formatters.js`: Localized formatting functions
-  - `formatCurrency(value)`: Mexican peso formatting (MXN)
-  - `formatDate(dateString)`: Spanish date formatting
+  - `formatCurrency(value)`: Mexican peso (MXN), 0 decimal places
+  - `formatDate(dateString)`: Spanish locale (es-ES) with time
+
+### Styling
+- CSS files in `src/styles/css/` (Ticket, LoginPage, SaleForm, Sidebar)
+- MUI `sx` style objects in `src/styles/js/` (FormStyles, PageHeader, PageContainer, StatsCards, etc.)
 
 ### Hardware Integration
 - Scale API (`src/apis/scaleApi.js`): Connects to a local scale service
+- Vite dev server proxies `/api/scale` → `http://localhost:8081`
 - Endpoints: `/connect`, `/disconnect`, `/weight`, `/status`
-- Used in `QuantityInput` component for weighing products
+- Used in `QuantityInput` component for weighing KILOGRAMO products
 
 ### Environment Configuration
-Backend API URL configured via `.env`:
-```
-VITE_API_BASE_URL=http://localhost:8080
-```
+- `.env`: `VITE_API_BASE_URL=http://localhost:8080` (development)
+- `.env.production`: `VITE_API_BASE_URL=https://api.lapasadita.app` (production)
+- Vite build: `esnext` target, manual chunk splitting (vendor, redux, mui), no sourcemaps
 
 ### Key Dependencies
 - **UI**: Material-UI (MUI) with DataGrid, Bootstrap for legacy styles
@@ -117,6 +127,7 @@ When adding a new domain entity:
 3. Create Redux slice in `src/stores/slices/{domain}/{domain}Slice.js`
 4. Register slice in `src/stores/store.js`
 5. Create custom hook in `src/hooks/{domain}/use{Domain}.js`
-6. Create components in `src/components/{domain}/`
-7. Create pages in `src/pages/{domain}/`
-8. Add routes to `src/routes/FruitRoute.jsx`
+6. Create table hook in `src/hooks/{domain}/use{Domain}Table.jsx` (with debounced search + DataGrid columns)
+7. Create components in `src/components/{domain}/`
+8. Create pages in `src/pages/{domain}/`
+9. Add routes to `src/routes/FruitRoute.jsx`

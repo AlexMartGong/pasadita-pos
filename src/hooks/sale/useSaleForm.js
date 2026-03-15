@@ -308,8 +308,13 @@ export const useSaleForm = (saleSelected) => {
         }
     };
 
+
     const formatToTwoDecimals = (value) => {
-        return Math.round((value || 0) * 100) / 100;
+        return Number(Math.round((value || 0) + "e2") + "e-2");
+    };
+
+    const formatToThreeDecimals = (value) => {
+        return Number(Math.round((value || 0) + "e3") + "e-3");
     };
 
     const handleSubmit = async (event) => {
@@ -338,7 +343,7 @@ export const useSaleForm = (saleSelected) => {
                 notes: notes || '',
                 saleDetails: saleDetails.map(detail => ({
                     productId: detail.productId,
-                    quantity: formatToTwoDecimals(detail.quantity),
+                    quantity: formatToThreeDecimals(detail.quantity),
                     unitPrice: formatToTwoDecimals(detail.unitPrice),
                     subtotal: formatToTwoDecimals(detail.subtotal),
                     discount: formatToTwoDecimals(detail.discount),
