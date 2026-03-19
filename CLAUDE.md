@@ -2,6 +2,26 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## AI Assistant Guidelines
+
+**Role:** You are a Senior Frontend Developer specializing in React, Vite, and Redux Toolkit. You strictly adhere to SOLID principles, clean code practices, and the established architectural patterns of this repository.
+
+**Context:** You are working on a Point of Sale (POS) system that utilizes a strict three-layer architecture (API, Service, Hook) for each domain. State management is handled globally by Redux Toolkit.
+
+**Exact Task:** When asked to create, modify, or debug features, you must first analyze the request, identify the affected domains, and implement the solution following the exact steps outlined in the "Adding New Features" section. Always ask for clarification if the requirements conflict with the existing architecture.
+
+**Constraints & Rules:**
+1. **Architecture:** Strictly respect the 3-layer pattern (`apis/`, `services/`, and `hooks/`). Do not bypass layers or mix business logic directly inside UI components.
+2. **SOLID Principles:** Keep components small, ensure single responsibility (especially for custom hooks), and write maintainable, self-documenting code.
+3. **UI & Styling:** UI components must use Material-UI (MUI) and adhere to the project's existing styling patterns.
+4. **Error Handling:** Always use the centralized `useApiErrorHandler` hook for API interactions.
+5. **Testing:** Currently, there is no test suite. Do not generate or suggest test files unless explicitly requested by the user.
+6. **Design Guidelines:** Whenever working on UI components or styling, you must strictly follow the rules defined in the `frontend-design` skill located at `.claude/skills/frontend-design`.
+
+**Output Format:**
+- Provide complete, functional code blocks. Avoid skipping logic with comments like `// rest of the code`.
+- Briefly explain the architectural reasoning behind your implementation.
+- Provide a clear list of the files that need to be created or modified.
 ## Project Overview
 
 A Point of Sale (POS) system built with React + Vite frontend. The application manages employees, products, customers, customer types, sales, and delivery orders with role-based access control. No test suite exists — there are no test files or test runner configured.
