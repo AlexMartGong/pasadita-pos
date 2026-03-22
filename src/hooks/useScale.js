@@ -1,13 +1,7 @@
 import {useState, useEffect, useCallback, useRef} from 'react';
 import {scaleApi} from '../apis/scaleApi';
 
-/**
- * Hook para manejar la báscula
- * @param {Object|boolean} optionsOrAutoUpdate - Opciones de configuración o autoUpdate (compatibilidad)
- * @param {number} legacyIntervalMs - Intervalo en ms (solo para compatibilidad con API anterior)
- */
 export const useScale = (optionsOrAutoUpdate = {}, legacyIntervalMs) => {
-    // Compatibilidad con API anterior: useScale(true, 500)
     const isLegacyCall = typeof optionsOrAutoUpdate === 'boolean';
 
     const {
@@ -108,7 +102,6 @@ export const useScale = (optionsOrAutoUpdate = {}, legacyIntervalMs) => {
         }
     }, []);
 
-    // Conexión persistente: conectar al montar
     useEffect(() => {
         mountedRef.current = true;
 
@@ -124,12 +117,9 @@ export const useScale = (optionsOrAutoUpdate = {}, legacyIntervalMs) => {
 
         return () => {
             mountedRef.current = false;
-            // No desconectar en modo persistente al desmontar
-            // La báscula queda conectada para el siguiente componente
         };
     }, [persistent, checkStatus, connectScale]);
 
-    // Polling automático
     useEffect(() => {
         const shouldPoll = (persistent || autoUpdate) && isConnected;
 
@@ -145,7 +135,6 @@ export const useScale = (optionsOrAutoUpdate = {}, legacyIntervalMs) => {
         };
     }, [persistent, autoUpdate, isConnected, actualIntervalMs, readWeight]);
 
-    // Verificar estado inicial (solo si no es persistente)
     useEffect(() => {
         if (!persistent) {
             checkStatus();

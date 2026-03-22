@@ -1,15 +1,12 @@
 import axios from "axios";
 
-// Scale REST server runs on port 8081 (separate from main backend)
-// Using environment variable for production flexibility
 const scaleApi = axios.create({
     baseURL: import.meta.env.PROD
-        ? 'http://localhost:8081/api/scale'  // Producción: directo
+        ? 'http://localhost:8081/api/scale'
         : '/api/scale',
-    timeout: 10000, // Timeout for local hardware (10 seconds)
+    timeout: 10000,
 });
 
-// Scale API doesn't require authentication (local hardware access)
 scaleApi.interceptors.response.use(
     (response) => {
         return response;
