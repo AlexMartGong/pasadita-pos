@@ -1,21 +1,37 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
-    Box, Button, Card, CardContent, IconButton,
-    Table, TableBody, TableCell, TableContainer, TableHead,
+    Box, Button, Card, CardContent,
+    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+    IconButton, Table, TableBody, TableCell, TableContainer, TableHead,
     TableRow, Typography
 } from '@mui/material';
 import {Delete} from '@mui/icons-material';
 
 export const ShoppingCart = ({
-    saleDetails,
-    formData,
-    isEditMode,
-    isSubmitting,
-    errors,
-    onRemoveProduct,
-    onCancel,
-    formatCurrency
-}) => {
+                                 saleDetails,
+                                 formData,
+                                 isEditMode,
+                                 isSubmitting,
+                                 errors,
+                                 onRemoveProduct,
+                                 onCancel,
+                                 formatCurrency
+                             }) => {
+    const [confirmOpen, setConfirmOpen] = useState(false);
+
+    const handleCancelClick = () => {
+        if (saleDetails.length > 0) {
+            setConfirmOpen(true);
+        } else {
+            onCancel();
+        }
+    };
+
+    const handleConfirmCancel = () => {
+        setConfirmOpen(false);
+        onCancel();
+    };
+
     return (
         <Card sx={{flexShrink: 0}}>
             <CardContent sx={{pb: 2}}>
@@ -42,7 +58,9 @@ export const ShoppingCart = ({
                             {saleDetails.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={6} align="center">
-                                        No hay productos en el carrito
+                                        <Typography variant="body2" color="text.secondary" sx={{py: 1}}>
+                                            Haz clic en "+" en la tabla de productos para agregar
+                                        </Typography>
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -97,7 +115,7 @@ export const ShoppingCart = ({
                     <Box sx={{display: 'flex', gap: 2, justifyContent: 'flex-end'}}>
                         <Button
                             variant="outlined"
-                            onClick={onCancel}
+                            onClick={handleCancelClick}
                             disabled={isSubmitting}
                         >
                             Cancelar
@@ -113,6 +131,21 @@ export const ShoppingCart = ({
                     </Box>
                 </Box>
             </CardContent>
+
+            <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+                <DialogTitle>¿Cancelar la venta?</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Se perderán todos los productos del carrito. ¿Deseas continuar?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setConfirmOpen(false)}>Volver</Button>
+                    <Button onClick={handleConfirmCancel} color="error" variant="contained">
+                        Cancelar venta
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Card>
     );
 };

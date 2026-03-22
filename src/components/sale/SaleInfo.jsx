@@ -1,8 +1,9 @@
 import React from 'react';
 import {
-    Card, CardContent, Divider,
-    Grid, TextField, Typography
+    Card, CardContent, Chip, Divider,
+    Grid, Stack, TextField, Typography
 } from '@mui/material';
+import {Person} from '@mui/icons-material';
 
 export const SaleInfo = ({
                              user,
@@ -18,22 +19,20 @@ export const SaleInfo = ({
                          }) => {
     return (
         <>
-            {/* Panel Superior - Info Venta */}
             <Card sx={{flexShrink: 0}}>
                 <CardContent sx={{pb: 2}}>
-                    <Typography variant="h6" gutterBottom>
-                        Información de Venta
-                    </Typography>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{mb: 2}}>
+                        <Typography variant="h6">
+                            Información de Venta
+                        </Typography>
+                        <Chip
+                            icon={<Person fontSize="small"/>}
+                            label={user || ''}
+                            size="small"
+                            variant="outlined"
+                        />
+                    </Stack>
                     <Grid container spacing={2}>
-                        <Grid sm={6}>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                label="Cajero"
-                                value={user || ''}
-                                disabled
-                            />
-                        </Grid>
                         <Grid item xs={12} sm={6}>
                             <select
                                 className={`form-select ${errors.customerId ? 'is-invalid' : ''}`}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Box, Grid, FormControl, InputLabel, Select, MenuItem, Paper, Typography} from '@mui/material';
 import {ProductsTable} from './ProductsTable';
 import {SaleInfo} from './SaleInfo';
@@ -47,18 +47,30 @@ export const SaleForm = ({saleSelected}) => {
         formatCurrency
     } = useSaleForm(saleSelected);
 
+    const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
+
+    useEffect(() => {
+        if (isProductDialogOpen && selectedProductData.id === '') {
+            setIsProductDialogOpen(false);
+        }
+    }, [selectedProductData.id, isProductDialogOpen]);
+
+    const handleOpenProductDialog = (product) => {
+        handleSelectProduct(product);
+        setIsProductDialogOpen(true);
+    };
+
     return (
         <Box sx={{flexGrow: 1, p: 3, minHeight: 'calc(100vh - 350px)'}} className="sale-form-container">
             <form onSubmit={handleSubmit} noValidate style={{height: '100%'}}>
                 <Grid container spacing={3} sx={{height: '100%', flexWrap: 'nowrap !important'}}>
-                    {/* Columna Izquierda - Lista de Productos */}
                     <Grid
                         sx={{height: '100%', minWidth: '400px', flex: '1 1 50%', maxWidth: '50% !important'}}>
                         <ProductsTable
                             products={products}
                             productSearch={productSearch}
                             onProductSearchChange={setProductSearch}
-                            onSelectProduct={handleSelectProduct}
+                            onSelectProduct={handleOpenProductDialog}
                             formatCurrency={formatCurrency}
                         />
                     </Grid>
@@ -81,7 +93,6 @@ export const SaleForm = ({saleSelected}) => {
                             overflow: 'auto',
                             minHeight: 0
                         }}>
-                            {/* Selector de tipo de operación para ROLE_ADMIN */}
                             {isAdmin && (
                                 <Paper elevation={2} sx={{p: 2}}>
                                     <FormControl fullWidth>
@@ -139,14 +150,6 @@ export const SaleForm = ({saleSelected}) => {
                                 />
                             )}
 
-                            <AddProductForm
-                                selectedProductData={selectedProductData}
-                                errors={errors}
-                                onSelectedProductChange={setSelectedProductData}
-                                onAddToCart={handleAddToCart}
-                                formatCurrency={formatCurrency}
-                            />
-
                             <ShoppingCart
                                 saleDetails={saleDetails}
                                 formData={formData}
@@ -161,6 +164,16 @@ export const SaleForm = ({saleSelected}) => {
                     </Grid>
                 </Grid>
             </form>
+
+            <AddProductForm
+                open={isProductDialogOpen}
+                onClose={() => setIsProductDialogOpen(false)}
+                selectedProductData={selectedProductData}
+                errors={errors}
+                onSelectedProductChange={setSelectedProductData}
+                onAddToCart={handleAddToCart}
+                formatCurrency={formatCurrency}
+            />
         </Box>
     );
 };
