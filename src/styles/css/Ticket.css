@@ -1,85 +1,192 @@
-/* Estilos para visualización en pantalla */
+/* ============================================
+   Ticket Styles — Pantalla
+   ============================================ */
+
 .ticket-container {
-    max-width: 300px;
+    max-width: 320px;
     margin: 0 auto;
-    padding: 20px;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
+    padding: 24px 20px;
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    font-size: 13px;
     background: white;
-    color: black;
-    line-height: 1.4;
+    color: #1a1a1a;
+    line-height: 1.5;
 }
 
+/* --- Header --- */
 .ticket-header {
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+.ticket-logo {
+    font-size: 36px;
+    line-height: 1;
+    margin-bottom: 4px;
 }
 
 .ticket-header h2 {
     margin: 0;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #1a1a1a;
 }
 
-.ticket-type {
-    font-size: 14px;
-    font-weight: bold;
-    margin: 5px 0;
+.ticket-type-badge {
+    display: inline-block;
+    margin: 8px 0 4px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.badge-sale {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.badge-delivery {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #90caf9;
 }
 
 .order-number {
-    font-size: 13px;
-    font-weight: bold;
-    margin: 3px 0;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 6px 0 2px;
+    color: #1565c0;
 }
 
 .ticket-date {
-    font-size: 11px;
-    margin: 5px 0;
+    font-size: 12px;
+    color: #666;
+    margin: 4px 0 0;
 }
 
+/* --- Divider --- */
 .ticket-divider {
-    border-top: 1px dashed #333;
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 14px 0;
+}
+
+/* --- Info Grid (empleado / cliente) --- */
+.ticket-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
     margin: 10px 0;
 }
 
+.ticket-info-card {
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.info-card-header {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 4px;
+    letter-spacing: 0.3px;
+}
+
+.info-name {
+    font-weight: 600;
+    font-size: 13px;
+    margin: 0 0 2px;
+    color: #1a1a1a;
+}
+
+.info-phone {
+    font-size: 12px;
+    color: #555;
+    margin: 0;
+}
+
+/* --- Delivery Info --- */
+.delivery-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #e3f2fd;
+    border-radius: 8px;
+    border-left: 4px solid #1565c0;
+}
+
+.delivery-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.delivery-info strong {
+    font-size: 12px;
+    color: #1565c0;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.delivery-info p {
+    margin: 0;
+    font-size: 13px;
+    color: #333;
+}
+
+/* --- Sections --- */
 .ticket-section {
     margin: 10px 0;
 }
 
 .ticket-section h3 {
-    font-size: 13px;
-    margin: 0 0 5px 0;
-    font-weight: bold;
+    font-size: 12px;
+    margin: 0 0 8px 0;
+    font-weight: 700;
     text-transform: uppercase;
+    color: #888;
+    letter-spacing: 0.5px;
 }
 
 .ticket-section p {
     margin: 3px 0;
 }
 
-.delivery-info {
-    margin-top: 8px;
-    padding: 5px;
-    background: #f5f5f5;
-    border-left: 3px solid #333;
-}
-
+/* --- Products Table --- */
 .ticket-products {
     width: 100%;
     border-collapse: collapse;
+    font-size: 12px;
+}
+
+.ticket-products th {
+    padding: 6px 4px;
     font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #888;
+    border-bottom: 2px solid #e0e0e0;
+    letter-spacing: 0.3px;
 }
 
-.ticket-products th,
 .ticket-products td {
-    padding: 4px 2px;
-    border-bottom: 1px solid #ddd;
+    padding: 7px 4px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
 }
 
-.ticket-products thead th {
-    font-weight: bold;
-    border-bottom: 2px solid #333;
+.ticket-products tbody tr:nth-child(even) {
+    background: #fafafa;
 }
 
 .ticket-products tbody tr:last-child td {
@@ -94,6 +201,7 @@
     text-align: right;
 }
 
+/* --- Totals --- */
 .ticket-totals {
     margin: 10px 0;
 }
@@ -101,70 +209,135 @@
 .ticket-total-row {
     display: flex;
     justify-content: space-between;
-    margin: 5px 0;
-    font-size: 12px;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 13px;
+    color: #444;
 }
 
 .ticket-discount {
-    color: #d9534f;
+    color: #c62828;
+    font-weight: 600;
 }
 
 .ticket-final-total {
-    font-size: 14px;
-    padding-top: 5px;
-    border-top: 2px solid #333;
     margin-top: 8px;
+    padding: 10px 12px;
+    background: #1b5e20;
+    color: white;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 800;
 }
 
-.ticket-payment {
-    margin: 8px 0;
+/* --- Payment --- */
+.ticket-payment-section {
+    margin: 10px 0;
 }
 
-.ticket-payment p {
-    margin: 4px 0;
+.ticket-payment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 13px;
 }
 
+.payment-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.payment-value {
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.payment-status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.status-paid {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.status-pending {
+    background: #fff3e0;
+    color: #e65100;
+    border: 1px solid #ffcc80;
+}
+
+/* --- Notes --- */
 .ticket-notes {
     margin-top: 10px;
-    padding: 8px;
-    background: #fff9e6;
-    border: 1px solid #ffeb3b;
-    border-radius: 3px;
+    padding: 10px 12px;
+    background: #fffde7;
+    border: 1px solid #fff176;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.ticket-notes strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #f57f17;
+    font-size: 12px;
 }
 
 .ticket-notes p {
-    margin: 3px 0;
-}
-
-.ticket-footer {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 11px;
-}
-
-.ticket-footer p {
-    margin: 5px 0;
-}
-
-.delivery-note {
-    font-style: italic;
+    margin: 0;
     color: #555;
 }
 
-/* Estilos específicos para impresión */
+/* --- Footer --- */
+.ticket-footer {
+    text-align: center;
+    margin-top: 16px;
+    padding-top: 4px;
+}
+
+.footer-thanks {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 4px;
+}
+
+.delivery-note {
+    font-size: 12px;
+    color: #1565c0;
+    font-weight: 500;
+    margin: 4px 0;
+}
+
+.footer-brand {
+    font-size: 11px;
+    color: #bbb;
+    margin: 8px 0 0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ============================================
+   Print Styles — Impresora térmica 80mm
+   ============================================ */
 @media print {
-    /* Configuración de página */
     @page {
         size: 80mm auto;
         margin: 0;
     }
 
-    /* Ocultar todo excepto el contenedor de impresión */
     body > *:not(#print-ticket-container) {
         display: none !important;
     }
 
-    /* Asegurar que el contenedor del ticket sea visible */
     body {
         margin: 0 !important;
         padding: 0 !important;
@@ -183,73 +356,179 @@
         left: 0 !important;
     }
 
-    /* Hacer visibles todos los elementos dentro del contenedor */
     #print-ticket-container * {
         visibility: visible !important;
     }
 
-    /* Contenido del ticket */
     .ticket-container {
         width: 80mm !important;
         max-width: 80mm !important;
         margin: 0 !important;
-        padding: 5mm !important;
+        padding: 3mm !important;
+        font-family: 'Courier New', monospace !important;
         font-size: 10px !important;
         background: white !important;
     }
 
-    .ticket-header h2 {
-        font-size: 16px !important;
+    .ticket-logo {
+        font-size: 24px !important;
     }
 
-    .ticket-type {
-        font-size: 12px !important;
+    .ticket-header h2 {
+        font-size: 14px !important;
+        letter-spacing: 1px !important;
+    }
+
+    .ticket-type-badge {
+        font-size: 9px !important;
+        padding: 2px 8px !important;
+        border-radius: 0 !important;
+        border: 1px solid #333 !important;
+        background: transparent !important;
+        color: #000 !important;
     }
 
     .order-number {
         font-size: 11px !important;
+        color: #000 !important;
     }
 
     .ticket-date {
         font-size: 9px !important;
+        color: #000 !important;
+    }
+
+    .ticket-divider {
+        border-top: 1px dashed #000 !important;
+        margin: 6px 0 !important;
+    }
+
+    .ticket-info-grid {
+        display: block !important;
+    }
+
+    .ticket-info-card {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 4px 0 !important;
+    }
+
+    .info-card-header {
+        font-size: 9px !important;
+        color: #000 !important;
+    }
+
+    .info-name {
+        font-size: 10px !important;
+    }
+
+    .info-phone {
+        font-size: 9px !important;
+        color: #000 !important;
+    }
+
+    .delivery-info {
+        background: transparent !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        padding: 4px !important;
+    }
+
+    .delivery-info strong {
+        color: #000 !important;
+        font-size: 9px !important;
+    }
+
+    .delivery-info p {
+        font-size: 10px !important;
     }
 
     .ticket-section h3 {
-        font-size: 11px !important;
+        font-size: 10px !important;
+        color: #000 !important;
     }
 
     .ticket-products {
         font-size: 9px !important;
     }
 
+    .ticket-products th {
+        font-size: 8px !important;
+        color: #000 !important;
+        border-bottom: 1px solid #000 !important;
+    }
+
+    .ticket-products td {
+        font-size: 9px !important;
+        color: #000 !important;
+        padding: 3px 2px !important;
+    }
+
+    .ticket-products tbody tr:nth-child(even) {
+        background: transparent !important;
+    }
+
     .ticket-total-row {
         font-size: 10px !important;
+        color: #000 !important;
     }
 
     .ticket-final-total {
-        font-size: 12px !important;
+        background: transparent !important;
+        color: #000 !important;
+        border: 2px solid #000 !important;
+        border-radius: 0 !important;
+        font-size: 13px !important;
+        padding: 4px 6px !important;
     }
 
-    .delivery-info {
-        background: #f0f0f0 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+    .ticket-payment-row {
+        font-size: 10px !important;
+    }
+
+    .payment-label,
+    .payment-value {
+        color: #000 !important;
+    }
+
+    .payment-status {
+        background: transparent !important;
+        border: 1px solid #000 !important;
+        color: #000 !important;
+        border-radius: 0 !important;
+        font-size: 9px !important;
     }
 
     .ticket-notes {
-        background: #fffef0 !important;
+        background: transparent !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 
-    .ticket-divider {
-        border-top: 1px dashed #000 !important;
+    .ticket-notes strong {
+        color: #000 !important;
     }
 
-    /* Evitar saltos de página dentro de secciones */
+    .footer-thanks {
+        font-size: 11px !important;
+    }
+
+    .delivery-note {
+        font-size: 10px !important;
+        color: #000 !important;
+    }
+
+    .footer-brand {
+        font-size: 9px !important;
+        color: #000 !important;
+    }
+
     .ticket-section,
     .ticket-totals,
-    .ticket-payment {
+    .ticket-payment-section {
         page-break-inside: avoid;
     }
 }

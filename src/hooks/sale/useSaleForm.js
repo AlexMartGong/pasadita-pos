@@ -7,6 +7,7 @@ import {useAuth} from '../../auth/hooks/useAuth';
 import {deliveryOrderService} from '../../services/deliveryOrderService';
 import {getSaleDetailsById} from '../../services/saleService';
 import {toast} from 'react-toastify';
+import {formatCurrency} from '../../utils/formatters';
 
 export const useSaleForm = (saleSelected) => {
     const {handleSaveSale, initialSaleForm} = useSale();
@@ -364,14 +365,6 @@ export const useSaleForm = (saleSelected) => {
         } finally {
             setIsSubmitting(false);
         }
-    };
-
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0
-        }).format(value || 0);
     };
 
     const selectedCustomer = customers.find(c => c.id === parseInt(formData.customerId));

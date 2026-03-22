@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
 import '../../styles/css/Ticket.css';
+import {formatCurrency, formatDate} from '../../utils/formatters';
 
-export const Ticket = ({ ticketData }) => {
+export const Ticket = ({ticketData}) => {
     if (!ticketData) return null;
 
     const {
@@ -21,34 +22,17 @@ export const Ticket = ({ ticketData }) => {
         saleDetails
     } = ticketData;
 
-    // Formatear fecha
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-CO', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    // Formatear moneda
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0
-        }).format(value || 0);
-    };
-
     const isPedido = deliveryOrderId !== null && deliveryAddress !== null;
 
     return (
         <div className="ticket-container" id="ticket-print">
+            {/* Header */}
             <div className="ticket-header">
-                <h2>PASADITA POS</h2>
-                <p className="ticket-type">{isPedido ? 'PEDIDO A DOMICILIO' : 'VENTA EN CAJA'}</p>
+                <div className="ticket-logo">🍉</div>
+                <h2>LA PASADITA</h2>
+                <span className={`ticket-type-badge ${isPedido ? 'badge-delivery' : 'badge-sale'}`}>
+                    {isPedido ? '📦 PEDIDO A DOMICILIO' : '🛒 VENTA EN CAJA'}
+                </span>
                 {isPedido && (
                     <p className="order-number">Pedido #{deliveryOrderId}</p>
                 )}
@@ -57,93 +41,109 @@ export const Ticket = ({ ticketData }) => {
 
             <div className="ticket-divider"></div>
 
-            <div className="ticket-section">
-                <h3>Empleado</h3>
-                <p><strong>{employeeName}</strong></p>
-                <p>Tel: {employeePhone}</p>
+            {/* Info empleado y cliente */}
+            <div className="ticket-info-grid">
+                <div className="ticket-info-card">
+                    <div className="info-card-header">👤 Empleado</div>
+                    <p className="info-name">{employeeName}</p>
+                    <p className="info-phone">📞 {employeePhone}</p>
+                </div>
+                <div className="ticket-info-card">
+                    <div className="info-card-header">👤 Cliente</div>
+                    <p className="info-name">{customerName}</p>
+                    <p className="info-phone">📞 {customerPhone}</p>
+                </div>
             </div>
 
-            <div className="ticket-divider"></div>
-
-            <div className="ticket-section">
-                <h3>Cliente</h3>
-                <p><strong>{customerName}</strong></p>
-                <p>Tel: {customerPhone}</p>
-                {isPedido && deliveryAddress && (
-                    <div className="delivery-info">
-                        <p><strong>Dirección de entrega:</strong></p>
+            {isPedido && deliveryAddress && (
+                <div className="delivery-info">
+                    <span className="delivery-icon">📍</span>
+                    <div>
+                        <strong>Dirección de entrega</strong>
                         <p>{deliveryAddress}</p>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
             <div className="ticket-divider"></div>
 
+            {/* Tabla de productos */}
             <div className="ticket-section">
                 <h3>Productos</h3>
                 <table className="ticket-products">
                     <thead>
-                        <tr>
-                            <th className="text-left">Producto</th>
-                            <th className="text-right">Cant.</th>
-                            <th className="text-right">P.Unit</th>
-                            <th className="text-right">Total</th>
-                        </tr>
+                    <tr>
+                        <th className="text-left">Producto</th>
+                        <th className="text-right">Cant.</th>
+                        <th className="text-right">P.Unit</th>
+                        <th className="text-right">Total</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {saleDetails && saleDetails.map((detail, index) => (
-                            <tr key={index}>
-                                <td className="text-left">{detail.productName}</td>
-                                <td className="text-right">{detail.quantity}</td>
-                                <td className="text-right">{formatCurrency(detail.unitPrice)}</td>
-                                <td className="text-right">{formatCurrency(detail.total)}</td>
-                            </tr>
-                        ))}
+                    {saleDetails && saleDetails.map((detail, index) => (
+                        <tr key={index}>
+                            <td className="text-left">{detail.productName}</td>
+                            <td className="text-right">{detail.quantity}</td>
+                            <td className="text-right">{formatCurrency(detail.unitPrice)}</td>
+                            <td className="text-right">{formatCurrency(detail.total)}</td>
+                        </tr>
+                    ))}
                     </tbody>
                 </table>
             </div>
 
             <div className="ticket-divider"></div>
 
+            {/* Totales */}
             <div className="ticket-totals">
                 <div className="ticket-total-row">
-                    <span>Subtotal:</span>
+                    <span>Subtotal</span>
                     <span>{formatCurrency(subtotal)}</span>
                 </div>
                 {discountAmount > 0 && (
                     <div className="ticket-total-row ticket-discount">
-                        <span>Descuento:</span>
+                        <span>Descuento</span>
                         <span>-{formatCurrency(discountAmount)}</span>
                     </div>
                 )}
                 <div className="ticket-total-row ticket-final-total">
-                    <span><strong>TOTAL:</strong></span>
-                    <span><strong>{formatCurrency(total)}</strong></span>
+                    <span>TOTAL</span>
+                    <span>{formatCurrency(total)}</span>
                 </div>
             </div>
 
             <div className="ticket-divider"></div>
 
-            <div className="ticket-section">
-                <div className="ticket-payment">
-                    <p><strong>Método de pago:</strong> {paymentMethodName}</p>
-                    <p><strong>Estado:</strong> {paid ? 'PAGADO' : 'PENDIENTE'}</p>
+            {/* Pago y notas */}
+            <div className="ticket-payment-section">
+                <div className="ticket-payment-row">
+                    <span className="payment-label">💳 Método de pago</span>
+                    <span className="payment-value">{paymentMethodName}</span>
                 </div>
-                {notes && notes.trim() !== '' && (
-                    <div className="ticket-notes">
-                        <p><strong>Notas:</strong></p>
-                        <p>{notes}</p>
-                    </div>
-                )}
+                <div className="ticket-payment-row">
+                    <span className="payment-label">Estado</span>
+                    <span className={`payment-status ${paid ? 'status-paid' : 'status-pending'}`}>
+                        {paid ? '✓ PAGADO' : '⏳ PENDIENTE'}
+                    </span>
+                </div>
             </div>
+
+            {notes && notes.trim() !== '' && (
+                <div className="ticket-notes">
+                    <strong>📝 Notas:</strong>
+                    <p>{notes}</p>
+                </div>
+            )}
 
             <div className="ticket-divider"></div>
 
+            {/* Footer */}
             <div className="ticket-footer">
-                <p>¡Gracias por su compra!</p>
+                <p className="footer-thanks">¡Gracias por su compra!</p>
                 {isPedido && (
-                    <p className="delivery-note">Su pedido será entregado pronto</p>
+                    <p className="delivery-note">🚚 Su pedido será entregado pronto</p>
                 )}
+                <p className="footer-brand">La Pasadita</p>
             </div>
         </div>
     );
