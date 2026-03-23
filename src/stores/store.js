@@ -6,6 +6,7 @@ import {customerSlice} from "./slices/customer/customerSlice.js";
 import {customerTypeSlice} from "./slices/customer/customerTypeSlice.js";
 import {saleSlice} from "./slices/sale/saleSlice.js";
 import {deliveryOrderSlice} from "./slices/deliveryOrder/deliveryOrderSlice.js";
+import {dashboardSlice} from "./slices/dashboard/dashboardSlice.js";
 
 export const store = configureStore({
     reducer: {
@@ -16,5 +17,6 @@ export const store = configureStore({
         customerType: customerTypeSlice.reducer,
         sale: saleSlice.reducer,
         deliveryOrder: deliveryOrderSlice.reducer,
+        dashboard: dashboardSlice.reducer,
     },
 });

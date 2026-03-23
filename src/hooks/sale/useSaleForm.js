@@ -67,7 +67,7 @@ export const useSaleForm = (saleSelected) => {
                 deliveryCost,
             }));
         }
-    }, [saleDetails, formData, paymentMethodId, paid, notes, operationType, deliveryEmployeeId, deliveryCost, isEditMode]);
+    }, [saleDetails, formData, paymentMethodId, paid, notes, operationType, deliveryEmployeeId, deliveryCost, isEditMode, dispatch]);
 
     useEffect(() => {
         handleGetCustomers();
@@ -129,7 +129,7 @@ export const useSaleForm = (saleSelected) => {
         };
 
         loadSaleData();
-    }, [hasDeliveryRole, saleSelected]);
+    }, [hasDeliveryRole, saleSelected, setDeliveryOrderId]);
 
     useEffect(() => {
         if (customers.length > 0 && !formData.customerId && !isEditMode) {
