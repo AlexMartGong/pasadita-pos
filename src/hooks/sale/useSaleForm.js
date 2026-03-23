@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {useSale} from './useSale';
 import {useCustomer} from '../customer/useCustomer';
 import {useProduct} from '../product/useProduct';
@@ -8,25 +9,28 @@ import {deliveryOrderService} from '../../services/deliveryOrderService';
 import {getSaleDetailsById} from '../../services/saleService';
 import {toast} from 'react-toastify';
 import {formatCurrency} from '../../utils/formatters';
+import {clearActiveDraft, setActiveDraft} from '../../stores/slices/sale/saleSlice';
 
 export const useSaleForm = (saleSelected) => {
+    const dispatch = useDispatch();
     const {handleSaveSale, initialSaleForm} = useSale();
     const {customers, handleGetCustomers} = useCustomer();
     const {products, handleGetProducts} = useProduct();
     const {users, getAllUsers} = useUser();
     const {user, employeeId, role} = useAuth();
+    const {activeDraft} = useSelector(state => state.sale);
 
     const isEditMode = saleSelected && saleSelected.id !== 0;
 
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formData, setFormData] = useState(initialSaleForm);
+    const [formData, setFormData] = useState(() => !isEditMode ? activeDraft.formData : initialSaleForm);
     const [setDeliveryOrderId] = useState(null);
-    const [saleDetails, setSaleDetails] = useState([]);
+    const [saleDetails, setSaleDetails] = useState(() => !isEditMode ? activeDraft.saleDetails : []);
     const [productSearch, setProductSearch] = useState('');
-    const [paymentMethodId, setPaymentMethodId] = useState(1);
-    const [paid, setPaid] = useState(true);
-    const [notes, setNotes] = useState('');
+    const [paymentMethodId, setPaymentMethodId] = useState(() => !isEditMode ? activeDraft.paymentMethodId : 1);
+    const [paid, setPaid] = useState(() => !isEditMode ? activeDraft.paid : true);
+    const [notes, setNotes] = useState(() => !isEditMode ? activeDraft.notes : '');
     const [selectedProductData, setSelectedProductData] = useState({
         id: '',
         name: '',
@@ -36,10 +40,10 @@ export const useSaleForm = (saleSelected) => {
         unitMeasure: ''
     });
 
-    const [deliveryEmployeeId, setDeliveryEmployeeId] = useState(null);
-    const [deliveryCost, setDeliveryCost] = useState(0);
+    const [deliveryEmployeeId, setDeliveryEmployeeId] = useState(() => !isEditMode ? activeDraft.deliveryEmployeeId : null);
+    const [deliveryCost, setDeliveryCost] = useState(() => !isEditMode ? activeDraft.deliveryCost : 0);
 
-    const [operationType, setOperationType] = useState('venta'); // 'venta' o 'pedido'
+    const [operationType, setOperationType] = useState(() => !isEditMode ? activeDraft.operationType : 'venta'); // 'venta' o 'pedido'
 
     const hasDeliveryRole = role && (role.includes('ROLE_PEDIDOS') || role.includes('ROLE_ADMIN'));
 
@@ -49,6 +53,21 @@ export const useSaleForm = (saleSelected) => {
     );
 
     const isAdmin = role && role.includes('ROLE_ADMIN');
+
+    useEffect(() => {
+        if (!isEditMode) {
+            dispatch(setActiveDraft({
+                saleDetails,
+                formData,
+                paymentMethodId,
+                paid,
+                notes,
+                operationType,
+                deliveryEmployeeId,
+                deliveryCost,
+            }));
+        }
+    }, [saleDetails, formData, paymentMethodId, paid, notes, operationType, deliveryEmployeeId, deliveryCost, isEditMode]);
 
     useEffect(() => {
         handleGetCustomers();
@@ -300,6 +319,7 @@ export const useSaleForm = (saleSelected) => {
         setDeliveryCost(0);
         setOperationType('venta');
         setErrors({});
+        dispatch(clearActiveDraft());
 
         if (customers.length > 0) {
             setFormData(prev => ({
@@ -358,8 +378,10 @@ export const useSaleForm = (saleSelected) => {
                 } : null
             };
 
-            handleSaveSale(saleData);
-            handleLocalCancel();
+            const result = await handleSaveSale(saleData);
+            if (result) {
+                handleLocalCancel();
+            }
         } catch (error) {
             console.error('Error submitting form:', error);
         } finally {

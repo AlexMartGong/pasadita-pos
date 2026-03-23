@@ -11,6 +11,17 @@ export const initialSaleForm = {
     saleDetails: [],
 }
 
+export const initialActiveDraft = {
+    saleDetails: [],
+    formData: initialSaleForm,
+    paymentMethodId: 1,
+    paid: true,
+    notes: '',
+    operationType: 'venta',
+    deliveryEmployeeId: null,
+    deliveryCost: 0,
+};
+
 export const saleSlice = createSlice({
     name: 'sale',
     initialState: {
@@ -18,6 +29,7 @@ export const saleSlice = createSlice({
         saleSelected: initialSaleForm,
         totalSales: 0,
         totalAmount: 0,
+        activeDraft: initialActiveDraft,
     },
     reducers: {
         setSales: (state, action) => {
@@ -54,6 +66,12 @@ export const saleSlice = createSlice({
         },
         onClearSaleSelected: (state) => {
             state.saleSelected = initialSaleForm;
+        },
+        setActiveDraft: (state, action) => {
+            state.activeDraft = action.payload;
+        },
+        clearActiveDraft: (state) => {
+            state.activeDraft = initialActiveDraft;
         }
     }
 });
@@ -66,4 +84,6 @@ export const {
     onChangeStatusSale,
     onSelectSale,
     onClearSaleSelected,
+    setActiveDraft,
+    clearActiveDraft,
 } = saleSlice.actions;
