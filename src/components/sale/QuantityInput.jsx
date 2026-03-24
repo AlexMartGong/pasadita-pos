@@ -31,7 +31,7 @@ export const QuantityInput = ({
         isConnected,
         isLoading,
         connectScale,
-    } = useScale({persistent: true, intervalMs: 800});
+    } = useScale({persistent: true, intervalMs: 200});
 
     useEffect(() => {
         if (isKilogram && productId && isConnected && weight > 0) {
