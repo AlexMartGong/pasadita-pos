@@ -357,7 +357,6 @@ export const useSaleForm = (saleSelected) => {
                 employeeId: employeeId,
                 customerId: parseInt(formData.customerId),
                 paymentMethodId: paymentMethodId,
-                stationId: import.meta.env.VITE_STATION_ID || '',
                 subtotal: formatToTwoDecimals(subtotal),
                 discountAmount: formatToTwoDecimals(discountAmount),
                 total: formatToTwoDecimals(formData.total),
