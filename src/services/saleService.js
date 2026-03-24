@@ -56,7 +56,8 @@ export const changeStatusSale = async (id, statusData) => {
 
 export const getTicketBySaleId = async (id) => {
     try {
-        return await saleApi.get(`/${id}/ticket`);
+        const stationId = import.meta.env.VITE_STATION_ID || '';
+        return await saleApi.get(`/${id}/ticket`, { params: { stationId } });
     } catch (error) {
         console.error('Error fetching ticket by sale ID:', error);
         throw error;
