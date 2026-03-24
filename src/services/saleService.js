@@ -54,9 +54,10 @@ export const changeStatusSale = async (id, statusData) => {
     }
 }
 
-export const getTicketBySaleId = async (id) => {
+export const getTicketBySaleId = async (id, stationId) => {
     try {
-        return await saleApi.get(`/${id}/ticket`);
+        const params = stationId ? `?stationId=${encodeURIComponent(stationId)}` : '';
+        return await saleApi.get(`/${id}/ticket${params}`);
     } catch (error) {
         console.error('Error fetching ticket by sale ID:', error);
         throw error;

@@ -10,6 +10,7 @@ import {getSaleDetailsById} from '../../services/saleService';
 import {toast} from 'react-toastify';
 import {formatCurrency} from '../../utils/formatters';
 import {clearActiveDraft, setActiveDraft} from '../../stores/slices/sale/saleSlice';
+import {getCachedStationId} from '../../services/agentService';
 
 export const useSaleForm = (saleSelected) => {
     const dispatch = useDispatch();
@@ -362,6 +363,7 @@ export const useSaleForm = (saleSelected) => {
                 total: formatToTwoDecimals(formData.total),
                 paid: paid,
                 notes: notes || '',
+                stationId: getCachedStationId(),
                 saleDetails: saleDetails.map(detail => ({
                     productId: detail.productId,
                     quantity: formatToThreeDecimals(detail.quantity),

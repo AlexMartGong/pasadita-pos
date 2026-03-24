@@ -1,6 +1,8 @@
+import {useEffect} from "react";
 import {Route, Routes} from "react-router-dom";
 import {DashboardPage} from "../pages/DashboardPage.jsx";
 import {Sidebar} from "../components/layout/Sidebar.jsx";
+import {getStationId} from "../services/agentService.js";
 import {ProductPage} from "../pages/product/ProductPage.jsx";
 import {UserPage} from "../pages/user/UserPage.jsx";
 import {RegisterUserPage} from "../pages/user/RegisterUserPage.jsx";
@@ -19,6 +21,10 @@ import {DeliveryPage} from "../pages/delivery/deliveryPage.jsx";
 import {TicketPage} from "../pages/sale/TicketPage.jsx";
 
 export const FruitRoute = () => {
+    useEffect(() => {
+        getStationId();
+    }, []);
+
     return (
         <Box sx={{display: 'flex'}}>
             <Sidebar/>

@@ -13,6 +13,7 @@ import saleService from "../../services/saleService.js";
 import {toast} from "react-toastify";
 import {useApiErrorHandler} from "../useApiErrorHandler.js";
 import {useNavigate} from "react-router-dom";
+import {getCachedStationId} from "../../services/agentService.js";
 import {onChangeStatusDeliveryOrder} from "../../stores/slices/deliveryOrder/deliveryOrderSlice.js";
 
 export const useSale = () => {
@@ -118,7 +119,7 @@ export const useSale = () => {
 
     const handleGetTicket = useCallback(async (saleId) => {
         try {
-            const result = await saleService.getTicketBySaleId(saleId);
+            const result = await saleService.getTicketBySaleId(saleId, getCachedStationId());
             return result.data;
         } catch (error) {
             handleApiError(error);
