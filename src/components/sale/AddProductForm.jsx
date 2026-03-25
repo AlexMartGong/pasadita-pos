@@ -25,7 +25,7 @@ export const AddProductForm = ({
                 Agregar al carrito
             </DialogTitle>
             <DialogContent>
-                <Grid container spacing={2} sx={{mt: 0.5, mb: 2}}>
+                <Grid container spacing={2} sx={{mt: 2, mb: 3}}>
                     <Grid item xs={8}>
                         <TextField
                             fullWidth
