@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-    Card, CardContent, Chip, Divider,
-    Grid, Stack, TextField, Typography
+    Box, Card, CardContent, Chip, Divider,
+    Grid, TextField, Typography
 } from '@mui/material';
-import {Person} from '@mui/icons-material';
+import {Person, ReceiptLong} from '@mui/icons-material';
 
 export const SaleInfo = ({
                              user,
@@ -19,19 +19,26 @@ export const SaleInfo = ({
                          }) => {
     return (
         <>
-            <Card sx={{flexShrink: 0}}>
-                <CardContent sx={{pb: 2}}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{mb: 2}}>
-                        <Typography variant="h6">
+            <Card sx={{flexShrink: 0, border: '1px solid rgba(46, 125, 50, 0.15)'}}>
+                <Box sx={{
+                    background: 'linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%)',
+                    px: 2, py: 1.5,
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                }}>
+                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                        <ReceiptLong sx={{color: 'white', fontSize: 22}}/>
+                        <Typography variant="h6" sx={{color: 'white', fontWeight: 600, fontSize: '1rem'}}>
                             Información de Venta
                         </Typography>
-                        <Chip
-                            icon={<Person fontSize="small"/>}
-                            label={user || ''}
-                            size="small"
-                            variant="outlined"
-                        />
-                    </Stack>
+                    </Box>
+                    <Chip
+                        icon={<Person fontSize="small"/>}
+                        label={user || ''}
+                        size="small"
+                        sx={{backgroundColor: 'rgba(255,255,255,0.9)', fontWeight: 500}}
+                    />
+                </Box>
+                <CardContent sx={{pb: 2}}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
                             <select

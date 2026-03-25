@@ -18,7 +18,12 @@ export const AddProductForm = ({
                                }) => {
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle>Agregar al carrito</DialogTitle>
+            <DialogTitle sx={{
+                background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+                color: 'white', fontWeight: 600
+            }}>
+                Agregar al carrito
+            </DialogTitle>
             <DialogContent>
                 <Grid container spacing={2} sx={{mt: 0.5, mb: 2}}>
                     <Grid item xs={8}>

@@ -5,7 +5,7 @@ import {
     IconButton, Table, TableBody, TableCell, TableContainer, TableHead,
     TableRow, Typography
 } from '@mui/material';
-import {Delete} from '@mui/icons-material';
+import {Delete, ShoppingCartOutlined} from '@mui/icons-material';
 
 export const ShoppingCart = ({
                                  saleDetails,
@@ -33,11 +33,18 @@ export const ShoppingCart = ({
     };
 
     return (
-        <Card sx={{flexShrink: 0}}>
-            <CardContent sx={{pb: 2}}>
-                <Typography variant="h6" gutterBottom>
+        <Card sx={{flexShrink: 0, border: '1px solid rgba(48, 63, 159, 0.15)'}}>
+            <Box sx={{
+                background: 'linear-gradient(135deg, #283593 0%, #5c6bc0 100%)',
+                px: 2, py: 1.5,
+                display: 'flex', alignItems: 'center', gap: 1
+            }}>
+                <ShoppingCartOutlined sx={{color: 'white', fontSize: 22}}/>
+                <Typography variant="h6" sx={{color: 'white', fontWeight: 600, fontSize: '1rem'}}>
                     Carrito de Compras
                 </Typography>
+            </Box>
+            <CardContent sx={{pb: 2}}>
                 <TableContainer sx={{
                     overflow: 'auto',
                     mb: 2,
@@ -45,7 +52,7 @@ export const ShoppingCart = ({
                 }}>
                     <Table size="small" stickyHeader>
                         <TableHead>
-                            <TableRow>
+                            <TableRow sx={{'& .MuiTableCell-head': {backgroundColor: '#e8eaf6', color: '#283593', fontWeight: 600}}}>
                                 <TableCell>Producto</TableCell>
                                 <TableCell align="right">Cant.</TableCell>
                                 <TableCell align="right">P. Unit.</TableCell>
@@ -94,15 +101,15 @@ export const ShoppingCart = ({
                 </TableContainer>
                 <Box>
                     {saleDetails.length > 0 && (
-                        <Box sx={{mb: 2, textAlign: 'right'}}>
-                            <Typography variant="body2">
+                        <Box sx={{mb: 2, textAlign: 'right', backgroundColor: '#f5f5f5', borderRadius: 1, p: 1.5}}>
+                            <Typography variant="body2" sx={{color: 'text.secondary'}}>
                                 Subtotal: {formatCurrency(saleDetails.reduce((sum, d) => sum + d.subtotal, 0))}
                             </Typography>
                             <Typography variant="body2" color="error">
                                 Descuento:
                                 -{formatCurrency(saleDetails.reduce((sum, d) => sum + d.discount, 0))}
                             </Typography>
-                            <Typography variant="h6">
+                            <Typography variant="h6" sx={{color: '#283593', fontWeight: 700}}>
                                 Total: {formatCurrency(formData.total)}
                             </Typography>
                         </Box>

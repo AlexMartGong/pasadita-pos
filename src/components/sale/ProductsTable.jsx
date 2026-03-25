@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {
-    Card, CardContent, IconButton,
+    Box, Card, CardContent, IconButton,
     Table, TableBody, TableCell, TableContainer, TableHead,
     TableRow, TextField, Typography, TablePagination
 } from '@mui/material';
-import {Add} from '@mui/icons-material';
+import {Add, Inventory2} from '@mui/icons-material';
 
 export const ProductsTable = ({
                                   products,
@@ -43,11 +43,18 @@ export const ProductsTable = ({
     );
 
     return (
-        <Card sx={{height: '100%', display: 'flex', flexDirection: 'column'}}>
-            <CardContent sx={{flexGrow: 1, display: 'flex', flexDirection: 'column', pb: 1}}>
-                <Typography variant="h6" gutterBottom>
+        <Card sx={{height: '100%', display: 'flex', flexDirection: 'column', border: '1px solid rgba(25, 118, 210, 0.15)'}}>
+            <Box sx={{
+                background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+                px: 2, py: 1.5,
+                display: 'flex', alignItems: 'center', gap: 1
+            }}>
+                <Inventory2 sx={{color: 'white', fontSize: 22}}/>
+                <Typography variant="h6" sx={{color: 'white', fontWeight: 600, fontSize: '1rem'}}>
                     Lista de Productos
                 </Typography>
+            </Box>
+            <CardContent sx={{flexGrow: 1, display: 'flex', flexDirection: 'column', pb: 1}}>
                 <TextField
                     fullWidth
                     size="small"
@@ -59,7 +66,7 @@ export const ProductsTable = ({
                 <TableContainer sx={{flexGrow: 1, overflow: 'auto'}}>
                     <Table stickyHeader size="small">
                         <TableHead>
-                            <TableRow>
+                            <TableRow sx={{'& .MuiTableCell-head': {backgroundColor: '#e3f2fd', color: '#1565c0', fontWeight: 600}}}>
                                 <TableCell>ID</TableCell>
                                 <TableCell>Producto</TableCell>
                                 <TableCell align="right">Precio</TableCell>
