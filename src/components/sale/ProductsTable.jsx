@@ -104,6 +104,7 @@ export const ProductsTable = ({
                                         hover
                                         onClick={() => {
                                             onSelectProduct(product);
+                                            onProductSearchChange('');
                                             searchInputRef.current?.focus();
                                         }}
                                         sx={{cursor: 'pointer'}}
@@ -119,6 +120,7 @@ export const ProductsTable = ({
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     onSelectProduct(product);
+                                                    onProductSearchChange('');
                                                     searchInputRef.current?.focus();
                                                 }}
                                             >
