@@ -80,7 +80,12 @@ export const ProductsTable = ({
                                 </TableRow>
                             ) : (
                                 paginatedProducts.map((product) => (
-                                    <TableRow key={product.id} hover>
+                                    <TableRow
+                                        key={product.id}
+                                        hover
+                                        onClick={() => onSelectProduct(product)}
+                                        sx={{cursor: 'pointer'}}
+                                    >
                                         <TableCell>{product.id}</TableCell>
                                         <TableCell>{product.name}</TableCell>
                                         <TableCell align="right">{formatCurrency(product.price)}</TableCell>
@@ -89,7 +94,10 @@ export const ProductsTable = ({
                                             <IconButton
                                                 size="small"
                                                 color="primary"
-                                                onClick={() => onSelectProduct(product)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onSelectProduct(product);
+                                                }}
                                             >
                                                 <Add/>
                                             </IconButton>

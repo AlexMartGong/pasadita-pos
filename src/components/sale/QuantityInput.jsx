@@ -60,7 +60,7 @@ export const QuantityInput = ({
                 disabled={disabled}
                 slotProps={{
                     htmlInput: {
-                        step: '0.1',
+                        step: '1',
                         min: '0'
                     },
                     input: (isKilogram && productId) ? {
