@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import {
     Box, Card, CardContent, IconButton,
     Table, TableBody, TableCell, TableContainer, TableHead,
@@ -13,10 +13,10 @@ export const ProductsTable = ({
                                   onSelectProduct,
                                   formatCurrency
                               }) => {
+    const searchInputRef = useRef(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    // Resetear página cuando cambia la búsqueda
     useEffect(() => {
         setPage(0);
     }, [productSearch]);
@@ -36,14 +36,18 @@ export const ProductsTable = ({
         setPage(0);
     };
 
-    // Calcular productos paginados
     const paginatedProducts = filteredProducts.slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
     );
 
     return (
-        <Card sx={{height: '100%', display: 'flex', flexDirection: 'column', border: '1px solid rgba(25, 118, 210, 0.15)'}}>
+        <Card sx={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            border: '1px solid rgba(25, 118, 210, 0.15)'
+        }}>
             <Box sx={{
                 background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
                 px: 2, py: 1.5,
@@ -61,12 +65,20 @@ export const ProductsTable = ({
                     label="Buscar producto"
                     value={productSearch}
                     onChange={(e) => onProductSearchChange(e.target.value)}
+                    inputRef={searchInputRef}
+                    autoFocus
                     sx={{mb: 2}}
                 />
                 <TableContainer sx={{flexGrow: 1, overflow: 'auto'}}>
                     <Table stickyHeader size="small">
                         <TableHead>
-                            <TableRow sx={{'& .MuiTableCell-head': {backgroundColor: '#e3f2fd', color: '#1565c0', fontWeight: 600}}}>
+                            <TableRow sx={{
+                                '& .MuiTableCell-head': {
+                                    backgroundColor: '#e3f2fd',
+                                    color: '#1565c0',
+                                    fontWeight: 600
+                                }
+                            }}>
                                 <TableCell>ID</TableCell>
                                 <TableCell>Producto</TableCell>
                                 <TableCell align="right">Precio</TableCell>
@@ -90,7 +102,10 @@ export const ProductsTable = ({
                                     <TableRow
                                         key={product.id}
                                         hover
-                                        onClick={() => onSelectProduct(product)}
+                                        onClick={() => {
+                                            onSelectProduct(product);
+                                            searchInputRef.current?.focus();
+                                        }}
                                         sx={{cursor: 'pointer'}}
                                     >
                                         <TableCell>{product.id}</TableCell>
@@ -104,6 +119,7 @@ export const ProductsTable = ({
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     onSelectProduct(product);
+                                                    searchInputRef.current?.focus();
                                                 }}
                                             >
                                                 <Add/>
