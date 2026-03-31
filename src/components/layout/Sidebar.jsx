@@ -66,7 +66,7 @@ export const Sidebar = () => {
 
     const limitedMenuItems = [
         {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
-        {path: '/delivery', icon: 'bi-truck', label: 'Entregas'},
+        {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
         {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
     ];
 
@@ -74,7 +74,7 @@ export const Sidebar = () => {
         {path: '/dashboard', icon: 'bi-speedometer2', label: 'Dashboard'},
         {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
         {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
-        {path: '/delivery', icon: 'bi-truck', label: 'Entregas'},
+        {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
         {path: '/products', icon: 'bi-box-seam', label: 'Productos'},
         {path: '/users', icon: 'bi bi-people', label: 'Usuarios'},
         {path: '/customers', icon: 'bi-people', label: 'Clientes'},

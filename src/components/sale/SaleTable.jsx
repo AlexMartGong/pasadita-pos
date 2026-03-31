@@ -1,17 +1,21 @@
 import {useSale} from "../../hooks/sale/useSale.js";
 import {useEffect} from "react";
 import {useSaleTable} from "../../hooks/sale/useSaleTable.jsx";
-import {Box, FormControlLabel, Paper, Switch, TextField} from "@mui/material";
+import {Box, Paper, TextField} from "@mui/material";
 import {DataGrid} from "@mui/x-data-grid";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 
-export const SaleTable = () => {
+export const SaleTable = ({filterOption, onStatsChange}) => {
     const {sales, handleGetSales} = useSale();
-    const {searchText, setSearchText, filteredSales, columns, showAllSales, handleToggleShowAll} = useSaleTable(sales);
+    const {searchText, setSearchText, filteredSales, filteredCount, filteredTotal, columns} = useSaleTable(sales, filterOption);
 
     useEffect(() => {
         handleGetSales();
     }, []);
+
+    useEffect(() => {
+        onStatsChange?.({count: filteredCount, total: filteredTotal});
+    }, [filteredCount, filteredTotal]);
 
     return (
         <Paper sx={userTableStyles.paper}>
@@ -22,17 +26,6 @@ export const SaleTable = () => {
                     variant="outlined"
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
-                />
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={showAllSales}
-                            onChange={handleToggleShowAll}
-                            color="primary"
-                        />
-                    }
-                    label={showAllSales ? "Todas las ventas" : "Ventas de hoy"}
-                    sx={{ml: 2, whiteSpace: 'nowrap'}}
                 />
             </Box>
             <Box sx={userTableStyles.tableContainer}>

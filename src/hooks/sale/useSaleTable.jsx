@@ -6,6 +6,12 @@ import {DocumentScanner, Edit, Payment} from "@mui/icons-material";
 import {formatDate, formatCurrency} from "../../utils/formatters.js";
 import {useAuth} from "../../auth/hooks/useAuth.js";
 
+export const FILTER_OPTIONS = {
+    TODAY_ALL: 'today_all',
+    TODAY_MORNING: 'today_morning',
+    TODAY_AFTERNOON: 'today_afternoon',
+    ALL: 'all',
+};
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -33,9 +39,14 @@ const isToday = (dateString) => {
     );
 };
 
-export const useSaleTable = (sales) => {
+const isInShift = (dateString, startHour, endHour) => {
+    const saleDate = new Date(dateString);
+    const hour = saleDate.getHours();
+    return hour >= startHour && hour < endHour;
+};
+
+export const useSaleTable = (sales, filterOption = FILTER_OPTIONS.TODAY_ALL) => {
     const [searchText, setSearchText] = useState("");
-    const [showAllSales, setShowAllSales] = useState(false);
     const debouncedSearchText = useDebounce(searchText, 300);
     const {handleSaleEdit, handlePaymentToggle, handlePrintTicket} = useSale();
     const {isAdmin} = useAuth();
@@ -43,12 +54,20 @@ export const useSaleTable = (sales) => {
     const filteredSales = useMemo(() => {
         if (!sales) return [];
 
-        // Primero filtrar por día si no se muestran todas
-        let result = showAllSales
-            ? sales
-            : sales.filter((sale) => isToday(sale.datetime));
+        // Solo ventas en caja (sin pedidos a domicilio)
+        let result = sales.filter((sale) => sale.deliveryOrderId == null);
 
-        // Luego aplicar el filtro de búsqueda
+        // Filtrar por turno/fecha
+        if (filterOption === FILTER_OPTIONS.TODAY_ALL) {
+            result = result.filter((sale) => isToday(sale.datetime));
+        } else if (filterOption === FILTER_OPTIONS.TODAY_MORNING) {
+            result = result.filter((sale) => isToday(sale.datetime) && isInShift(sale.datetime, 6, 14));
+        } else if (filterOption === FILTER_OPTIONS.TODAY_AFTERNOON) {
+            result = result.filter((sale) => isToday(sale.datetime) && isInShift(sale.datetime, 14, 22));
+        }
+        // FILTER_OPTIONS.ALL: sin filtro de fecha
+
+        // Aplicar filtro de búsqueda
         if (debouncedSearchText) {
             const searchLower = debouncedSearchText.toLowerCase();
             result = result.filter((sale) => {
@@ -62,11 +81,15 @@ export const useSaleTable = (sales) => {
         }
 
         return result;
-    }, [sales, debouncedSearchText, showAllSales]);
+    }, [sales, debouncedSearchText, filterOption]);
 
-    const handleToggleShowAll = useCallback(() => {
-        setShowAllSales((prev) => !prev);
-    }, []);
+    const filteredCount = useMemo(() => filteredSales.length, [filteredSales]);
+
+    const filteredTotal = useMemo(() => {
+        return filteredSales
+            .filter((sale) => sale.paid === true)
+            .reduce((sum, sale) => sum + (sale.total || 0), 0);
+    }, [filteredSales]);
 
     const handleSearchChange = useCallback((value) => {
         setSearchText(value);
@@ -177,8 +200,8 @@ export const useSaleTable = (sales) => {
         setSearchText: handleSearchChange,
         searchText,
         filteredSales,
+        filteredCount,
+        filteredTotal,
         columns,
-        showAllSales,
-        handleToggleShowAll,
     };
 };
