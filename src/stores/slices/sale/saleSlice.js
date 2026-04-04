@@ -7,6 +7,7 @@ export const initialSaleForm = {
     paid: false,
     paymentMethodId: 0,
     total: 0,
+    amountTendered: 0,
     notes: '',
     saleDetails: [],
 }
@@ -20,6 +21,7 @@ export const initialActiveDraft = {
     operationType: 'venta',
     deliveryEmployeeId: null,
     deliveryCost: 0,
+    amountTendered: '',
 };
 
 export const saleSlice = createSlice({

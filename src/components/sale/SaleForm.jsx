@@ -30,6 +30,7 @@ export const SaleForm = ({saleSelected}) => {
         operationType,
         deliveryEmployeeId,
         deliveryCost,
+        amountTendered,
         setProductSearch,
         setSelectedProductData,
         setPaymentMethodId,
@@ -37,6 +38,7 @@ export const SaleForm = ({saleSelected}) => {
         setNotes,
         setDeliveryEmployeeId,
         setDeliveryCost,
+        setAmountTendered,
         setOperationType,
         handleSelectProduct,
         handleAddToCart,
@@ -44,6 +46,7 @@ export const SaleForm = ({saleSelected}) => {
         handleInputChange,
         handleLocalCancel,
         handleSubmit,
+        validateForm,
         formatCurrency
     } = useSaleForm(saleSelected);
 
@@ -62,7 +65,6 @@ export const SaleForm = ({saleSelected}) => {
 
     return (
         <Box sx={{flexGrow: 1, p: 3, minHeight: 'calc(100vh - 350px)', backgroundColor: '#fafbfc'}} className="sale-form-container">
-            <form onSubmit={handleSubmit} noValidate style={{height: '100%'}}>
                 <Grid container spacing={3} sx={{height: '100%', flexWrap: 'nowrap !important'}}>
                     <Grid
                         sx={{height: '100%', minWidth: '400px', flex: '1 1 50%', maxWidth: '50% !important'}}>
@@ -167,14 +169,17 @@ export const SaleForm = ({saleSelected}) => {
                                 isEditMode={isEditMode}
                                 isSubmitting={isSubmitting}
                                 errors={errors}
+                                amountTendered={amountTendered}
+                                onAmountTenderedChange={setAmountTendered}
                                 onRemoveProduct={handleRemoveProduct}
                                 onCancel={handleLocalCancel}
+                                onValidate={validateForm}
+                                onSaveSale={handleSubmit}
                                 formatCurrency={formatCurrency}
                             />
                         </Box>
                     </Grid>
                 </Grid>
-            </form>
 
             <AddProductForm
                 open={isProductDialogOpen}

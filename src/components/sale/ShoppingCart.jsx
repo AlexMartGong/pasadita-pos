@@ -6,6 +6,7 @@ import {
     TableRow, Typography
 } from '@mui/material';
 import {Delete, ShoppingCartOutlined} from '@mui/icons-material';
+import {PaymentModal} from './PaymentModal';
 
 export const ShoppingCart = ({
                                  saleDetails,
@@ -13,11 +14,16 @@ export const ShoppingCart = ({
                                  isEditMode,
                                  isSubmitting,
                                  errors,
+                                 amountTendered,
+                                 onAmountTenderedChange,
                                  onRemoveProduct,
                                  onCancel,
+                                 onValidate,
+                                 onSaveSale,
                                  formatCurrency
                              }) => {
     const [confirmOpen, setConfirmOpen] = useState(false);
+    const [paymentOpen, setPaymentOpen] = useState(false);
 
     const handleCancelClick = () => {
         if (saleDetails.length > 0) {
@@ -119,6 +125,11 @@ export const ShoppingCart = ({
                             {errors.saleDetails}
                         </Typography>
                     )}
+                    {errors.customerId && (
+                        <Typography color="error" variant="body2" sx={{mb: 2}}>
+                            {errors.customerId}
+                        </Typography>
+                    )}
                     <Box sx={{display: 'flex', gap: 2, justifyContent: 'flex-end'}}>
                         <Button
                             variant="outlined"
@@ -128,16 +139,35 @@ export const ShoppingCart = ({
                             Cancelar
                         </Button>
                         <Button
-                            type="submit"
                             variant="contained"
                             color="primary"
                             disabled={isSubmitting}
+                            onClick={() => {
+                                if (onValidate()) {
+                                    setPaymentOpen(true);
+                                }
+                            }}
                         >
                             {isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar Venta')}
                         </Button>
                     </Box>
                 </Box>
             </CardContent>
+
+            <PaymentModal
+                open={paymentOpen}
+                onClose={() => setPaymentOpen(false)}
+                total={formData.total}
+                amountTendered={amountTendered}
+                onAmountTenderedChange={onAmountTenderedChange}
+                onSaveSale={(amount) => {
+                    setPaymentOpen(false);
+                    onSaveSale(amount);
+                }}
+                isSubmitting={isSubmitting}
+                isEditMode={isEditMode}
+                formatCurrency={formatCurrency}
+            />
 
             <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
                 <DialogTitle>¿Cancelar la venta?</DialogTitle>

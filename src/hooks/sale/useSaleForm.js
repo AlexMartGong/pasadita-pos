@@ -43,6 +43,7 @@ export const useSaleForm = (saleSelected) => {
 
     const [deliveryEmployeeId, setDeliveryEmployeeId] = useState(() => !isEditMode ? activeDraft.deliveryEmployeeId : null);
     const [deliveryCost, setDeliveryCost] = useState(() => !isEditMode ? activeDraft.deliveryCost : 0);
+    const [amountTendered, setAmountTendered] = useState(() => !isEditMode ? (activeDraft.amountTendered ?? '') : '');
 
     const [operationType, setOperationType] = useState(() => !isEditMode ? activeDraft.operationType : 'venta'); // 'venta' o 'pedido'
 
@@ -55,6 +56,10 @@ export const useSaleForm = (saleSelected) => {
 
     const isAdmin = role && role.includes('ROLE_ADMIN');
 
+    const changeDue = amountTendered !== '' && !isNaN(parseFloat(amountTendered))
+        ? parseFloat(amountTendered) - formData.total
+        : null;
+
     useEffect(() => {
         if (!isEditMode) {
             dispatch(setActiveDraft({
@@ -66,9 +71,10 @@ export const useSaleForm = (saleSelected) => {
                 operationType,
                 deliveryEmployeeId,
                 deliveryCost,
+                amountTendered,
             }));
         }
-    }, [saleDetails, formData, paymentMethodId, paid, notes, operationType, deliveryEmployeeId, deliveryCost, isEditMode, dispatch]);
+    }, [saleDetails, formData, paymentMethodId, paid, notes, operationType, deliveryEmployeeId, deliveryCost, amountTendered, isEditMode, dispatch]);
 
     useEffect(() => {
         handleGetCustomers();
@@ -90,6 +96,7 @@ export const useSaleForm = (saleSelected) => {
                 setPaymentMethodId(saleSelected.paymentMethodId || 1);
                 setPaid(saleSelected.paid !== undefined ? saleSelected.paid : true);
                 setNotes(saleSelected.notes || '');
+                setAmountTendered(saleSelected.amountTendered ?? '');
 
                 try {
                     const response = await getSaleDetailsById(saleSelected.id);
@@ -318,6 +325,7 @@ export const useSaleForm = (saleSelected) => {
         });
         setDeliveryEmployeeId(null);
         setDeliveryCost(0);
+        setAmountTendered('');
         setOperationType('venta');
         setErrors({});
         dispatch(clearActiveDraft());
@@ -339,16 +347,12 @@ export const useSaleForm = (saleSelected) => {
         return Number(Math.round((value || 0) + "e3") + "e-3");
     };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-
-        if (!validateForm()) {
-            return;
-        }
-
+    const handleSubmit = async (amountTenderedValue) => {
         setIsSubmitting(true);
 
         try {
+            setAmountTendered(String(amountTenderedValue));
+
             const subtotal = saleDetails.reduce((sum, detail) => sum + detail.subtotal, 0);
             const discountAmount = saleDetails.reduce((sum, detail) => sum + detail.discount, 0);
             const customer = customers.find(c => c.id === parseInt(formData.customerId));
@@ -361,6 +365,7 @@ export const useSaleForm = (saleSelected) => {
                 subtotal: formatToTwoDecimals(subtotal),
                 discountAmount: formatToTwoDecimals(discountAmount),
                 total: formatToTwoDecimals(formData.total),
+                amountTendered: formatToTwoDecimals(amountTenderedValue),
                 paid: paid,
                 notes: notes || '',
                 stationId: getCachedStationId(),
@@ -415,6 +420,8 @@ export const useSaleForm = (saleSelected) => {
         operationType,
         deliveryEmployeeId,
         deliveryCost,
+        amountTendered,
+        changeDue,
         setProductSearch,
         setSelectedProductData: updateSelectedProductData,
         setPaymentMethodId,
@@ -422,6 +429,7 @@ export const useSaleForm = (saleSelected) => {
         setNotes,
         setDeliveryEmployeeId,
         setDeliveryCost,
+        setAmountTendered,
         setOperationType,
         handleSelectProduct,
         handleAddToCart,
@@ -429,6 +437,7 @@ export const useSaleForm = (saleSelected) => {
         handleInputChange,
         handleLocalCancel,
         handleSubmit,
+        validateForm,
         formatCurrency
     };
 };

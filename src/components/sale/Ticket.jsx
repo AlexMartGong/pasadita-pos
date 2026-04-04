@@ -17,6 +17,8 @@ export const Ticket = ({ticketData}) => {
         subtotal,
         discountAmount,
         total,
+        amountTendered,
+        changeDue,
         paid,
         notes,
         saleDetails
@@ -110,6 +112,18 @@ export const Ticket = ({ticketData}) => {
                     <span>TOTAL</span>
                     <span>{formatCurrency(total)}</span>
                 </div>
+                {amountTendered != null && (
+                    <div className="ticket-total-row">
+                        <span>Recibido</span>
+                        <span>{formatCurrency(amountTendered)}</span>
+                    </div>
+                )}
+                {changeDue != null && changeDue >= 0 && (
+                    <div className="ticket-total-row" style={{fontWeight: 700, color: '#2e7d32'}}>
+                        <span>Cambio</span>
+                        <span>{formatCurrency(changeDue)}</span>
+                    </div>
+                )}
             </div>
 
             <div className="ticket-divider"></div>
@@ -163,6 +177,8 @@ Ticket.propTypes = {
         subtotal: PropTypes.number,
         discountAmount: PropTypes.number,
         total: PropTypes.number,
+        amountTendered: PropTypes.number,
+        changeDue: PropTypes.number,
         paid: PropTypes.bool,
         notes: PropTypes.string,
         saleDetails: PropTypes.arrayOf(
