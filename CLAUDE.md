@@ -30,16 +30,16 @@ A Point of Sale (POS) system built with React + Vite frontend. The application m
 
 ```bash
 # Start development server with HMR
-npm run dev
+pnpm dev
 
 # Build for production
-npm run build
+pnpm build
 
 # Lint the codebase
-npm run lint
+pnpm lint
 
 # Preview production build
-npm run preview
+pnpm preview
 ```
 
 ## Architecture
@@ -133,6 +133,7 @@ Three-layer architecture for each domain (user, product, customer, customerType,
 
 ### Key Dependencies
 - **UI**: Material-UI (MUI) with DataGrid, Bootstrap for legacy styles
+- **Charts**: Recharts (dashboard visualizations)
 - **Routing**: React Router v7
 - **State**: Redux Toolkit
 - **HTTP**: Axios with interceptors
