@@ -3,6 +3,7 @@ import {userTableStyles} from "../../styles/js/UserTable.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
 import {DocumentScanner, Edit, Info, Payment} from "@mui/icons-material";
 import {useSale} from "../sale/useSale.js";
+import {useDeliveryOrder} from "./useDeliveryOrder.js";
 import {formatDate, formatCurrency} from "../../utils/formatters.js";
 import {useAuth} from "../../auth/hooks/useAuth.js";
 
@@ -25,7 +26,8 @@ const useDebounce = (value, delay) => {
 export const useDeliveryOrderTable = (deliveryOrders) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
-    const {handleSaleEdit, handlePaymentToggle, handlePrintTicket} = useSale();
+    const {handleSaleEdit, handlePrintTicket} = useSale();
+    const {handleChangeDeliveryOrderStatus} = useDeliveryOrder();
     const {isAdmin} = useAuth();
 
     const filteredDeliveryOrders = useMemo(() => {
@@ -85,8 +87,8 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
             sortable: true,
         },
         {
-            field: "paid",
-            headerName: "Pagado",
+            field: "status",
+            headerName: "Estado de Pago",
             width: 180,
             sortable: true,
             renderCell: (params) => (
@@ -130,11 +132,11 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
                                     <Edit/>
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip title={params.row.paid ? "Marcar como Pendiente" : "Marcar como Pagado"}>
+                            <Tooltip title="Marcar como Pendiente">
                                 <IconButton
                                     size="small"
-                                    color={params.row.paid ? "warning" : "success"}
-                                    onClick={() => handlePaymentToggle(params.row.saleId, params.row.paid)}>
+                                    color="warning"
+                                    onClick={() => handleChangeDeliveryOrderStatus(params.row.id, {status: 'PENDIENTE'})}>
                                     <Payment/>
                                 </IconButton>
                             </Tooltip>
@@ -151,7 +153,7 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
                 </Box>
             ),
         },
-    ], [handleSaleEdit, handlePaymentToggle, handlePrintTicket, isAdmin]);
+    ], [handleSaleEdit, handleChangeDeliveryOrderStatus, handlePrintTicket, isAdmin]);
 
     return {
         columns,
