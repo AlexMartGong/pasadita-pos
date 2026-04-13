@@ -31,10 +31,11 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
     const {isAdmin} = useAuth();
 
     const filteredDeliveryOrders = useMemo(() => {
-        if (!deliveryOrders || !debouncedSearchText) return deliveryOrders || [];
+        const nonCancelled = (deliveryOrders || []).filter(order => order.status !== 'CANCELADO');
+        if (!debouncedSearchText) return nonCancelled;
 
         const searchLower = debouncedSearchText.toLowerCase();
-        return deliveryOrders.filter((order) => {
+        return nonCancelled.filter((order) => {
             return (
                 order.id?.toString().includes(searchLower) ||
                 order.saleId?.toString().includes(searchLower) ||

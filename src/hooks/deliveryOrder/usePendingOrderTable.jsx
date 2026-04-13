@@ -97,14 +97,14 @@ export const usePendingOrderTable = (deliveryOrders, onCancelClick, onActivateCl
             sortable: true,
         },
         {
-            field: "paid",
-            headerName: "Pagado",
-            width: 180,
+            field: "status",
+            headerName: "Estado",
+            width: 130,
             sortable: true,
             renderCell: (params) => (
                 <Chip
-                    label={params.value ? "Pagado" : "Pendiente"}
-                    color={params.value ? "success" : "warning"}
+                    label={params.value === 'PENDIENTE' ? "Pendiente" : params.value}
+                    color="warning"
                     variant="outlined"
                     size="small"
                 />
