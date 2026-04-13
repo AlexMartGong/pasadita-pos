@@ -15,7 +15,11 @@ export const PendingTable = ({onStatsChange}) => {
         setConfirmOpen(true);
     }, []);
 
-    const {searchText, handleSearchChange, rows, columns, pendingCount, totalOwed} = usePendingOrderTable(deliveryOrders, handleCancelClick);
+    const handleActivateClick = useCallback(async (orderId) => {
+        await handleChangeDeliveryOrderStatus(orderId, {status: 'ACTIVO'});
+    }, [handleChangeDeliveryOrderStatus]);
+
+    const {searchText, handleSearchChange, rows, columns, pendingCount, totalOwed} = usePendingOrderTable(deliveryOrders, handleCancelClick, handleActivateClick);
 
     useEffect(() => {
         handleGetDeliveryOrders();

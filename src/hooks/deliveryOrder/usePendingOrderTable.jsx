@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {Cancel, DocumentScanner, Edit, Payment} from "@mui/icons-material";
+import {Cancel, CheckCircle, DocumentScanner, Edit, Payment} from "@mui/icons-material";
 import {useSale} from "../sale/useSale.js";
 import {formatDate, formatCurrency} from "../../utils/formatters.js";
 import {useAuth} from "../../auth/hooks/useAuth.js";
@@ -22,7 +22,7 @@ const useDebounce = (value, delay) => {
     return debouncedValue;
 };
 
-export const usePendingOrderTable = (deliveryOrders, onCancelClick) => {
+export const usePendingOrderTable = (deliveryOrders, onCancelClick, onActivateClick) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
     const {handleSaleEdit, handlePaymentToggle, handlePrintTicket} = useSale();
@@ -31,7 +31,7 @@ export const usePendingOrderTable = (deliveryOrders, onCancelClick) => {
     const pendingOrders = useMemo(() => {
         if (!deliveryOrders) return [];
         return deliveryOrders.filter(
-            (order) => order.paid === false && order.status !== 'CANCELADO'
+            (order) => order.status === 'PENDIENTE'
         );
     }, [deliveryOrders]);
 
@@ -150,6 +150,14 @@ export const usePendingOrderTable = (deliveryOrders, onCancelClick) => {
                                     <Payment/>
                                 </IconButton>
                             </Tooltip>
+                            <Tooltip title="Marcar como Activo">
+                                <IconButton
+                                    size="small"
+                                    color="success"
+                                    onClick={() => onActivateClick(params.row.id)}>
+                                    <CheckCircle/>
+                                </IconButton>
+                            </Tooltip>
                             <Tooltip title="Cancelar Orden">
                                 <IconButton
                                     size="small"
@@ -171,7 +179,7 @@ export const usePendingOrderTable = (deliveryOrders, onCancelClick) => {
                 </Box>
             ),
         },
-    ], [handleSaleEdit, handlePaymentToggle, handlePrintTicket, isAdmin, onCancelClick]);
+    ], [handleSaleEdit, handlePaymentToggle, handlePrintTicket, isAdmin, onCancelClick, onActivateClick]);
 
     return {
         columns,
