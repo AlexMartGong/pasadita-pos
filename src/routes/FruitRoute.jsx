@@ -18,6 +18,7 @@ import {RegisterCustomerTypePage} from "../pages/customer/RegisterCustomerTypePa
 import {SalePage} from "../pages/sale/SalePage.jsx";
 import {RegisterSalePage} from "../pages/sale/RegisterSalePage.jsx";
 import {DeliveryPage} from "../pages/delivery/deliveryPage.jsx";
+import {PendingDeliveryPage} from "../pages/delivery/PendingDeliveryPage.jsx";
 import {TicketPage} from "../pages/sale/TicketPage.jsx";
 
 export const FruitRoute = () => {
@@ -129,6 +130,11 @@ export const FruitRoute = () => {
                     <Route path={"delivery"} element={
                         <ProtectedRoute>
                             <DeliveryPage/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path={"pending"} element={
+                        <ProtectedRoute>
+                            <PendingDeliveryPage/>
                         </ProtectedRoute>
                     }/>
                     <Route path={"sale/ticket/:id"} element={

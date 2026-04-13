@@ -9,6 +9,7 @@ export const initialDeliveryOrderForm = {
     contactPhone: '',
     paid: false,
     total: 0,
+    status: 'ACTIVO',
 }
 
 export const deliveryOrderSlice = createSlice({

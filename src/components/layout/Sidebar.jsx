@@ -29,6 +29,7 @@ import {
     Category,
     PointOfSale,
     ReceiptLong,
+    PendingActions,
     Menu as MenuIcon
 } from '@mui/icons-material';
 import {sidebarStyles} from '../../styles/js/SidebarStyles.js';
@@ -59,7 +60,8 @@ export const Sidebar = () => {
             'bi-category': <Category/>,
             'bi-receipt': <ReceiptLong/>,
             'bi-truck': <PointOfSale/>,
-            'bi-cart-plus': <PointOfSale/>
+            'bi-cart-plus': <PointOfSale/>,
+            'bi-pending': <PendingActions/>
         };
         return icons[iconName] || <Dashboard/>;
     };
@@ -67,6 +69,7 @@ export const Sidebar = () => {
     const limitedMenuItems = [
         {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
         {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
+        {path: '/pending', icon: 'bi-pending', label: 'Pendientes'},
         {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
     ];
 
@@ -75,6 +78,7 @@ export const Sidebar = () => {
         {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
         {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
         {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
+        {path: '/pending', icon: 'bi-pending', label: 'Pendientes'},
         {path: '/products', icon: 'bi-box-seam', label: 'Productos'},
         {path: '/users', icon: 'bi bi-people', label: 'Usuarios'},
         {path: '/customers', icon: 'bi-people', label: 'Clientes'},

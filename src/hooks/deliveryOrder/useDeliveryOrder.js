@@ -9,6 +9,7 @@ import {
     resetDeliveryOrderSelected,
     setTotalAmountAndOrders
 } from "../../stores/slices/deliveryOrder/deliveryOrderSlice.js";
+import {onChangeStatusSale} from "../../stores/slices/sale/saleSlice.js";
 import {toast} from "react-toastify";
 import {useApiErrorHandler} from "../useApiErrorHandler.js";
 import {deliveryOrderService} from "../../services/deliveryOrderService.js";
@@ -68,6 +69,9 @@ export const useDeliveryOrder = () => {
         try {
             const result = await deliveryOrderService.changeDeliveryOrderStatus(id, statusData);
             dispatch(onUpdateDeliveryOrderStatus(result));
+            if (statusData.status === 'CANCELADO' && result.saleId) {
+                dispatch(onChangeStatusSale({id: result.saleId, paid: false}));
+            }
             toast.success('Estado de la orden actualizado exitosamente.');
             return true;
         } catch (error) {
