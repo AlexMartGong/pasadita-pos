@@ -88,17 +88,25 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
         },
         {
             field: "status",
-            headerName: "Estado de Pago",
-            width: 180,
+            headerName: "Estado",
+            width: 140,
             sortable: true,
-            renderCell: (params) => (
-                <Chip
-                    label={params.value ? "Pagado" : "Pendiente"}
-                    color={params.value ? "success" : "warning"}
-                    variant="outlined"
-                    size="small"
-                />
-            ),
+            renderCell: (params) => {
+                const getStatusColor = (status) => {
+                    if (status === "ACTIVO") return "success";
+                    if (status === "PENDIENTE") return "warning";
+                    if (status === "CANCELADO") return "error";
+                    return "default";
+                };
+                return (
+                    <Chip
+                        label={params.value}
+                        color={getStatusColor(params.value)}
+                        variant="outlined"
+                        size="small"
+                    />
+                );
+            },
         },
         {
             field: "total",
