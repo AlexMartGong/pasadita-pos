@@ -12,6 +12,11 @@ export const initialDeliveryOrderForm = {
     status: 'ACTIVO',
 }
 
+const calculateTotalAmount = (state) => {
+    const activeOrders = state.deliveryOrders.filter(order => order.status === 'ACTIVO');
+    state.totalAmount = activeOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+};
+
 export const deliveryOrderSlice = createSlice({
     name: 'deliveryOrder',
     initialState: {
@@ -33,6 +38,8 @@ export const deliveryOrderSlice = createSlice({
                 ...action.payload,
             });
             state.deliveryOrderSelected = initialDeliveryOrderForm;
+            state.totalOrders += 1;
+            calculateTotalAmount(state);
         },
         onUpdateDeliveryOrderStatus: (state, action) => {
             const index = state.deliveryOrders.findIndex(order => order.id === action.payload.id);
@@ -42,10 +49,7 @@ export const deliveryOrderSlice = createSlice({
                     ...action.payload,
                 }
             }
-
-            // Recalcular totalAmount solo de las órdenes pagadas
-            const paidOrders = state.deliveryOrders.filter(order => order.paid === true);
-            state.totalAmount = paidOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+            calculateTotalAmount(state);
         },
         onChangeStatusDeliveryOrder: (state, action) => {
             state.deliveryOrders = state.deliveryOrders.map(order => {
@@ -54,10 +58,7 @@ export const deliveryOrderSlice = createSlice({
                     paid: action.payload.paid,
                 } : order;
             });
-
-            // Recalcular totalAmount solo de las órdenes pagadas
-            const paidOrders = state.deliveryOrders.filter(order => order.paid === true);
-            state.totalAmount = paidOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+            calculateTotalAmount(state);
         },
         setDeliveryOrderSelected: (state, action) => {
             state.deliveryOrderSelected = action.payload;
@@ -77,4 +78,3 @@ export const {
     setDeliveryOrderSelected,
     resetDeliveryOrderSelected,
 } = deliveryOrderSlice.actions;
-

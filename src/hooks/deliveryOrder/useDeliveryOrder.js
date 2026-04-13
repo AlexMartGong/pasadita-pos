@@ -24,13 +24,13 @@ export const useDeliveryOrder = () => {
             const result = await deliveryOrderService.getAllDeliveryOrders();
             dispatch(setDeliveryOrders(result.orders));
 
-            // Calcular totalAmount solo de las órdenes pagadas
-            const paidOrders = result.orders.filter(order => order.paid === true);
-            const totalAmountPaid = paidOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+            // Calcular totalAmount solo de las órdenes con status ACTIVO
+            const activeOrders = result.orders.filter(order => order.status === 'ACTIVO');
+            const totalAmountActive = activeOrders.reduce((sum, order) => sum + (order.total || 0), 0);
 
             dispatch(setTotalAmountAndOrders({
                 totalOrders: result.totalOrders,
-                totalAmount: totalAmountPaid
+                totalAmount: totalAmountActive
             }));
             return true;
         } catch (error) {
