@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {DocumentScanner, Edit, Info, Payment, CheckCircle} from "@mui/icons-material";
+import {DocumentScanner, Edit, Payment, CheckCircle} from "@mui/icons-material";
 import {useSale} from "../sale/useSale.js";
 import {useDeliveryOrder} from "./useDeliveryOrder.js";
 import {formatDate, formatCurrency} from "../../utils/formatters.js";
