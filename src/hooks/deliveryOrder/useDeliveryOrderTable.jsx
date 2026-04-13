@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {DocumentScanner, Edit, Info, Payment} from "@mui/icons-material";
+import {DocumentScanner, Edit, Info, Payment, CheckCircle} from "@mui/icons-material";
 import {useSale} from "../sale/useSale.js";
 import {useDeliveryOrder} from "./useDeliveryOrder.js";
 import {formatDate, formatCurrency} from "../../utils/formatters.js";
@@ -140,14 +140,20 @@ export const useDeliveryOrderTable = (deliveryOrders) => {
                                     <Edit/>
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip title="Marcar como Pendiente">
-                                <IconButton
-                                    size="small"
-                                    color="warning"
-                                    onClick={() => handleChangeDeliveryOrderStatus(params.row.id, {status: 'PENDIENTE'})}>
-                                    <Payment/>
-                                </IconButton>
-                            </Tooltip>
+                            {params.row.status !== 'CANCELADO' && (
+                                <Tooltip title={params.row.status === 'ACTIVO' ? "Marcar como Pendiente" : "Marcar como Activo"}>
+                                    <IconButton
+                                        size="small"
+                                        color={params.row.status === 'ACTIVO' ? "warning" : "success"}
+                                        onClick={() => {
+                                            const nextStatus = params.row.status === 'ACTIVO' ? 'PENDIENTE' : 'ACTIVO';
+                                            handleChangeDeliveryOrderStatus(params.row.id, {status: nextStatus});
+                                        }}
+                                    >
+                                        {params.row.status === 'ACTIVO' ? <Payment/> : <CheckCircle/>}
+                                    </IconButton>
+                                </Tooltip>
+                            )}
                         </>
                     )}
                     <Tooltip title={"Ticket"}>
