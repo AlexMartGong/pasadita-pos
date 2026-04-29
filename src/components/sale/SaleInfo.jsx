@@ -66,8 +66,9 @@ export const SaleInfo = ({
                                 onChange={(e) => onPaymentMethodChange(parseInt(e.target.value))}
                             >
                                 <option value={1}>Efectivo</option>
-                                <option value={2}>Tarjeta</option>
-                                <option value={3}>Transferencia</option>
+                                <option value={2}>Transferencia</option>
+                                <option value={3}>Tarjeta de Crédito</option>
+                                <option value={4}>Tarjeta de Débito</option>
                             </select>
                         </Grid>
                     </Grid>
