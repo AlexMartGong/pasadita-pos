@@ -24,7 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Provide a clear list of the files that need to be created or modified.
 ## Project Overview
 
-A Point of Sale (POS) system built with React + Vite frontend. The application manages employees, products, customers, customer types, customer fiscal data (CFDI 4.0), sales, and delivery orders with role-based access control. No test suite exists — there are no test files or test runner configured.
+A Point of Sale (POS) system built with React + Vite frontend. The application manages employees, products, customers, customer types, customer fiscal data (CFDI 4.0), sales, delivery orders, and invoices (CFDI 4.0 stamped via Facturapi) with role-based access control. No test suite exists — there are no test files or test runner configured.
 
 ## Development Commands
 
@@ -47,11 +47,11 @@ pnpm preview
 ### State Management
 - **Redux Toolkit** for global state management
 - Store location: `src/stores/store.js`
-- Slices: `auth`, `user`, `product`, `customer`, `customerType`, `customerFiscalData`, `sale`, `deliveryOrder`, `dashboard`
+- Slices: `auth`, `user`, `product`, `customer`, `customerType`, `customerFiscalData`, `sale`, `invoice`, `deliveryOrder`, `dashboard`
 - Each slice located in `src/stores/slices/{domain}/{domain}Slice.js`
 
 ### API Communication Pattern
-Three-layer architecture for each domain (user, product, customer, customerType, customerFiscalData, sale, deliveryOrder):
+Three-layer architecture for each domain (user, product, customer, customerType, customerFiscalData, sale, invoice, deliveryOrder):
 
 1. **API Layer** (`src/apis/{domain}Api.js`):
    - Axios instance with base URL from `VITE_API_BASE_URL` environment variable
@@ -63,6 +63,7 @@ Three-layer architecture for each domain (user, product, customer, customerType,
    - Functions for CRUD operations: `getAll`, `getById`, `save`, `update`, `delete`, `search`
    - Error handling and logging
    - Backend may not expose every CRUD verb (e.g. `customerFiscalData` lacks `delete` and `changeStatus` — service exposes only what the backend supports plus domain-specific lookups like `getByRfc`)
+   - Some domains break the CRUD shape entirely (e.g. `invoice` exposes `getAllInvoices` (paginated), `timbrarInvoice`, `cancelInvoice`, `downloadInvoicePdf/Xml` (with `responseType: 'blob'`), `sendInvoiceEmail` instead of save/update/delete)
 
 3. **Hook Layer** (`src/hooks/{domain}/use{Domain}.js`):
    - React hooks that combine services with Redux dispatch
@@ -78,7 +79,7 @@ Three-layer architecture for each domain (user, product, customer, customerType,
   - Unauthenticated users → `/login`
   - Authenticated users → `FruitRoute` (main app routes)
 - Route guards:
-  - `AdminRoute`: Admin-only routes (user management, products, customers, customer types, customer fiscal data)
+  - `AdminRoute`: Admin-only routes (user management, products, customers, customer types, customer fiscal data, invoices)
   - `ProtectedRoute`: Any authenticated user (sales, delivery, tickets)
 
 ### Routing Structure
@@ -100,7 +101,7 @@ Three-layer architecture for each domain (user, product, customer, customerType,
   - Handles HTTP status codes (400-503)
   - Shows toast notifications via react-toastify
   - Auto-logout on 401 responses
-- Domain hooks (`useUser`, `useProduct`, `useCustomer`, `useCustomerType`, `useCustomerFiscalData`, `useSale`, `useDeliveryOrder`): Combine service calls with Redux
+- Domain hooks (`useUser`, `useProduct`, `useCustomer`, `useCustomerType`, `useCustomerFiscalData`, `useSale`, `useInvoice`, `useDeliveryOrder`): Combine service calls with Redux
 - **Table hooks** (`use{Domain}Table.jsx`): Each table component has a companion hook that provides debounced search (300ms), filtered data, and MUI DataGrid column configuration
 - Special hooks:
   - `useSaleForm`: Complex form hook managing cart state, customer discounts, product search, validation, and delivery order integration. Supports two operation types: `'venta'` (sale) and `'pedido'` (delivery order)
@@ -165,3 +166,19 @@ When adding a new domain entity:
 - Entity fields: `fiscalId`, `rfc`, `razonSocial`, `regimenFiscal` (3-digit SAT code), `codigoPostalFiscal` (5 digits), `usoCfdi` (3–4 chars), `emailFacturacion`, `phone` (optional), `address` (optional), `active`, `createdAt`
 - Frontend route: `/customer-fiscal-data` (under `AdminRoute`)
 - Form uses MUI Grid v2 (`size={{xs,sm,md}}` prop), not Bootstrap — break from the older `customer`/`product` form pattern
+
+### invoice (Facturación CFDI 4.0)
+- Action-driven domain, **not CRUD**: invoices are not created via form — they are stamped from an existing paid sale.
+- Backend base path: `/api/invoices` (Facturapi-backed)
+- Available endpoints:
+  - `GET /` — paginated list (`?page&size&sort`), returns Spring `Page<InvoiceResponseDto>` (extract `data.content`)
+  - `POST /timbrar` — body `{ saleId, fiscalId }`, stamps the CFDI
+  - `DELETE /{invoiceId}?motive=02` — cancels (default SAT motive `"02"`)
+  - `GET /sale/{saleId}/pdf` and `/xml` — return `byte[]` (use `responseType: 'blob'`)
+  - `POST /sale/{saleId}/email?email=foo@bar.com` — email is **query param**, body is `null`
+- Entity/response fields: `invoiceId`, `saleId`, `fiscalId`, `rfc`, `razonSocial`, `uuid`, `status`, `xmlUrl`, `pdfUrl`, `createdAt`, `timbradoAt`
+- `status` ∈ `PENDIENTE | TIMBRADA | CANCELADA | ERROR`. PDF/XML/email/cancel actions are only valid when `status === 'TIMBRADA'` — UI must disable buttons otherwise.
+- Slice state is minimal: `{ invoiceList, loading }` (no `invoiceSelected`; no edit form)
+- Hook (`useInvoice`) exposes a special `handleDownloadFile(saleId, type)` that wraps the blob response into `URL.createObjectURL` + temporary `<a download>` to trigger browser download, then `revokeObjectURL`.
+- Frontend route: `/invoices` (under `AdminRoute`); listed in Sidebar as "Facturas" (`ReceiptLong` icon)
+- Confirmation dialogs (cancel + email-prompt) are inline MUI `Dialog`s in `InvoiceTable.jsx` — the existing `src/components/product/ConfirmDialog.jsx` is product-coupled (props like `modifiedProductsCount`) and not reusable for this domain.
