@@ -28,6 +28,17 @@ const REGIMEN_FISCAL_OPTIONS = [
     {code: '626', label: '626 - Régimen Simplificado de Confianza'},
 ];
 
+const USO_CFDI_OPTIONS = [
+    {code: 'G01', label: 'G01 - Adquisición de mercancías'},
+    {code: 'G03', label: 'G03 - Gastos en general'},
+    {code: 'S01', label: 'S01 - Sin efectos fiscales'},
+    {code: 'P01', label: 'P01 - Por definir'},
+    {code: 'CP01', label: 'CP01 - Pagos'},
+    {code: 'D01', label: 'D01 - Honorarios médicos, dentales y hospitalarios'},
+    {code: 'D10', label: 'D10 - Pagos por servicios educativos'},
+    {code: 'I08', label: 'I08 - Otra maquinaria y equipo'},
+];
+
 const RFC_REGEX = /^([A-ZÑ&]{3,4})(\d{6})([A-Z\d]{3})$/;
 
 export const CustomerFiscalDataForm = ({fiscalDataSelected}) => {
@@ -216,13 +227,21 @@ export const CustomerFiscalDataForm = ({fiscalDataSelected}) => {
                                 <TextField
                                     fullWidth
                                     required
+                                    select
                                     label="Uso CFDI"
                                     value={formData.usoCfdi}
                                     onChange={handleInputChange('usoCfdi')}
                                     error={!!errors.usoCfdi}
-                                    helperText={errors.usoCfdi || 'Ej. G03, P01, S01'}
-                                    slotProps={{htmlInput: {maxLength: 4, style: {textTransform: 'uppercase'}}}}
-                                />
+                                    helperText={errors.usoCfdi || 'Código SAT del uso del comprobante'}>
+                                    <MenuItem value="">
+                                        <em>Seleccione un uso CFDI</em>
+                                    </MenuItem>
+                                    {USO_CFDI_OPTIONS.map(opt => (
+                                        <MenuItem key={opt.code} value={opt.code}>
+                                            {opt.label}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
                             </Grid>
 
                             <Grid size={{xs: 12, sm: 6}}>
