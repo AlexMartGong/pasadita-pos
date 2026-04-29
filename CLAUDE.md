@@ -104,7 +104,7 @@ Three-layer architecture for each domain (user, product, customer, customerType,
 - Domain hooks (`useUser`, `useProduct`, `useCustomer`, `useCustomerType`, `useCustomerFiscalData`, `useSale`, `useInvoice`, `useDeliveryOrder`): Combine service calls with Redux
 - **Table hooks** (`use{Domain}Table.jsx`): Each table component has a companion hook that provides debounced search (300ms), filtered data, and MUI DataGrid column configuration
 - Special hooks:
-  - `useSaleForm`: Complex form hook managing cart state, customer discounts, product search, validation, and delivery order integration. Supports two operation types: `'venta'` (sale) and `'pedido'` (delivery order)
+  - `useSaleForm`: Complex form hook managing cart state, customer discounts, product search, validation, delivery order integration, and **hot-stamp invoicing** (composes `useCustomerFiscalData` for the fiscal-profile list and `useInvoice` to call `handleTimbrarInvoice` after a successful save). Supports two operation types: `'venta'` (sale) and `'pedido'` (delivery order). Exposes `requiresInvoice`, `selectedFiscalId`, `customerFiscalDataList`, and their setters alongside the cart/customer state.
   - `useScale`: Hardware integration for digital scales with weight reading, connection management, and polling
 
 ### Ticket/Printing System
@@ -182,3 +182,4 @@ When adding a new domain entity:
 - Hook (`useInvoice`) exposes a special `handleDownloadFile(saleId, type)` that wraps the blob response into `URL.createObjectURL` + temporary `<a download>` to trigger browser download, then `revokeObjectURL`.
 - Frontend route: `/invoices` (under `AdminRoute`); listed in Sidebar as "Facturas" (`ReceiptLong` icon)
 - Confirmation dialogs (cancel + email-prompt) are inline MUI `Dialog`s in `InvoiceTable.jsx` — the existing `src/components/product/ConfirmDialog.jsx` is product-coupled (props like `modifiedProductsCount`) and not reusable for this domain.
+- **Hot-stamp at checkout (timbrado en caliente):** `PaymentModal.jsx` exposes a "Requiere Factura" `Checkbox` + conditional fiscal-profile `Select` populated from `state.customerFiscalData.customerFiscalDataList` (filtered to `active === true`, label `${rfc} - ${razonSocial}`). `useSaleForm.handleSubmit` chains `handleTimbrarInvoice({saleId: result.id, fiscalId: selectedFiscalId})` **after** `handleSaveSale` resolves successfully — non-blocking: a stamping failure must not roll back or block the already-committed sale (the hook toasts internally and returns `null` on error). Save is disabled when `requiresInvoice && !selectedFiscalId`. SAT-rule warning: when `requiresInvoice && total > 2000 && paymentMethodId === 1` (efectivo), render `<Alert severity="warning">` — visual only, never blocks save.

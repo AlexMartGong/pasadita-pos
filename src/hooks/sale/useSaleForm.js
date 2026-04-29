@@ -4,6 +4,8 @@ import {useSale} from './useSale';
 import {useCustomer} from '../customer/useCustomer';
 import {useProduct} from '../product/useProduct';
 import {useUser} from '../user/useUser';
+import {useCustomerFiscalData} from '../customerFiscalData/useCustomerFiscalData';
+import {useInvoice} from '../invoice/useInvoice';
 import {useAuth} from '../../auth/hooks/useAuth';
 import {deliveryOrderService} from '../../services/deliveryOrderService';
 import {getSaleDetailsById} from '../../services/saleService';
@@ -18,8 +20,13 @@ export const useSaleForm = (saleSelected) => {
     const {customers, handleGetCustomers} = useCustomer();
     const {products, handleGetProducts} = useProduct();
     const {users, getAllUsers} = useUser();
+    const {handleGetAllFiscalData} = useCustomerFiscalData();
+    const {handleTimbrarInvoice} = useInvoice();
     const {user, employeeId, role} = useAuth();
     const {activeDraft} = useSelector(state => state.sale);
+    const customerFiscalDataList = useSelector(
+        (state) => state.customerFiscalData.customerFiscalDataList
+    );
 
     const isEditMode = saleSelected && saleSelected.id !== 0;
 
@@ -46,6 +53,9 @@ export const useSaleForm = (saleSelected) => {
     const [amountTendered, setAmountTendered] = useState(() => !isEditMode ? (activeDraft.amountTendered ?? '') : '');
 
     const [operationType, setOperationType] = useState(() => !isEditMode ? activeDraft.operationType : 'venta'); // 'venta' o 'pedido'
+
+    const [requiresInvoice, setRequiresInvoice] = useState(false);
+    const [selectedFiscalId, setSelectedFiscalId] = useState(null);
 
     const hasDeliveryRole = role && (role.includes('ROLE_PEDIDOS') || role.includes('ROLE_ADMIN'));
 
@@ -79,6 +89,7 @@ export const useSaleForm = (saleSelected) => {
     useEffect(() => {
         handleGetCustomers();
         handleGetProducts();
+        handleGetAllFiscalData();
         if (hasDeliveryRole) {
             getAllUsers();
         }
@@ -327,6 +338,8 @@ export const useSaleForm = (saleSelected) => {
         setDeliveryCost(0);
         setAmountTendered('');
         setOperationType('venta');
+        setRequiresInvoice(false);
+        setSelectedFiscalId(null);
         setErrors({});
         dispatch(clearActiveDraft());
 
@@ -387,6 +400,12 @@ export const useSaleForm = (saleSelected) => {
 
             const result = await handleSaveSale(saleData);
             if (result) {
+                if (requiresInvoice && selectedFiscalId) {
+                    await handleTimbrarInvoice({
+                        saleId: result.id,
+                        fiscalId: selectedFiscalId,
+                    });
+                }
                 handleLocalCancel();
             }
         } catch (error) {
@@ -422,6 +441,11 @@ export const useSaleForm = (saleSelected) => {
         deliveryCost,
         amountTendered,
         changeDue,
+        requiresInvoice,
+        selectedFiscalId,
+        customerFiscalDataList,
+        setRequiresInvoice,
+        setSelectedFiscalId,
         setProductSearch,
         setSelectedProductData: updateSelectedProductData,
         setPaymentMethodId,
