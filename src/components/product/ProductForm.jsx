@@ -17,7 +17,8 @@ export const ProductForm = ({productSelected}) => {
                 category: productSelected.category || '',
                 price: productSelected.price || 0,
                 unitMeasure: productSelected.unitMeasure || '',
-                active: productSelected.active !== undefined ? productSelected.active : true
+                active: productSelected.active !== undefined ? productSelected.active : true,
+                claveProductoSat: productSelected.claveProductoSat || '01010101'
             })
         }
     }, [productSelected]);
@@ -54,6 +55,13 @@ export const ProductForm = ({productSelected}) => {
         // Unit measure validation
         if (!formData.unitMeasure) {
             newErrors.unitMeasure = 'La unidad de medida es obligatoria';
+        }
+
+        // Clave SAT validation
+        if (!formData.claveProductoSat || !formData.claveProductoSat.trim()) {
+            newErrors.claveProductoSat = 'La clave SAT es obligatoria';
+        } else if (!/^\d{8}$/.test(formData.claveProductoSat.trim())) {
+            newErrors.claveProductoSat = 'La clave SAT debe tener exactamente 8 dígitos';
         }
 
         setErrors(newErrors);
@@ -99,7 +107,8 @@ export const ProductForm = ({productSelected}) => {
                 category: formData.category,
                 price: parseFloat(formData.price),
                 unitMeasure: formData.unitMeasure,
-                active: formData.active
+                active: formData.active,
+                claveProductoSat: formData.claveProductoSat.trim()
             };
 
             console.log('Product Data:', productData);
@@ -200,6 +209,30 @@ export const ProductForm = ({productSelected}) => {
                                         {errors.unitMeasure && (
                                             <div className="invalid-feedback">
                                                 {errors.unitMeasure}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="col-12 col-sm-6">
+                                        <label htmlFor="claveProductoSat" className="form-label">
+                                            Clave SAT <span className="text-danger">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className={`form-control ${errors.claveProductoSat ? 'is-invalid' : ''}`}
+                                            id="claveProductoSat"
+                                            value={formData.claveProductoSat}
+                                            onChange={handleInputChange('claveProductoSat')}
+                                            onKeyDown={(e) => {
+                                                if (e.key.length === 1 && !/[0-9]/.test(e.key)) e.preventDefault();
+                                            }}
+                                            maxLength={8}
+                                            inputMode="numeric"
+                                            required
+                                        />
+                                        {errors.claveProductoSat && (
+                                            <div className="invalid-feedback">
+                                                {errors.claveProductoSat}
                                             </div>
                                         )}
                                     </div>

@@ -9,7 +9,7 @@ export const getProducts = async () => {
     }
 };
 
-export const createProduct = async ({name, category, price, unitMeasure, active}) => {
+export const createProduct = async ({name, category, price, unitMeasure, active, claveProductoSat}) => {
     try {
         return await productApi.post('/save', {
             name,
@@ -17,6 +17,7 @@ export const createProduct = async ({name, category, price, unitMeasure, active}
             price,
             unitMeasure,
             active,
+            claveProductoSat,
         });
     } catch (error) {
         console.error('Error creating product:', error);
@@ -24,7 +25,7 @@ export const createProduct = async ({name, category, price, unitMeasure, active}
     }
 };
 
-export const updateProduct = async ({id, name, category, price, unitMeasure, active}) => {
+export const updateProduct = async ({id, name, category, price, unitMeasure, active, claveProductoSat}) => {
     try {
         return await productApi.put(`/update/${id}`, {
             name,
@@ -32,6 +33,7 @@ export const updateProduct = async ({id, name, category, price, unitMeasure, act
             price,
             unitMeasure,
             active,
+            claveProductoSat,
         });
     } catch (error) {
         console.error('Error updating product:', error);

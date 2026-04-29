@@ -24,7 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Provide a clear list of the files that need to be created or modified.
 ## Project Overview
 
-A Point of Sale (POS) system built with React + Vite frontend. The application manages employees, products, customers, customer types, sales, and delivery orders with role-based access control. No test suite exists — there are no test files or test runner configured.
+A Point of Sale (POS) system built with React + Vite frontend. The application manages employees, products, customers, customer types, customer fiscal data (CFDI 4.0), sales, and delivery orders with role-based access control. No test suite exists — there are no test files or test runner configured.
 
 ## Development Commands
 
@@ -47,11 +47,11 @@ pnpm preview
 ### State Management
 - **Redux Toolkit** for global state management
 - Store location: `src/stores/store.js`
-- Slices: `auth`, `user`, `product`, `customer`, `customerType`, `sale`, `deliveryOrder`
+- Slices: `auth`, `user`, `product`, `customer`, `customerType`, `customerFiscalData`, `sale`, `deliveryOrder`, `dashboard`
 - Each slice located in `src/stores/slices/{domain}/{domain}Slice.js`
 
 ### API Communication Pattern
-Three-layer architecture for each domain (user, product, customer, customerType, sale, deliveryOrder):
+Three-layer architecture for each domain (user, product, customer, customerType, customerFiscalData, sale, deliveryOrder):
 
 1. **API Layer** (`src/apis/{domain}Api.js`):
    - Axios instance with base URL from `VITE_API_BASE_URL` environment variable
@@ -62,6 +62,7 @@ Three-layer architecture for each domain (user, product, customer, customerType,
    - Business logic and API calls
    - Functions for CRUD operations: `getAll`, `getById`, `save`, `update`, `delete`, `search`
    - Error handling and logging
+   - Backend may not expose every CRUD verb (e.g. `customerFiscalData` lacks `delete` and `changeStatus` — service exposes only what the backend supports plus domain-specific lookups like `getByRfc`)
 
 3. **Hook Layer** (`src/hooks/{domain}/use{Domain}.js`):
    - React hooks that combine services with Redux dispatch
@@ -77,13 +78,14 @@ Three-layer architecture for each domain (user, product, customer, customerType,
   - Unauthenticated users → `/login`
   - Authenticated users → `FruitRoute` (main app routes)
 - Route guards:
-  - `AdminRoute`: Admin-only routes (user management, products, customers)
+  - `AdminRoute`: Admin-only routes (user management, products, customers, customer types, customer fiscal data)
   - `ProtectedRoute`: Any authenticated user (sales, delivery, tickets)
 
 ### Routing Structure
 - `src/AppRoutes.jsx`: Top-level auth routing
 - `src/routes/FruitRoute.jsx`: Main application routes with Sidebar layout
 - Pattern: Domain resources use CRUD routes (`/{domain}`, `/{domain}/register`, `/{domain}/edit/:id`)
+- Multi-word domains use kebab-case in URLs (e.g. `customerFiscalData` → `/customer-fiscal-data`, `/customer-fiscal-data/register`, `/customer-fiscal-data/edit/:id`)
 
 ### Component Organization
 - `src/components/layout/`: Layout components (Sidebar)
@@ -98,7 +100,7 @@ Three-layer architecture for each domain (user, product, customer, customerType,
   - Handles HTTP status codes (400-503)
   - Shows toast notifications via react-toastify
   - Auto-logout on 401 responses
-- Domain hooks (`useUser`, `useProduct`, `useCustomer`, `useCustomerType`, `useSale`, `useDeliveryOrder`): Combine service calls with Redux
+- Domain hooks (`useUser`, `useProduct`, `useCustomer`, `useCustomerType`, `useCustomerFiscalData`, `useSale`, `useDeliveryOrder`): Combine service calls with Redux
 - **Table hooks** (`use{Domain}Table.jsx`): Each table component has a companion hook that provides debounced search (300ms), filtered data, and MUI DataGrid column configuration
 - Special hooks:
   - `useSaleForm`: Complex form hook managing cart state, customer discounts, product search, validation, and delivery order integration. Supports two operation types: `'venta'` (sale) and `'pedido'` (delivery order)
@@ -152,3 +154,14 @@ When adding a new domain entity:
 7. Create components in `src/components/{domain}/`
 8. Create pages in `src/pages/{domain}/`
 9. Add routes to `src/routes/FruitRoute.jsx`
+10. Add Sidebar entry in `src/components/layout/Sidebar.jsx` (icon + label + path)
+
+## Domain Reference
+
+### customerFiscalData (CFDI 4.0)
+- Independent entity (no FK to `customer`); identified by `fiscalId`
+- Backend base path: `/api/customer-fiscal-data`
+- Available endpoints: `getAll`, `getById`, `getByRfc/{rfc}`, `save`, `update`. **No delete, no change-status.**
+- Entity fields: `fiscalId`, `rfc`, `razonSocial`, `regimenFiscal` (3-digit SAT code), `codigoPostalFiscal` (5 digits), `usoCfdi` (3–4 chars), `emailFacturacion`, `phone` (optional), `address` (optional), `active`, `createdAt`
+- Frontend route: `/customer-fiscal-data` (under `AdminRoute`)
+- Form uses MUI Grid v2 (`size={{xs,sm,md}}` prop), not Bootstrap — break from the older `customer`/`product` form pattern

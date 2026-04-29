@@ -70,6 +70,12 @@ export const useProductTable = (products) => {
             width: 150,
         },
         {
+            field: "claveProductoSat",
+            headerName: "Clave SAT",
+            width: 120,
+            sortable: true,
+        },
+        {
             field: "active",
             headerName: "Activo",
             width: 100,
