@@ -174,7 +174,7 @@ export const CustomerFiscalDataForm = ({fiscalDataSelected}) => {
                                     onChange={handleInputChange('rfc')}
                                     error={!!errors.rfc}
                                     helperText={errors.rfc}
-                                    inputProps={{maxLength: 13, style: {textTransform: 'uppercase'}}}
+                                    slotProps={{htmlInput: {maxLength: 13, style: {textTransform: 'uppercase'}}}}
                                 />
                             </Grid>
 
@@ -187,7 +187,7 @@ export const CustomerFiscalDataForm = ({fiscalDataSelected}) => {
                                     onChange={handleInputChange('razonSocial')}
                                     error={!!errors.razonSocial}
                                     helperText={errors.razonSocial}
-                                    inputProps={{maxLength: 150}}
+                                    slotProps={{htmlInput: {maxLength: 150}}}
                                 />
                             </Grid>
 
@@ -221,7 +221,7 @@ export const CustomerFiscalDataForm = ({fiscalDataSelected}) => {
                                     onChange={handleInputChange('usoCfdi')}
                                     error={!!errors.usoCfdi}
                                     helperText={errors.usoCfdi || 'Ej. G03, P01, S01'}
-                                    inputProps={{maxLength: 4, style: {textTransform: 'uppercase'}}}
+                                    slotProps={{htmlInput: {maxLength: 4, style: {textTransform: 'uppercase'}}}}
                                 />
                             </Grid>
 
@@ -234,7 +234,7 @@ export const CustomerFiscalDataForm = ({fiscalDataSelected}) => {
                                     onChange={handleInputChange('codigoPostalFiscal')}
                                     error={!!errors.codigoPostalFiscal}
                                     helperText={errors.codigoPostalFiscal}
-                                    inputProps={{maxLength: 5, inputMode: 'numeric'}}
+                                    slotProps={{htmlInput: {maxLength: 5, inputMode: 'numeric'}}}
                                 />
                             </Grid>
 
@@ -248,7 +248,7 @@ export const CustomerFiscalDataForm = ({fiscalDataSelected}) => {
                                     onChange={handleInputChange('emailFacturacion')}
                                     error={!!errors.emailFacturacion}
                                     helperText={errors.emailFacturacion}
-                                    inputProps={{maxLength: 100}}
+                                    slotProps={{htmlInput: {maxLength: 100}}}
                                 />
                             </Grid>
 
@@ -260,7 +260,7 @@ export const CustomerFiscalDataForm = ({fiscalDataSelected}) => {
                                     onChange={handleInputChange('phone')}
                                     error={!!errors.phone}
                                     helperText={errors.phone || 'Opcional'}
-                                    inputProps={{maxLength: 15, inputMode: 'tel'}}
+                                    slotProps={{htmlInput: {maxLength: 15, inputMode: 'tel'}}}
                                 />
                             </Grid>
 
@@ -288,7 +288,7 @@ export const CustomerFiscalDataForm = ({fiscalDataSelected}) => {
                                     onChange={handleInputChange('address')}
                                     error={!!errors.address}
                                     helperText={errors.address || 'Opcional'}
-                                    inputProps={{maxLength: 200}}
+                                    slotProps={{htmlInput: {maxLength: 200}}}
                                 />
                             </Grid>
 
