@@ -6,6 +6,7 @@ import {customerSlice} from "./slices/customer/customerSlice.js";
 import {customerTypeSlice} from "./slices/customer/customerTypeSlice.js";
 import {customerFiscalDataSlice} from "./slices/customerFiscalData/customerFiscalDataSlice.js";
 import {saleSlice} from "./slices/sale/saleSlice.js";
+import {invoiceSlice} from "./slices/invoice/invoiceSlice.js";
 import {deliveryOrderSlice} from "./slices/deliveryOrder/deliveryOrderSlice.js";
 import {dashboardSlice} from "./slices/dashboard/dashboardSlice.js";
 
@@ -18,6 +19,7 @@ export const store = configureStore({
         customerType: customerTypeSlice.reducer,
         customerFiscalData: customerFiscalDataSlice.reducer,
         sale: saleSlice.reducer,
+        invoice: invoiceSlice.reducer,
         deliveryOrder: deliveryOrderSlice.reducer,
         dashboard: dashboardSlice.reducer,
     },

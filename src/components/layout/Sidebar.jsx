@@ -63,7 +63,8 @@ export const Sidebar = () => {
             'bi-truck': <PointOfSale/>,
             'bi-cart-plus': <PointOfSale/>,
             'bi-pending': <PendingActions/>,
-            'bi-receipt-fiscal': <Receipt/>
+            'bi-receipt-fiscal': <Receipt/>,
+            'bi-invoice': <ReceiptLong/>
         };
         return icons[iconName] || <Dashboard/>;
     };
@@ -86,6 +87,7 @@ export const Sidebar = () => {
         {path: '/customers', icon: 'bi-people', label: 'Clientes'},
         {path: '/customer-types', icon: 'bi-category', label: 'Tipos de Clientes'},
         {path: '/customer-fiscal-data', icon: 'bi-receipt-fiscal', label: 'Datos Fiscales'},
+        {path: '/invoices', icon: 'bi-invoice', label: 'Facturas'},
     ];
 
     const menuItems = hasLimitedAccess ? limitedMenuItems : fullMenuItems;

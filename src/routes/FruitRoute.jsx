@@ -23,6 +23,7 @@ import {RegisterSalePage} from "../pages/sale/RegisterSalePage.jsx";
 import {DeliveryPage} from "../pages/delivery/deliveryPage.jsx";
 import {PendingDeliveryPage} from "../pages/delivery/PendingDeliveryPage.jsx";
 import {TicketPage} from "../pages/sale/TicketPage.jsx";
+import {InvoicePage} from "../pages/invoice/InvoicePage.jsx";
 
 export const FruitRoute = () => {
     useEffect(() => {
@@ -159,6 +160,11 @@ export const FruitRoute = () => {
                         <ProtectedRoute>
                             <TicketPage/>
                         </ProtectedRoute>
+                    }/>
+                    <Route path="invoices" element={
+                        <AdminRoute>
+                            <InvoicePage/>
+                        </AdminRoute>
                     }/>
                 </Routes>
             </Box>
