@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 import {useSale} from "./useSale.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {DocumentScanner, Edit, Payment} from "@mui/icons-material";
+import {DocumentScanner, Edit, Payment, ReceiptLong} from "@mui/icons-material";
 import {formatDate, formatCurrency} from "../../utils/formatters.js";
 import {useAuth} from "../../auth/hooks/useAuth.js";
 
@@ -50,6 +50,19 @@ export const useSaleTable = (sales, filterOption = FILTER_OPTIONS.TODAY_ALL) => 
     const debouncedSearchText = useDebounce(searchText, 300);
     const {handleSaleEdit, handlePaymentToggle, handlePrintTicket} = useSale();
     const {isAdmin} = useAuth();
+
+    const [selectedSaleIdForInvoice, setSelectedSaleIdForInvoice] = useState(null);
+    const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+
+    const handleOpenInvoiceModal = useCallback((saleId) => {
+        setSelectedSaleIdForInvoice(saleId);
+        setIsInvoiceModalOpen(true);
+    }, []);
+
+    const handleCloseInvoiceModal = useCallback(() => {
+        setIsInvoiceModalOpen(false);
+        setSelectedSaleIdForInvoice(null);
+    }, []);
 
     const filteredSales = useMemo(() => {
         if (!sales) return [];
@@ -158,7 +171,7 @@ export const useSaleTable = (sales, filterOption = FILTER_OPTIONS.TODAY_ALL) => 
         {
             field: "actions",
             headerName: "Acciones",
-            width: 250,
+            width: 280,
             sortable: false,
             filterable: false,
             renderCell: (params) => (
@@ -180,6 +193,14 @@ export const useSaleTable = (sales, filterOption = FILTER_OPTIONS.TODAY_ALL) => 
                                     <Payment/>
                                 </IconButton>
                             </Tooltip>
+                            <Tooltip title="Generar Factura">
+                                <IconButton
+                                    size="small"
+                                    color="secondary"
+                                    onClick={() => handleOpenInvoiceModal(params.row.id)}>
+                                    <ReceiptLong/>
+                                </IconButton>
+                            </Tooltip>
                         </>
                     )}
                     <Tooltip title={"Ticket"}>
@@ -194,7 +215,7 @@ export const useSaleTable = (sales, filterOption = FILTER_OPTIONS.TODAY_ALL) => 
 
             ),
         },
-    ], [isAdmin, handleSaleEdit, handlePaymentToggle, handlePrintTicket]);
+    ], [isAdmin, handleSaleEdit, handlePaymentToggle, handlePrintTicket, handleOpenInvoiceModal]);
 
     return {
         setSearchText: handleSearchChange,
@@ -203,5 +224,9 @@ export const useSaleTable = (sales, filterOption = FILTER_OPTIONS.TODAY_ALL) => 
         filteredCount,
         filteredTotal,
         columns,
+        selectedSaleIdForInvoice,
+        isInvoiceModalOpen,
+        handleOpenInvoiceModal,
+        handleCloseInvoiceModal,
     };
 };

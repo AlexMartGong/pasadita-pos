@@ -4,10 +4,14 @@ import {useSaleTable} from "../../hooks/sale/useSaleTable.jsx";
 import {Box, Paper, TextField} from "@mui/material";
 import {DataGrid} from "@mui/x-data-grid";
 import {userTableStyles} from "../../styles/js/UserTable.js";
+import {InvoiceSaleModal} from "./InvoiceSaleModal.jsx";
 
 export const SaleTable = ({filterOption, onStatsChange}) => {
     const {sales, handleGetSales} = useSale();
-    const {searchText, setSearchText, filteredSales, filteredCount, filteredTotal, columns} = useSaleTable(sales, filterOption);
+    const {
+        searchText, setSearchText, filteredSales, filteredCount, filteredTotal, columns,
+        selectedSaleIdForInvoice, isInvoiceModalOpen, handleCloseInvoiceModal,
+    } = useSaleTable(sales, filterOption);
 
     useEffect(() => {
         handleGetSales();
@@ -43,6 +47,11 @@ export const SaleTable = ({filterOption, onStatsChange}) => {
                     sx={userTableStyles.dataGrid}
                 />
             </Box>
+            <InvoiceSaleModal
+                open={isInvoiceModalOpen}
+                onClose={handleCloseInvoiceModal}
+                saleId={selectedSaleIdForInvoice}
+            />
         </Paper>
     );
 };
