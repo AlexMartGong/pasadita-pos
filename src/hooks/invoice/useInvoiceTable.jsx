@@ -28,10 +28,23 @@ const STATUS_CHIP = {
     ERROR: {label: 'Error', color: 'default'},
 };
 
-export const useInvoiceTable = (invoiceList, {onRequestCancel, onRequestEmail} = {}) => {
+export const useInvoiceTable = (invoiceList, {onRequestCancel} = {}) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
     const {handleDownloadFile} = useInvoice();
+
+    const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+    const [selectedInvoiceForEmail, setSelectedInvoiceForEmail] = useState(null);
+
+    const handleOpenEmailModal = useCallback((row) => {
+        setSelectedInvoiceForEmail(row);
+        setIsEmailModalOpen(true);
+    }, []);
+
+    const handleCloseEmailModal = useCallback(() => {
+        setIsEmailModalOpen(false);
+        setSelectedInvoiceForEmail(null);
+    }, []);
 
     const filteredInvoiceList = useMemo(() => {
         if (!invoiceList || !debouncedSearchText) return invoiceList || [];
@@ -138,7 +151,7 @@ export const useInvoiceTable = (invoiceList, {onRequestCancel, onRequestEmail} =
                                     size="small"
                                     color="info"
                                     disabled={!enabled}
-                                    onClick={() => onRequestEmail?.(params.row)}>
+                                    onClick={() => handleOpenEmailModal(params.row)}>
                                     <Email fontSize="small"/>
                                 </IconButton>
                             </span>
@@ -158,12 +171,15 @@ export const useInvoiceTable = (invoiceList, {onRequestCancel, onRequestEmail} =
                 );
             },
         },
-    ], [handleDownloadFile, onRequestCancel, onRequestEmail]);
+    ], [handleDownloadFile, onRequestCancel, handleOpenEmailModal]);
 
     return {
         searchText,
         setSearchText: handleSearchChange,
         filteredInvoiceList,
         columns,
+        isEmailModalOpen,
+        selectedInvoiceForEmail,
+        handleCloseEmailModal,
     };
 };

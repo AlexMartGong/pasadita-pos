@@ -21,7 +21,7 @@ export const useSaleForm = (saleSelected) => {
     const {products, handleGetProducts} = useProduct();
     const {users, getAllUsers} = useUser();
     const {handleGetAllFiscalData} = useCustomerFiscalData();
-    const {handleTimbrarInvoice} = useInvoice();
+    const {handleTimbrarInvoice, handleSendInvoiceEmail} = useInvoice();
     const {user, employeeId, role} = useAuth();
     const {activeDraft} = useSelector(state => state.sale);
     const customerFiscalDataList = useSelector(
@@ -401,10 +401,19 @@ export const useSaleForm = (saleSelected) => {
             const result = await handleSaveSale(saleData);
             if (result) {
                 if (requiresInvoice && selectedFiscalId) {
-                    await handleTimbrarInvoice({
+                    const invoiceResult = await handleTimbrarInvoice({
                         saleId: result.id,
                         fiscalId: selectedFiscalId,
                     });
+                    if (invoiceResult) {
+                        const fiscalData = customerFiscalDataList.find(
+                            f => f.fiscalId === selectedFiscalId
+                        );
+                        if (fiscalData?.emailFacturacion) {
+                            handleSendInvoiceEmail(result.id, fiscalData.emailFacturacion)
+                                .catch(() => {});
+                        }
+                    }
                 }
                 handleLocalCancel();
             }
