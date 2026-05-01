@@ -74,6 +74,7 @@ export const Sidebar = () => {
         {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
         {path: '/pending', icon: 'bi-pending', label: 'Pendientes'},
         {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
+        {path: '/invoices', icon: 'bi-invoice', label: 'Facturas'},
     ];
 
     const fullMenuItems = [

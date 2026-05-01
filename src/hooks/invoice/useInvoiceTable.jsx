@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useState, useCallback} from "react";
+import {useSelector} from "react-redux";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
 import {PictureAsPdf, Code, Email, Cancel} from "@mui/icons-material";
 import {userTableStyles} from "../../styles/js/UserTable.js";
@@ -32,6 +33,7 @@ export const useInvoiceTable = (invoiceList, {onRequestCancel} = {}) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
     const {handleDownloadFile} = useInvoice();
+    const {isAdmin} = useSelector((state) => state.auth);
 
     const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
     const [selectedInvoiceForEmail, setSelectedInvoiceForEmail] = useState(null);
@@ -156,22 +158,24 @@ export const useInvoiceTable = (invoiceList, {onRequestCancel} = {}) => {
                                 </IconButton>
                             </span>
                         </Tooltip>
-                        <Tooltip title="Cancelar factura">
-                            <span>
-                                <IconButton
-                                    size="small"
-                                    color="warning"
-                                    disabled={!enabled}
-                                    onClick={() => onRequestCancel?.(params.row)}>
-                                    <Cancel fontSize="small"/>
-                                </IconButton>
-                            </span>
-                        </Tooltip>
+                        {isAdmin && (
+                            <Tooltip title="Cancelar factura">
+                                <span>
+                                    <IconButton
+                                        size="small"
+                                        color="warning"
+                                        disabled={!enabled}
+                                        onClick={() => onRequestCancel?.(params.row)}>
+                                        <Cancel fontSize="small"/>
+                                    </IconButton>
+                                </span>
+                            </Tooltip>
+                        )}
                     </Box>
                 );
             },
         },
-    ], [handleDownloadFile, onRequestCancel, handleOpenEmailModal]);
+    ], [handleDownloadFile, onRequestCancel, handleOpenEmailModal, isAdmin]);
 
     return {
         searchText,
