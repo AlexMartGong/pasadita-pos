@@ -160,7 +160,7 @@ export const useSaleForm = (saleSelected) => {
     }, [customers, formData.customerId, isEditMode]);
 
     const calculateTotal = (details) => {
-        return details.reduce((sum, detail) => sum + detail.total, 0);
+        return formatToTwoDecimals(details.reduce((sum, detail) => sum + detail.total, 0));
     };
 
     const getCustomerDiscount = useCallback(() => {
@@ -179,9 +179,9 @@ export const useSaleForm = (saleSelected) => {
                 const updatedDetails = prevDetails.map(detail => {
                     const quantity = detail.quantity;
                     const unitPrice = detail.unitPrice;
-                    const subtotal = quantity * unitPrice;
-                    const discountTotal = quantity * discountAmount;
-                    const total = subtotal - discountTotal;
+                    const subtotal = formatToTwoDecimals(quantity * unitPrice);
+                    const discountTotal = formatToTwoDecimals(quantity * discountAmount);
+                    const total = formatToTwoDecimals(subtotal - discountTotal);
 
                     return {
                         ...detail,
@@ -235,18 +235,18 @@ export const useSaleForm = (saleSelected) => {
         const quantity = parseFloat(selectedProductData.quantity);
         const unitPrice = parseFloat(selectedProductData.originalPrice);
         const discountPerUnit = selectedProductData.discount;
-        const subtotal = quantity * unitPrice;
-        const discountAmount = quantity * discountPerUnit;
-        const total = subtotal - discountAmount;
+        const subtotal = formatToTwoDecimals(quantity * unitPrice);
+        const discountAmount = formatToTwoDecimals(quantity * discountPerUnit);
+        const total = formatToTwoDecimals(subtotal - discountAmount);
 
         const existingDetail = saleDetails.find(d => d.productId === selectedProductData.id);
 
         let newDetails;
         if (existingDetail) {
             const newQuantity = parseFloat(existingDetail.quantity) + quantity;
-            const newSubtotal = newQuantity * unitPrice;
-            const newDiscountAmount = newQuantity * discountPerUnit;
-            const newTotal = newSubtotal - newDiscountAmount;
+            const newSubtotal = formatToTwoDecimals(newQuantity * unitPrice);
+            const newDiscountAmount = formatToTwoDecimals(newQuantity * discountPerUnit);
+            const newTotal = formatToTwoDecimals(newSubtotal - newDiscountAmount);
 
             newDetails = saleDetails.map(d =>
                 d.productId === selectedProductData.id
