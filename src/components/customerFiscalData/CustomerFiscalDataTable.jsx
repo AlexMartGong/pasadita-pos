@@ -1,32 +1,29 @@
-import {useSale} from "../../hooks/sale/useSale.js";
 import {useEffect} from "react";
-import {useSaleTable} from "../../hooks/sale/useSaleTable.jsx";
+import {useCustomerFiscalData} from "../../hooks/customerFiscalData/useCustomerFiscalData.js";
+import {useCustomerFiscalDataTable} from "../../hooks/customerFiscalData/useCustomerFiscalDataTable.jsx";
 import {Box, Paper, TextField} from "@mui/material";
 import {DataGrid} from "@mui/x-data-grid";
 import {userTableStyles} from "../../styles/js/UserTable.js";
-import {InvoiceSaleModal} from "./InvoiceSaleModal.jsx";
 
-export const SaleTable = ({filterOption, onStatsChange}) => {
-    const {sales, handleGetSales} = useSale();
+export const CustomerFiscalDataTable = () => {
+    const {customerFiscalDataList, handleGetAllFiscalData} = useCustomerFiscalData();
     const {
-        searchText, setSearchText, filteredSales, filteredCount, filteredTotal, columns,
-        selectedSaleIdForInvoice, isInvoiceModalOpen, handleCloseInvoiceModal,
-    } = useSaleTable(sales, filterOption);
+        searchText,
+        setSearchText,
+        filteredFiscalDataList,
+        columns
+    } = useCustomerFiscalDataTable(customerFiscalDataList);
 
     useEffect(() => {
-        handleGetSales();
+        handleGetAllFiscalData();
     }, []);
-
-    useEffect(() => {
-        onStatsChange?.({count: filteredCount, total: filteredTotal});
-    }, [filteredCount, filteredTotal]);
 
     return (
         <Paper sx={userTableStyles.paper}>
             <Box sx={userTableStyles.searchContainer}>
                 <TextField
                     fullWidth
-                    label="Buscar ventas..."
+                    label="Buscar perfil fiscal..."
                     variant="outlined"
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
@@ -34,8 +31,9 @@ export const SaleTable = ({filterOption, onStatsChange}) => {
             </Box>
             <Box sx={userTableStyles.tableContainer}>
                 <DataGrid
-                    rows={filteredSales}
+                    rows={filteredFiscalDataList}
                     columns={columns}
+                    getRowId={(row) => row.fiscalId}
                     initialState={{
                         pagination: {
                             paginationModel: {pageSize: 10},
@@ -43,15 +41,10 @@ export const SaleTable = ({filterOption, onStatsChange}) => {
                     }}
                     pageSizeOptions={[5, 10, 25, 50]}
                     disableRowSelectionOnClick
-                    loading={!sales}
+                    loading={!customerFiscalDataList}
                     sx={userTableStyles.dataGrid}
                 />
             </Box>
-            <InvoiceSaleModal
-                open={isInvoiceModalOpen}
-                onClose={handleCloseInvoiceModal}
-                saleId={selectedSaleIdForInvoice}
-            />
         </Paper>
     );
 };

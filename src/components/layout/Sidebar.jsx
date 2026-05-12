@@ -30,6 +30,7 @@ import {
     PointOfSale,
     ReceiptLong,
     PendingActions,
+    Receipt,
     Menu as MenuIcon
 } from '@mui/icons-material';
 import {sidebarStyles} from '../../styles/js/SidebarStyles.js';
@@ -61,7 +62,9 @@ export const Sidebar = () => {
             'bi-receipt': <ReceiptLong/>,
             'bi-truck': <PointOfSale/>,
             'bi-cart-plus': <PointOfSale/>,
-            'bi-pending': <PendingActions/>
+            'bi-pending': <PendingActions/>,
+            'bi-receipt-fiscal': <Receipt/>,
+            'bi-invoice': <ReceiptLong/>
         };
         return icons[iconName] || <Dashboard/>;
     };
@@ -71,6 +74,7 @@ export const Sidebar = () => {
         {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
         {path: '/pending', icon: 'bi-pending', label: 'Pendientes'},
         {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
+        {path: '/invoices', icon: 'bi-invoice', label: 'Facturas'},
     ];
 
     const fullMenuItems = [
@@ -83,6 +87,8 @@ export const Sidebar = () => {
         {path: '/users', icon: 'bi bi-people', label: 'Usuarios'},
         {path: '/customers', icon: 'bi-people', label: 'Clientes'},
         {path: '/customer-types', icon: 'bi-category', label: 'Tipos de Clientes'},
+        {path: '/customer-fiscal-data', icon: 'bi-receipt-fiscal', label: 'Datos Fiscales'},
+        {path: '/invoices', icon: 'bi-invoice', label: 'Facturas'},
     ];
 
     const menuItems = hasLimitedAccess ? limitedMenuItems : fullMenuItems;

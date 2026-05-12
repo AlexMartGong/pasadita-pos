@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {
-    Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
-    IconButton, TextField, Typography
+    Alert, Box, Button, Checkbox, Chip, Dialog, DialogActions, DialogContent,
+    DialogTitle, FormControl, FormControlLabel, IconButton, InputLabel,
+    MenuItem, Select, TextField, Typography
 } from '@mui/material';
 import {AttachMoney, Backspace, RestartAlt} from '@mui/icons-material';
 
@@ -30,6 +31,12 @@ export const PaymentModal = ({
                                  isSubmitting,
                                  isEditMode,
                                  formatCurrency,
+                                 paymentMethodId,
+                                 requiresInvoice,
+                                 onRequiresInvoiceChange,
+                                 selectedFiscalId,
+                                 onSelectedFiscalIdChange,
+                                 fiscalList,
                              }) => {
     const [localAmount, setLocalAmount] = useState('');
 
@@ -42,6 +49,12 @@ export const PaymentModal = ({
     const parsedAmount = parseFloat(localAmount) || 0;
     const changeDue = parsedAmount - total;
     const isValid = parsedAmount >= total && parsedAmount > 0;
+
+    const activeFiscalList = (fiscalList || []).filter((f) => f.active);
+    const invoiceInvalid = requiresInvoice && !selectedFiscalId;
+    const showSatWarning =
+        requiresInvoice && total > 2000 && paymentMethodId === 1;
+    const saveDisabled = !isValid || isSubmitting || invoiceInvalid;
 
     const handleDenominationClick = (value) => {
         const newAmount = parsedAmount + value;
@@ -225,6 +238,64 @@ export const PaymentModal = ({
                         </Typography>
                     </Box>
                 )}
+
+                {/* Facturación */}
+                <Box sx={{mt: 2.5}}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={!!requiresInvoice}
+                                onChange={(e) => {
+                                    onRequiresInvoiceChange(e.target.checked);
+                                    if (!e.target.checked) {
+                                        onSelectedFiscalIdChange(null);
+                                    }
+                                }}
+                            />
+                        }
+                        label="Requiere Factura"
+                    />
+
+                    {requiresInvoice && (
+                        <FormControl
+                            fullWidth
+                            size="small"
+                            required
+                            error={!selectedFiscalId}
+                            sx={{mt: 1}}
+                        >
+                            <InputLabel id="fiscal-data-label">Datos Fiscales</InputLabel>
+                            <Select
+                                labelId="fiscal-data-label"
+                                label="Datos Fiscales"
+                                value={selectedFiscalId ?? ''}
+                                onChange={(e) =>
+                                    onSelectedFiscalIdChange(e.target.value || null)
+                                }
+                            >
+                                {activeFiscalList.length === 0 ? (
+                                    <MenuItem value="" disabled>
+                                        Sin perfiles fiscales registrados
+                                    </MenuItem>
+                                ) : (
+                                    activeFiscalList.map((f) => (
+                                        <MenuItem key={f.fiscalId} value={f.fiscalId}>
+                                            {f.rfc} - {f.razonSocial}
+                                        </MenuItem>
+                                    ))
+                                )}
+                            </Select>
+                        </FormControl>
+                    )}
+
+                    {showSatWarning && (
+                        <Alert severity="warning" sx={{mt: 1.5}}>
+                            Atención: El SAT no permite deducir impuestos de facturas
+                            mayores a $2,000 MXN pagadas en efectivo. Considere sugerir
+                            otro método de pago.
+                        </Alert>
+                    )}
+                </Box>
             </DialogContent>
             <DialogActions sx={{px: 3, pb: 2}}>
                 <Button onClick={onClose} variant="outlined">
@@ -234,7 +305,7 @@ export const PaymentModal = ({
                     variant="contained"
                     color="success"
                     onClick={handleSave}
-                    disabled={!isValid || isSubmitting}
+                    disabled={saveDisabled}
                     sx={{fontWeight: 600}}
                 >
                     {isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar Venta')}

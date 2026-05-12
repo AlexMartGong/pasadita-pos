@@ -15,11 +15,15 @@ import {CustomerPage} from "../pages/customer/CustomerPage.jsx";
 import {RegisterCustomerPage} from "../pages/customer/RegisterCustomerPage.jsx";
 import {CustomerTypePage} from "../pages/customer/CustomerTypePage.jsx";
 import {RegisterCustomerTypePage} from "../pages/customer/RegisterCustomerTypePage.jsx";
+import {CustomerFiscalDataPage} from "../pages/customerFiscalData/CustomerFiscalDataPage.jsx";
+import {CustomerFiscalDataRegisterPage} from "../pages/customerFiscalData/CustomerFiscalDataRegisterPage.jsx";
+import {CustomerFiscalDataEditPage} from "../pages/customerFiscalData/CustomerFiscalDataEditPage.jsx";
 import {SalePage} from "../pages/sale/SalePage.jsx";
 import {RegisterSalePage} from "../pages/sale/RegisterSalePage.jsx";
 import {DeliveryPage} from "../pages/delivery/deliveryPage.jsx";
 import {PendingDeliveryPage} from "../pages/delivery/PendingDeliveryPage.jsx";
 import {TicketPage} from "../pages/sale/TicketPage.jsx";
+import {InvoicePage} from "../pages/invoice/InvoicePage.jsx";
 
 export const FruitRoute = () => {
     useEffect(() => {
@@ -112,6 +116,21 @@ export const FruitRoute = () => {
                             <RegisterCustomerTypePage/>
                         </AdminRoute>
                     }/>
+                    <Route path="customer-fiscal-data" element={
+                        <AdminRoute>
+                            <CustomerFiscalDataPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="customer-fiscal-data/register" element={
+                        <AdminRoute>
+                            <CustomerFiscalDataRegisterPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="customer-fiscal-data/edit/:id" element={
+                        <AdminRoute>
+                            <CustomerFiscalDataEditPage/>
+                        </AdminRoute>
+                    }/>
                     <Route path="sales" element={
                         <ProtectedRoute>
                             <SalePage/>
@@ -140,6 +159,11 @@ export const FruitRoute = () => {
                     <Route path={"sale/ticket/:id"} element={
                         <ProtectedRoute>
                             <TicketPage/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="invoices" element={
+                        <ProtectedRoute>
+                            <InvoicePage/>
                         </ProtectedRoute>
                     }/>
                 </Routes>

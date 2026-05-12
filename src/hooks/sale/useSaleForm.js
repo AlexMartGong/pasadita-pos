@@ -4,6 +4,8 @@ import {useSale} from './useSale';
 import {useCustomer} from '../customer/useCustomer';
 import {useProduct} from '../product/useProduct';
 import {useUser} from '../user/useUser';
+import {useCustomerFiscalData} from '../customerFiscalData/useCustomerFiscalData';
+import {useInvoice} from '../invoice/useInvoice';
 import {useAuth} from '../../auth/hooks/useAuth';
 import {deliveryOrderService} from '../../services/deliveryOrderService';
 import {getSaleDetailsById} from '../../services/saleService';
@@ -18,8 +20,13 @@ export const useSaleForm = (saleSelected) => {
     const {customers, handleGetCustomers} = useCustomer();
     const {products, handleGetProducts} = useProduct();
     const {users, getAllUsers} = useUser();
+    const {handleGetAllFiscalData} = useCustomerFiscalData();
+    const {handleTimbrarInvoice, handleSendInvoiceEmail} = useInvoice();
     const {user, employeeId, role} = useAuth();
     const {activeDraft} = useSelector(state => state.sale);
+    const customerFiscalDataList = useSelector(
+        (state) => state.customerFiscalData.customerFiscalDataList
+    );
 
     const isEditMode = saleSelected && saleSelected.id !== 0;
 
@@ -46,6 +53,9 @@ export const useSaleForm = (saleSelected) => {
     const [amountTendered, setAmountTendered] = useState(() => !isEditMode ? (activeDraft.amountTendered ?? '') : '');
 
     const [operationType, setOperationType] = useState(() => !isEditMode ? activeDraft.operationType : 'venta'); // 'venta' o 'pedido'
+
+    const [requiresInvoice, setRequiresInvoice] = useState(false);
+    const [selectedFiscalId, setSelectedFiscalId] = useState(null);
 
     const hasDeliveryRole = role && (role.includes('ROLE_PEDIDOS') || role.includes('ROLE_ADMIN'));
 
@@ -79,6 +89,7 @@ export const useSaleForm = (saleSelected) => {
     useEffect(() => {
         handleGetCustomers();
         handleGetProducts();
+        handleGetAllFiscalData();
         if (hasDeliveryRole) {
             getAllUsers();
         }
@@ -149,7 +160,7 @@ export const useSaleForm = (saleSelected) => {
     }, [customers, formData.customerId, isEditMode]);
 
     const calculateTotal = (details) => {
-        return details.reduce((sum, detail) => sum + detail.total, 0);
+        return formatToTwoDecimals(details.reduce((sum, detail) => sum + detail.total, 0));
     };
 
     const getCustomerDiscount = useCallback(() => {
@@ -168,9 +179,9 @@ export const useSaleForm = (saleSelected) => {
                 const updatedDetails = prevDetails.map(detail => {
                     const quantity = detail.quantity;
                     const unitPrice = detail.unitPrice;
-                    const subtotal = quantity * unitPrice;
-                    const discountTotal = quantity * discountAmount;
-                    const total = subtotal - discountTotal;
+                    const subtotal = formatToTwoDecimals(quantity * unitPrice);
+                    const discountTotal = formatToTwoDecimals(quantity * discountAmount);
+                    const total = formatToTwoDecimals(subtotal - discountTotal);
 
                     return {
                         ...detail,
@@ -224,18 +235,18 @@ export const useSaleForm = (saleSelected) => {
         const quantity = parseFloat(selectedProductData.quantity);
         const unitPrice = parseFloat(selectedProductData.originalPrice);
         const discountPerUnit = selectedProductData.discount;
-        const subtotal = quantity * unitPrice;
-        const discountAmount = quantity * discountPerUnit;
-        const total = subtotal - discountAmount;
+        const subtotal = formatToTwoDecimals(quantity * unitPrice);
+        const discountAmount = formatToTwoDecimals(quantity * discountPerUnit);
+        const total = formatToTwoDecimals(subtotal - discountAmount);
 
         const existingDetail = saleDetails.find(d => d.productId === selectedProductData.id);
 
         let newDetails;
         if (existingDetail) {
             const newQuantity = parseFloat(existingDetail.quantity) + quantity;
-            const newSubtotal = newQuantity * unitPrice;
-            const newDiscountAmount = newQuantity * discountPerUnit;
-            const newTotal = newSubtotal - newDiscountAmount;
+            const newSubtotal = formatToTwoDecimals(newQuantity * unitPrice);
+            const newDiscountAmount = formatToTwoDecimals(newQuantity * discountPerUnit);
+            const newTotal = formatToTwoDecimals(newSubtotal - newDiscountAmount);
 
             newDetails = saleDetails.map(d =>
                 d.productId === selectedProductData.id
@@ -327,6 +338,8 @@ export const useSaleForm = (saleSelected) => {
         setDeliveryCost(0);
         setAmountTendered('');
         setOperationType('venta');
+        setRequiresInvoice(false);
+        setSelectedFiscalId(null);
         setErrors({});
         dispatch(clearActiveDraft());
 
@@ -387,6 +400,21 @@ export const useSaleForm = (saleSelected) => {
 
             const result = await handleSaveSale(saleData);
             if (result) {
+                if (requiresInvoice && selectedFiscalId) {
+                    const invoiceResult = await handleTimbrarInvoice({
+                        saleId: result.id,
+                        fiscalId: selectedFiscalId,
+                    });
+                    if (invoiceResult) {
+                        const fiscalData = customerFiscalDataList.find(
+                            f => f.fiscalId === selectedFiscalId
+                        );
+                        if (fiscalData?.emailFacturacion) {
+                            handleSendInvoiceEmail(result.id, fiscalData.emailFacturacion)
+                                .catch(() => {});
+                        }
+                    }
+                }
                 handleLocalCancel();
             }
         } catch (error) {
@@ -422,6 +450,11 @@ export const useSaleForm = (saleSelected) => {
         deliveryCost,
         amountTendered,
         changeDue,
+        requiresInvoice,
+        selectedFiscalId,
+        customerFiscalDataList,
+        setRequiresInvoice,
+        setSelectedFiscalId,
         setProductSearch,
         setSelectedProductData: updateSelectedProductData,
         setPaymentMethodId,

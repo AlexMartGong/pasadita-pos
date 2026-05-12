@@ -31,6 +31,11 @@ export const SaleForm = ({saleSelected}) => {
         deliveryEmployeeId,
         deliveryCost,
         amountTendered,
+        requiresInvoice,
+        selectedFiscalId,
+        customerFiscalDataList,
+        setRequiresInvoice,
+        setSelectedFiscalId,
         setProductSearch,
         setSelectedProductData,
         setPaymentMethodId,
@@ -176,6 +181,12 @@ export const SaleForm = ({saleSelected}) => {
                                 onValidate={validateForm}
                                 onSaveSale={handleSubmit}
                                 formatCurrency={formatCurrency}
+                                paymentMethodId={paymentMethodId}
+                                requiresInvoice={requiresInvoice}
+                                onRequiresInvoiceChange={setRequiresInvoice}
+                                selectedFiscalId={selectedFiscalId}
+                                onSelectedFiscalIdChange={setSelectedFiscalId}
+                                fiscalList={customerFiscalDataList}
                             />
                         </Box>
                     </Grid>

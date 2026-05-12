@@ -1,8 +1,8 @@
 import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
-import {useProduct} from "./useProduct.js";
+import {useCustomerFiscalData} from "./useCustomerFiscalData.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {Edit, ToggleOn, ToggleOff} from "@mui/icons-material";
+import {Edit} from "@mui/icons-material";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -20,22 +20,25 @@ const useDebounce = (value, delay) => {
     return debouncedValue;
 };
 
-export const useProductTable = (products) => {
+export const useCustomerFiscalDataTable = (fiscalDataList) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
-    const {handleProductEdit, handleProductToggleStatus} = useProduct();
+    const {handleFiscalDataEdit} = useCustomerFiscalData();
 
-    const filteredProducts = useMemo(() => {
-        if (!products || !debouncedSearchText) return products || [];
+    const filteredFiscalDataList = useMemo(() => {
+        if (!fiscalDataList || !debouncedSearchText) return fiscalDataList || [];
 
         const searchLower = debouncedSearchText.toLowerCase();
-        return products.filter((product) => {
+        return fiscalDataList.filter((item) => {
             return (
-                product.name?.toLowerCase().includes(searchLower) ||
-                product.category?.toLowerCase().includes(searchLower)
+                item.rfc?.toLowerCase().includes(searchLower) ||
+                item.razonSocial?.toLowerCase().includes(searchLower) ||
+                item.regimenFiscal?.toLowerCase().includes(searchLower) ||
+                item.usoCfdi?.toLowerCase().includes(searchLower) ||
+                item.emailFacturacion?.toLowerCase().includes(searchLower)
             );
         });
-    }, [products, debouncedSearchText]);
+    }, [fiscalDataList, debouncedSearchText]);
 
     const handleSearchChange = useCallback((value) => {
         setSearchText(value);
@@ -43,45 +46,41 @@ export const useProductTable = (products) => {
 
     const columns = useMemo(() => [
         {
-            field: "id",
+            field: "fiscalId",
             headerName: "ID",
-            width: 90,
+            width: 70,
         },
         {
-            field: "name",
-            headerName: "Nombre",
-            width: 270,
+            field: "rfc",
+            headerName: "RFC",
+            width: 160,
             sortable: true,
         },
         {
-            field: "category",
-            headerName: "Categoria",
-            width: 180,
+            field: "razonSocial",
+            headerName: "Razón Social",
+            width: 240,
             sortable: true,
         },
         {
-            field: "price",
-            headerName: "Precio",
-            width: 100,
+            field: "regimenFiscal",
+            headerName: "Régimen Fiscal",
+            width: 140,
+            sortable: true,
         },
         {
-            field: "unitMeasure",
-            headerName: "Unidad de medida",
-            width: 150,
-        },
-        {
-            field: "claveProductoSat",
-            headerName: "Clave SAT",
-            width: 120,
+            field: "usoCfdi",
+            headerName: "Uso CFDI",
+            width: 110,
             sortable: true,
         },
         {
             field: "active",
-            headerName: "Activo",
-            width: 100,
+            headerName: "Estado",
+            width: 110,
             renderCell: (params) => (
                 <Chip
-                    label={params.row.active ? "Si" : "No"}
+                    label={params.row.active ? "Activo" : "Inactivo"}
                     color={params.row.active ? "success" : "default"}
                     variant="outlined"
                     size="small"
@@ -91,7 +90,7 @@ export const useProductTable = (products) => {
         {
             field: "actions",
             headerName: "Acciones",
-            width: 220,
+            width: 140,
             sortable: false,
             filterable: false,
             renderCell: (params) => (
@@ -100,27 +99,19 @@ export const useProductTable = (products) => {
                         <IconButton
                             size="small"
                             color="primary"
-                            onClick={() => handleProductEdit(params.row.id)}>
+                            onClick={() => handleFiscalDataEdit(params.row.fiscalId)}>
                             <Edit/> Editar
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={params.row.active ? "Desactivar" : "Activar"}>
-                        <IconButton
-                            size="small"
-                            color={params.row.active ? "success" : "default"}
-                            onClick={() => handleProductToggleStatus(params.row.id, params.row.active)}>
-                            {params.row.active ? <ToggleOn/> : <ToggleOff/>} Estado
                         </IconButton>
                     </Tooltip>
                 </Box>
             ),
         },
-    ], [handleProductEdit, handleProductToggleStatus]);
+    ], [handleFiscalDataEdit]);
 
     return {
         searchText,
         setSearchText: handleSearchChange,
-        filteredProducts,
+        filteredFiscalDataList,
         columns,
     };
 };

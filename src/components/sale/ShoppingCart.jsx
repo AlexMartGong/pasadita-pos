@@ -20,7 +20,13 @@ export const ShoppingCart = ({
                                  onCancel,
                                  onValidate,
                                  onSaveSale,
-                                 formatCurrency
+                                 formatCurrency,
+                                 paymentMethodId,
+                                 requiresInvoice,
+                                 onRequiresInvoiceChange,
+                                 selectedFiscalId,
+                                 onSelectedFiscalIdChange,
+                                 fiscalList,
                              }) => {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [paymentOpen, setPaymentOpen] = useState(false);
@@ -167,6 +173,12 @@ export const ShoppingCart = ({
                 isSubmitting={isSubmitting}
                 isEditMode={isEditMode}
                 formatCurrency={formatCurrency}
+                paymentMethodId={paymentMethodId}
+                requiresInvoice={requiresInvoice}
+                onRequiresInvoiceChange={onRequiresInvoiceChange}
+                selectedFiscalId={selectedFiscalId}
+                onSelectedFiscalIdChange={onSelectedFiscalIdChange}
+                fiscalList={fiscalList}
             />
 
             <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>

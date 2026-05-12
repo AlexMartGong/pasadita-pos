@@ -7,6 +7,7 @@ export const initialProductForm = {
     price: 0,
     unitMeasure: '',
     active: true,
+    claveProductoSat: '01010101',
 }
 
 export const productSlice = createSlice({
