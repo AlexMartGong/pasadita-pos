@@ -10,7 +10,7 @@ import {useAuth} from '../../auth/hooks/useAuth';
 import {deliveryOrderService} from '../../services/deliveryOrderService';
 import {getSaleDetailsById} from '../../services/saleService';
 import {toast} from 'react-toastify';
-import {formatCurrency} from '../../utils/formatters';
+import {formatCurrency, toNumber} from '../../utils/formatters';
 import {clearActiveDraft, setActiveDraft} from '../../stores/slices/sale/saleSlice';
 import {getCachedStationId} from '../../services/agentService';
 
@@ -115,11 +115,11 @@ export const useSaleForm = (saleSelected) => {
                         const cartDetails = response.data.map(detail => ({
                             productId: detail.productId,
                             productName: detail.productName,
-                            quantity: detail.quantity,
-                            unitPrice: detail.unitPrice,
-                            subtotal: detail.subtotal,
-                            discount: detail.discount,
-                            total: detail.total
+                            quantity: formatToThreeDecimals(detail.quantity),
+                            unitPrice: formatToTwoDecimals(detail.unitPrice),
+                            subtotal: formatToTwoDecimals(detail.subtotal),
+                            discount: formatToTwoDecimals(detail.discount),
+                            total: formatToTwoDecimals(detail.total)
                         }));
                         setSaleDetails(cartDetails);
                     }
@@ -160,7 +160,7 @@ export const useSaleForm = (saleSelected) => {
     }, [customers, formData.customerId, isEditMode]);
 
     const calculateTotal = (details) => {
-        return formatToTwoDecimals(details.reduce((sum, detail) => sum + detail.total, 0));
+        return formatToTwoDecimals(details.reduce((sum, detail) => sum + toNumber(detail.total), 0));
     };
 
     const getCustomerDiscount = useCallback(() => {
@@ -177,8 +177,8 @@ export const useSaleForm = (saleSelected) => {
                 const discountAmount = getCustomerDiscount();
 
                 const updatedDetails = prevDetails.map(detail => {
-                    const quantity = detail.quantity;
-                    const unitPrice = detail.unitPrice;
+                    const quantity = toNumber(detail.quantity);
+                    const unitPrice = toNumber(detail.unitPrice);
                     const subtotal = formatToTwoDecimals(quantity * unitPrice);
                     const discountTotal = formatToTwoDecimals(quantity * discountAmount);
                     const total = formatToTwoDecimals(subtotal - discountTotal);
@@ -200,8 +200,8 @@ export const useSaleForm = (saleSelected) => {
     const updateSelectedProductData = useCallback((updates) => {
         setSelectedProductData(prev => {
             const updated = typeof updates === 'function' ? updates(prev) : {...prev, ...updates};
-            const qty = parseFloat(updated.quantity) || 0;
-            const price = parseFloat(updated.price) || 0;
+            const qty = toNumber(updated.quantity);
+            const price = toNumber(updated.price);
             return {
                 ...updated,
                 total: qty * price
@@ -232,9 +232,9 @@ export const useSaleForm = (saleSelected) => {
             return;
         }
 
-        const quantity = parseFloat(selectedProductData.quantity);
-        const unitPrice = parseFloat(selectedProductData.originalPrice);
-        const discountPerUnit = selectedProductData.discount;
+        const quantity = toNumber(selectedProductData.quantity);
+        const unitPrice = toNumber(selectedProductData.originalPrice);
+        const discountPerUnit = toNumber(selectedProductData.discount);
         const subtotal = formatToTwoDecimals(quantity * unitPrice);
         const discountAmount = formatToTwoDecimals(quantity * discountPerUnit);
         const total = formatToTwoDecimals(subtotal - discountAmount);
@@ -243,7 +243,7 @@ export const useSaleForm = (saleSelected) => {
 
         let newDetails;
         if (existingDetail) {
-            const newQuantity = parseFloat(existingDetail.quantity) + quantity;
+            const newQuantity = toNumber(existingDetail.quantity) + quantity;
             const newSubtotal = formatToTwoDecimals(newQuantity * unitPrice);
             const newDiscountAmount = formatToTwoDecimals(newQuantity * discountPerUnit);
             const newTotal = formatToTwoDecimals(newSubtotal - newDiscountAmount);
@@ -353,11 +353,13 @@ export const useSaleForm = (saleSelected) => {
 
 
     const formatToTwoDecimals = (value) => {
-        return Number(Math.round((value || 0) + "e2") + "e-2");
+        const n = toNumber(value);
+        return Number(Math.round(n + "e2") + "e-2");
     };
 
     const formatToThreeDecimals = (value) => {
-        return Number(Math.round((value || 0) + "e3") + "e-3");
+        const n = toNumber(value);
+        return Number(Math.round(n + "e3") + "e-3");
     };
 
     const handleSubmit = async (amountTenderedValue) => {
@@ -366,8 +368,8 @@ export const useSaleForm = (saleSelected) => {
         try {
             setAmountTendered(String(amountTenderedValue));
 
-            const subtotal = saleDetails.reduce((sum, detail) => sum + detail.subtotal, 0);
-            const discountAmount = saleDetails.reduce((sum, detail) => sum + detail.discount, 0);
+            const subtotal = saleDetails.reduce((sum, detail) => sum + toNumber(detail.subtotal), 0);
+            const discountAmount = saleDetails.reduce((sum, detail) => sum + toNumber(detail.discount), 0);
             const customer = customers.find(c => c.id === parseInt(formData.customerId));
 
             const saleData = {

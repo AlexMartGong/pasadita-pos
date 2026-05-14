@@ -35,14 +35,14 @@ export const QuantityInput = ({
 
     useEffect(() => {
         if (isKilogram && productId && isConnected && weight > 0) {
-            onChange(weight.toFixed(3));
+            onChange(Math.round(weight * 1000) / 1000);
         }
     }, [isKilogram, productId, isConnected, weight, onChange]);
 
     const handleRefreshWeight = () => {
         if (isConnected && weight > 0) {
             console.log('Peso recapturado manualmente:', weight);
-            onChange(weight.toFixed(3));
+            onChange(Math.round(weight * 1000) / 1000);
         } else if (!isConnected) {
             connectScale();
         }
@@ -56,7 +56,7 @@ export const QuantityInput = ({
                 type="number"
                 label={isKilogram ? "Cantidad (kg)" : "Cantidad"}
                 value={value ?? ''}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={(e) => onChange(e.target.value.replace(',', '.'))}
                 disabled={disabled}
                 slotProps={{
                     htmlInput: {

@@ -17,3 +17,11 @@ export const formatCurrency = (value) => {
         minimumFractionDigits: 0
     }).format(value || 0);
 };
+
+export const toNumber = (value) => {
+    if (value === null || value === undefined || value === '') return 0;
+    if (typeof value === 'number') return isFinite(value) ? value : 0;
+    const normalized = String(value).replace(',', '.');
+    const n = Number(normalized);
+    return isFinite(n) ? n : 0;
+};

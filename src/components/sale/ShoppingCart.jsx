@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import {Delete, ShoppingCartOutlined} from '@mui/icons-material';
 import {PaymentModal} from './PaymentModal';
+import {toNumber} from '../../utils/formatters';
 
 export const ShoppingCart = ({
                                  saleDetails,
@@ -115,11 +116,11 @@ export const ShoppingCart = ({
                     {saleDetails.length > 0 && (
                         <Box sx={{mb: 2, textAlign: 'right', backgroundColor: '#f5f5f5', borderRadius: 1, p: 1.5}}>
                             <Typography variant="body2" sx={{color: 'text.secondary'}}>
-                                Subtotal: {formatCurrency(saleDetails.reduce((sum, d) => sum + d.subtotal, 0))}
+                                Subtotal: {formatCurrency(saleDetails.reduce((sum, d) => sum + toNumber(d.subtotal), 0))}
                             </Typography>
                             <Typography variant="body2" color="error">
                                 Descuento:
-                                -{formatCurrency(saleDetails.reduce((sum, d) => sum + d.discount, 0))}
+                                -{formatCurrency(saleDetails.reduce((sum, d) => sum + toNumber(d.discount), 0))}
                             </Typography>
                             <Typography variant="h6" sx={{color: '#283593', fontWeight: 700}}>
                                 Total: {formatCurrency(formData.total)}
