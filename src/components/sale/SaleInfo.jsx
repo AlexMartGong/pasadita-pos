@@ -53,6 +53,7 @@ export const SaleInfo = ({
                             <Select
                                 labelId="customer-select-label"
                                 id="customer-select"
+                                variant="outlined"
                                 label="Cliente"
                                 value={formData.customerId || ''}
                                 onChange={onInputChange('customerId')}
@@ -78,6 +79,7 @@ export const SaleInfo = ({
                             <Select
                                 labelId="payment-method-label"
                                 id="payment-method-select"
+                                variant="outlined"
                                 label="Método de pago"
                                 value={paymentMethodId}
                                 onChange={(e) => onPaymentMethodChange(parseInt(e.target.value))}

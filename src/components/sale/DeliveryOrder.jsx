@@ -4,7 +4,7 @@ import {
 } from '@mui/material';
 import {LocalShipping} from '@mui/icons-material';
 
-export const DeliveryOrder = ({selectedCustomer, deliveryCost, onDeliveryCostChange}) => {
+export const DeliveryOrder = ({selectedCustomer}) => {
     const deliveryAddress = selectedCustomer?.address || '';
     const contactPhone = selectedCustomer?.phone || '';
 
@@ -22,7 +22,7 @@ export const DeliveryOrder = ({selectedCustomer, deliveryCost, onDeliveryCostCha
             </Box>
             <CardContent sx={{pb: 2}}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} sm={6} size={{xs: 12}}>
                         <TextField
                             fullWidth
                             size="small"
@@ -31,7 +31,7 @@ export const DeliveryOrder = ({selectedCustomer, deliveryCost, onDeliveryCostCha
                             disabled
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} sm={6} size={{xs: 12}}>
                         <TextField
                             fullWidth
                             size="small"
@@ -40,22 +40,22 @@ export const DeliveryOrder = ({selectedCustomer, deliveryCost, onDeliveryCostCha
                             disabled
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            label="Costo de Entrega"
-                            type="number"
-                            value={deliveryCost}
-                            onChange={(e) => onDeliveryCostChange(parseFloat(e.target.value) || 0)}
-                            slotProps={{
-                                htmlInput: {
-                                    step: '0.1',
-                                    min: '0'
-                                }
-                            }}
-                        />
-                    </Grid>
+                    {/*<Grid item xs={12} sm={6} size={{xs: 12}}>*/}
+                    {/*    <TextField*/}
+                    {/*        fullWidth*/}
+                    {/*        size="small"*/}
+                    {/*        label="Costo de Entrega"*/}
+                    {/*        type="number"*/}
+                    {/*        value={deliveryCost}*/}
+                    {/*        onChange={(e) => onDeliveryCostChange(parseFloat(e.target.value) || 0)}*/}
+                    {/*        slotProps={{*/}
+                    {/*            htmlInput: {*/}
+                    {/*                step: '0.1',*/}
+                    {/*                min: '0'*/}
+                    {/*            }*/}
+                    {/*        }}*/}
+                    {/*    />*/}
+                    {/*</Grid>*/}
                 </Grid>
             </CardContent>
         </Card>

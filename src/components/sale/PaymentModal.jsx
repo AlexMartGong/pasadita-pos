@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {
     Alert, Box, Button, Checkbox, Chip, Dialog, DialogActions, DialogContent,
-    DialogTitle, FormControl, FormControlLabel, IconButton, InputLabel,
-    MenuItem, Select, TextField, Typography
+    DialogTitle, Divider, FormControl, FormControlLabel, Grid, InputLabel,
+    MenuItem, Select, Typography
 } from '@mui/material';
 import {AttachMoney, Backspace, RestartAlt} from '@mui/icons-material';
 
@@ -20,6 +20,22 @@ const QUICK_AMOUNTS = [
     {value: 5, label: '$5'},
     {value: 1, label: '$1'},
 ];
+
+const NUMPAD_KEYS = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '00', '0', '.'];
+
+// Estilo compartido de tecla del numpad: grande y táctil. Vía prop sx (sin CSS file).
+const numpadKeySx = {
+    py: 2,
+    fontSize: '1.5rem',
+    fontWeight: 700,
+    borderRadius: 2,
+    color: '#283593',
+    borderColor: 'rgba(40, 53, 147, 0.3)',
+    '&:hover': {
+        borderColor: '#283593',
+        backgroundColor: '#e8eaf6',
+    },
+};
 
 export const PaymentModal = ({
                                  open,
@@ -56,9 +72,21 @@ export const PaymentModal = ({
         requiresInvoice && total > 2000 && paymentMethodId === 1;
     const saveDisabled = !isValid || isSubmitting || invoiceInvalid;
 
+    // Numpad: concatena caracteres como string (calculadora).
+    const handleNumpadPress = (key) => {
+        setLocalAmount((prev) => {
+            if (key === '.') {
+                if (prev.includes('.')) return prev;          // un solo punto decimal
+                return prev === '' ? '0.' : prev + '.';
+            }
+            if (prev === '0') return key === '00' ? '0' : key; // reemplaza cero solitario
+            return prev + key;
+        });
+    };
+
+    // Billetes/monedas: suma matemática sobre el valor actual.
     const handleDenominationClick = (value) => {
-        const newAmount = parsedAmount + value;
-        setLocalAmount(String(newAmount));
+        setLocalAmount(String(Math.round((parsedAmount + value) * 100) / 100));
     };
 
     const handleExactAmount = () => {
@@ -70,7 +98,7 @@ export const PaymentModal = ({
     };
 
     const handleBackspace = () => {
-        setLocalAmount(prev => prev.slice(0, -1));
+        setLocalAmount((prev) => prev.slice(0, -1));
     };
 
     const handleSave = () => {
@@ -79,7 +107,7 @@ export const PaymentModal = ({
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle sx={{
                 background: 'linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%)',
                 color: 'white',
@@ -92,210 +120,250 @@ export const PaymentModal = ({
                 Cobrar Venta
             </DialogTitle>
             <DialogContent sx={{pt: 3}}>
-                {/* Total a pagar */}
-                <Box sx={{
-                    textAlign: 'center',
-                    mb: 3,
-                    mt: 1,
-                    p: 2,
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: 2
-                }}>
-                    <Typography variant="body2" color="text.secondary">
-                        Total a pagar
-                    </Typography>
-                    <Typography variant="h4" sx={{fontWeight: 700, color: '#283593'}}>
-                        {formatCurrency(total)}
-                    </Typography>
-                </Box>
+                <Grid container spacing={2} sx={{mt: 3}}>
+                    {/* ── Columna izquierda: numpad + billetes ─────────────── */}
+                    <Grid size={{xs: 12, md: 7}}>
+                        {/* Numpad */}
+                        <Box sx={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: 1,
+                            mb: 1
+                        }}>
+                            {NUMPAD_KEYS.map((key) => (
+                                <Button
+                                    key={key}
+                                    variant="outlined"
+                                    onClick={() => handleNumpadPress(key)}
+                                    sx={numpadKeySx}
+                                >
+                                    {key}
+                                </Button>
+                            ))}
+                        </Box>
 
-                {/* Cantidad recibida */}
-                <Box sx={{mb: 2.5}}>
-                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                        <TextField
-                            fullWidth
-                            label="Cantidad Recibida"
-                            type="number"
-                            value={localAmount}
-                            onChange={(e) => setLocalAmount(e.target.value)}
-                            slotProps={{
-                                htmlInput: {
-                                    step: '0.01',
-                                    min: '0'
-                                }
-                            }}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    fontSize: '1.3rem',
-                                    fontWeight: 600
-                                }
-                            }}
-                        />
-                        <IconButton onClick={handleBackspace} size="small" sx={{color: '#757575'}}>
-                            <Backspace/>
-                        </IconButton>
-                    </Box>
-                </Box>
-
-                {/* Billetes mexicanos */}
-                <Typography variant="subtitle2" color="text.secondary" sx={{mb: 1}}>
-                    Billetes
-                </Typography>
-                <Box sx={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: 1.5,
-                    mb: 2
-                }}>
-                    {DENOMINATIONS.map((denom) => (
+                        {/* Borrar (Backspace) */}
                         <Button
-                            key={denom.value}
-                            variant="contained"
-                            onClick={() => handleDenominationClick(denom.value)}
+                            fullWidth
+                            variant="outlined"
+                            color="inherit"
+                            startIcon={<Backspace/>}
+                            onClick={handleBackspace}
                             sx={{
                                 py: 1.5,
-                                fontSize: '1rem',
-                                fontWeight: 700,
-                                backgroundColor: denom.color,
-                                '&:hover': {
-                                    backgroundColor: denom.color,
-                                    filter: 'brightness(1.15)',
-                                },
+                                mb: 2,
+                                fontWeight: 600,
                                 borderRadius: 2,
-                                textTransform: 'none',
+                                color: '#757575',
+                                borderColor: 'rgba(0,0,0,0.23)',
                             }}
                         >
-                            {denom.label}
+                            Borrar
                         </Button>
-                    ))}
-                </Box>
 
-                {/* Monedas / cantidades menores */}
-                <Typography variant="subtitle2" color="text.secondary" sx={{mb: 1}}>
-                    Monedas
-                </Typography>
-                <Box sx={{display: 'flex', gap: 1, mb: 2.5, flexWrap: 'wrap'}}>
-                    {QUICK_AMOUNTS.map((item) => (
-                        <Chip
-                            key={item.value}
-                            label={item.label}
-                            onClick={() => handleDenominationClick(item.value)}
-                            variant="outlined"
-                            sx={{
-                                fontWeight: 600,
-                                fontSize: '0.9rem',
-                                py: 2,
-                                cursor: 'pointer',
-                                '&:hover': {backgroundColor: '#e8f5e9'},
-                            }}
-                        />
-                    ))}
-                    <Chip
-                        label="Exacto"
-                        icon={<AttachMoney sx={{fontSize: 18}}/>}
-                        onClick={handleExactAmount}
-                        color="success"
-                        variant="outlined"
-                        sx={{
-                            fontWeight: 600,
-                            fontSize: '0.9rem',
-                            py: 2,
-                            cursor: 'pointer',
-                        }}
-                    />
-                    <Chip
-                        label="Limpiar"
-                        icon={<RestartAlt sx={{fontSize: 18}}/>}
-                        onClick={handleReset}
-                        color="default"
-                        variant="outlined"
-                        sx={{
-                            fontWeight: 600,
-                            fontSize: '0.9rem',
-                            py: 2,
-                            cursor: 'pointer',
-                        }}
-                    />
-                </Box>
-
-                {/* Cambio */}
-                {parsedAmount > 0 && (
-                    <Box sx={{
-                        textAlign: 'center',
-                        p: 2,
-                        borderRadius: 2,
-                        backgroundColor: isValid ? '#e8f5e9' : '#ffebee',
-                        border: `2px solid ${isValid ? '#2e7d32' : '#c62828'}`,
-                    }}>
-                        <Typography variant="body2" color="text.secondary">
-                            Cambio
+                        {/* Billetes */}
+                        <Typography variant="subtitle2" color="text.secondary" sx={{mb: 1}}>
+                            Billetes
                         </Typography>
-                        <Typography variant="h4" sx={{
-                            fontWeight: 700,
-                            color: isValid ? '#2e7d32' : '#c62828',
+                        <Box sx={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: 1.5,
+                            mb: 2
                         }}>
-                            {isValid ? formatCurrency(changeDue) : `Faltan ${formatCurrency(Math.abs(changeDue))}`}
-                        </Typography>
-                    </Box>
-                )}
+                            {DENOMINATIONS.map((denom) => (
+                                <Button
+                                    key={denom.value}
+                                    variant="contained"
+                                    onClick={() => handleDenominationClick(denom.value)}
+                                    sx={{
+                                        py: 1.5,
+                                        fontSize: '1rem',
+                                        fontWeight: 700,
+                                        backgroundColor: denom.color,
+                                        '&:hover': {
+                                            backgroundColor: denom.color,
+                                            filter: 'brightness(1.15)',
+                                        },
+                                        borderRadius: 2,
+                                        textTransform: 'none',
+                                    }}
+                                >
+                                    {denom.label}
+                                </Button>
+                            ))}
+                        </Box>
 
-                {/* Facturación */}
-                <Box sx={{mt: 2.5}}>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={!!requiresInvoice}
-                                onChange={(e) => {
-                                    onRequiresInvoiceChange(e.target.checked);
-                                    if (!e.target.checked) {
-                                        onSelectedFiscalIdChange(null);
-                                    }
+                        {/* Monedas + Exacto + Limpiar */}
+                        <Typography variant="subtitle2" color="text.secondary" sx={{mb: 1}}>
+                            Monedas
+                        </Typography>
+                        <Box sx={{display: 'flex', gap: 1, flexWrap: 'wrap'}}>
+                            {QUICK_AMOUNTS.map((item) => (
+                                <Chip
+                                    key={item.value}
+                                    label={item.label}
+                                    onClick={() => handleDenominationClick(item.value)}
+                                    variant="outlined"
+                                    sx={{
+                                        fontWeight: 600,
+                                        fontSize: '0.9rem',
+                                        py: 2,
+                                        cursor: 'pointer',
+                                        '&:hover': {backgroundColor: '#e8f5e9'},
+                                    }}
+                                />
+                            ))}
+                            <Chip
+                                label="Exacto"
+                                icon={<AttachMoney sx={{fontSize: 18}}/>}
+                                onClick={handleExactAmount}
+                                color="success"
+                                variant="outlined"
+                                sx={{
+                                    fontWeight: 600,
+                                    fontSize: '0.9rem',
+                                    py: 2,
+                                    cursor: 'pointer',
                                 }}
                             />
-                        }
-                        label="Requiere Factura"
-                    />
+                            <Chip
+                                label="Limpiar"
+                                icon={<RestartAlt sx={{fontSize: 18}}/>}
+                                onClick={handleReset}
+                                color="default"
+                                variant="outlined"
+                                sx={{
+                                    fontWeight: 600,
+                                    fontSize: '0.9rem',
+                                    py: 2,
+                                    cursor: 'pointer',
+                                }}
+                            />
+                        </Box>
+                    </Grid>
 
-                    {requiresInvoice && (
-                        <FormControl
-                            fullWidth
-                            size="small"
-                            required
-                            error={!selectedFiscalId}
-                            sx={{mt: 1}}
-                        >
-                            <InputLabel id="fiscal-data-label">Datos Fiscales</InputLabel>
-                            <Select
-                                labelId="fiscal-data-label"
-                                label="Datos Fiscales"
-                                value={selectedFiscalId ?? ''}
-                                onChange={(e) =>
-                                    onSelectedFiscalIdChange(e.target.value || null)
-                                }
-                            >
-                                {activeFiscalList.length === 0 ? (
-                                    <MenuItem value="" disabled>
-                                        Sin perfiles fiscales registrados
-                                    </MenuItem>
-                                ) : (
-                                    activeFiscalList.map((f) => (
-                                        <MenuItem key={f.fiscalId} value={f.fiscalId}>
-                                            {f.rfc} - {f.razonSocial}
-                                        </MenuItem>
-                                    ))
+                    {/* ── Columna derecha: resumen + facturación ───────────── */}
+                    <Grid size={{xs: 12, md: 5}}>
+                        <Box sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 1.5,
+                            height: '100%',
+                        }}>
+                            {/* Total a pagar */}
+                            <Box sx={{
+                                textAlign: 'center',
+                                p: 2,
+                                backgroundColor: '#f5f5f5',
+                                borderRadius: 2,
+                            }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    Total a pagar
+                                </Typography>
+                                <Typography variant="h4" sx={{fontWeight: 700, color: '#283593'}}>
+                                    {formatCurrency(total)}
+                                </Typography>
+                            </Box>
+
+                            {/* Cantidad recibida (en tiempo real) */}
+                            <Box sx={{
+                                textAlign: 'center',
+                                p: 2,
+                                backgroundColor: '#f5f5f5',
+                                borderRadius: 2,
+                            }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    Cantidad recibida
+                                </Typography>
+                                <Typography variant="h4" sx={{fontWeight: 700, color: '#1b5e20'}}>
+                                    {formatCurrency(parsedAmount)}
+                                </Typography>
+                            </Box>
+
+                            {/* Cambio */}
+                            <Box sx={{
+                                textAlign: 'center',
+                                p: 2,
+                                borderRadius: 2,
+                                backgroundColor: isValid ? '#e8f5e9' : '#ffebee',
+                                border: `2px solid ${isValid ? '#2e7d32' : '#c62828'}`,
+                            }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    Cambio
+                                </Typography>
+                                <Typography variant="h4" sx={{
+                                    fontWeight: 700,
+                                    color: isValid ? '#2e7d32' : '#c62828',
+                                }}>
+                                    {isValid
+                                        ? formatCurrency(changeDue)
+                                        : `Faltan ${formatCurrency(Math.abs(changeDue))}`}
+                                </Typography>
+                            </Box>
+
+                            <Divider sx={{my: 0.5}}/>
+
+                            {/* Facturación */}
+                            <Box>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={!!requiresInvoice}
+                                            onChange={(e) => {
+                                                onRequiresInvoiceChange(e.target.checked);
+                                                if (!e.target.checked) {
+                                                    onSelectedFiscalIdChange(null);
+                                                }
+                                            }}
+                                        />
+                                    }
+                                    label="Requiere Factura"
+                                />
+
+                                {requiresInvoice && (
+                                    <FormControl
+                                        fullWidth
+                                        size="small"
+                                        required
+                                        error={!selectedFiscalId}
+                                        sx={{mt: 1}}
+                                    >
+                                        <InputLabel id="fiscal-data-label">Datos Fiscales</InputLabel>
+                                        <Select
+                                            labelId="fiscal-data-label"
+                                            label="Datos Fiscales"
+                                            value={selectedFiscalId ?? ''}
+                                            onChange={(e) =>
+                                                onSelectedFiscalIdChange(e.target.value || null)
+                                            }
+                                        >
+                                            {activeFiscalList.length === 0 ? (
+                                                <MenuItem value="" disabled>
+                                                    Sin perfiles fiscales registrados
+                                                </MenuItem>
+                                            ) : (
+                                                activeFiscalList.map((f) => (
+                                                    <MenuItem key={f.fiscalId} value={f.fiscalId}>
+                                                        {f.rfc} - {f.razonSocial}
+                                                    </MenuItem>
+                                                ))
+                                            )}
+                                        </Select>
+                                    </FormControl>
                                 )}
-                            </Select>
-                        </FormControl>
-                    )}
 
-                    {showSatWarning && (
-                        <Alert severity="warning" sx={{mt: 1.5}}>
-                            Atención: El SAT no permite deducir impuestos de facturas
-                            mayores a $2,000 MXN pagadas en efectivo. Considere sugerir
-                            otro método de pago.
-                        </Alert>
-                    )}
-                </Box>
+                                {showSatWarning && (
+                                    <Alert severity="warning" sx={{mt: 1.5}}>
+                                        Atención: El SAT no permite deducir impuestos de facturas
+                                        mayores a $2,000 MXN pagadas en efectivo. Considere sugerir
+                                        otro método de pago.
+                                    </Alert>
+                                )}
+                            </Box>
+                        </Box>
+                    </Grid>
+                </Grid>
             </DialogContent>
             <DialogActions sx={{px: 3, pb: 2}}>
                 <Button onClick={onClose} variant="outlined">

@@ -25,7 +25,7 @@ export const AddProductForm = ({
                 Agregar al carrito
             </DialogTitle>
 
-            <DialogContent sx={{pt: 3, pb: 2}}>
+            <DialogContent sx={{pt: 3, pb: 2, mt: 3}}>
                 <Stack spacing={3}>
                     {/* Producto + precio unitario (solo lectura) */}
                     <Paper

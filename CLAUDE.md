@@ -95,6 +95,7 @@ Three-layer architecture for each domain (user, product, customer, customerType,
 - `src/components/{domain}/`: Domain-specific components
   - `{Domain}Table.jsx`: Data grid/table component
   - `{Domain}Form.jsx`: Create/edit form component
+- **Sale register view (`/sale/register`) breaks the table/form pattern** — it is an asymmetric POS layout, not a CRUD form. `SaleForm.jsx` composes `useSaleForm` and renders a MUI Grid v2 split: left ~70% = `ProductCatalog.jsx` (search + responsive grid of `ProductCard.jsx` tiles, replaced the old products table) and right ~30% = a fixed "ticket" panel (`OperationTypeToggle.jsx` admin-only + `SaleInfo.jsx` + conditional `DeliveryOrder.jsx` + `ShoppingCart.jsx`). `ShoppingCart` is a flex column whose totals + "Cobrar Venta"/"Cancelar" footer stays pinned while the cart list scrolls. Clicking a `ProductCard` opens `AddProductForm.jsx` (quantity + scale via `QuantityInput`, read-only price/total). Reusable `sx` and the per-category color/label/initials helpers for this view live in `src/styles/js/SaleFormStyles.js`.
 
 ### Custom Hooks
 - `useApiErrorHandler`: Centralized error handling with Spanish messages
@@ -120,8 +121,9 @@ Three-layer architecture for each domain (user, product, customer, customerType,
   - `formatDate(dateString)`: Spanish locale (es-ES) with time
 
 ### Styling
-- CSS files in `src/styles/css/` (Ticket, LoginPage, SaleForm, Sidebar)
-- MUI `sx` style objects in `src/styles/js/` (FormStyles, PageHeader, PageContainer, StatsCards, etc.)
+- CSS files in `src/styles/css/` (Ticket, LoginPage, Sidebar) — legacy/global styles only; new UI uses MUI `sx`
+- MUI `sx` style objects in `src/styles/js/` (FormStyles, PageHeader, PageContainer, StatsCards, SidebarStyles, DashboardStyles, SaleFormStyles, etc.) — each exports a named `*Styles` const of plain `sx` objects (some are functions taking params)
+- New/refactored UI is MUI-only (`sx`); per the AI guidelines, follow the `frontend-design` skill at `.claude/skills/frontend-design`
 
 ### Hardware Integration
 - Scale API (`src/apis/scaleApi.js`): Connects to a local scale service
