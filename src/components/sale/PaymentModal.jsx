@@ -7,7 +7,6 @@ import {
 import {AttachMoney, Backspace, RestartAlt} from '@mui/icons-material';
 
 const DENOMINATIONS = [
-    {value: 20, label: '$20', color: '#1565c0'},
     {value: 50, label: '$50', color: '#e65100'},
     {value: 100, label: '$100', color: '#c62828'},
     {value: 200, label: '$200', color: '#2e7d32'},
@@ -16,10 +15,27 @@ const DENOMINATIONS = [
 ];
 
 const QUICK_AMOUNTS = [
+    {value: 20, label: '$20'},
     {value: 10, label: '$10'},
     {value: 5, label: '$5'},
+    {value: 2, label: '$2'},
     {value: 1, label: '$1'},
 ];
+
+// Estilo compartido de "moneda": chip circular/ovalado táctil.
+const coinChipSx = {
+    width: 56,
+    height: 56,
+    borderRadius: '50%',
+    border: '2px solid #b08d57',
+    backgroundColor: '#fff8e1',
+    color: '#8d6e63',
+    fontWeight: 700,
+    fontSize: '0.85rem',
+    cursor: 'pointer',
+    '& .MuiChip-label': {px: 0},
+    '&:hover': {backgroundColor: '#ffecb3'},
+};
 
 const NUMPAD_KEYS = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '00', '0', '.'];
 
@@ -166,8 +182,9 @@ export const PaymentModal = ({
                             Billetes
                         </Typography>
                         <Box sx={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            justifyContent: 'center',
                             gap: 1.5,
                             mb: 2
                         }}>
@@ -177,6 +194,8 @@ export const PaymentModal = ({
                                     variant="contained"
                                     onClick={() => handleDenominationClick(denom.value)}
                                     sx={{
+                                        flex: '1 1 28%',
+                                        minWidth: 90,
                                         py: 1.5,
                                         fontSize: '1rem',
                                         fontWeight: 700,
@@ -198,20 +217,14 @@ export const PaymentModal = ({
                         <Typography variant="subtitle2" color="text.secondary" sx={{mb: 1}}>
                             Monedas
                         </Typography>
-                        <Box sx={{display: 'flex', gap: 1, flexWrap: 'wrap'}}>
+                        <Box sx={{display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center'}}>
                             {QUICK_AMOUNTS.map((item) => (
                                 <Chip
                                     key={item.value}
                                     label={item.label}
                                     onClick={() => handleDenominationClick(item.value)}
                                     variant="outlined"
-                                    sx={{
-                                        fontWeight: 600,
-                                        fontSize: '0.9rem',
-                                        py: 2,
-                                        cursor: 'pointer',
-                                        '&:hover': {backgroundColor: '#e8f5e9'},
-                                    }}
+                                    sx={coinChipSx}
                                 />
                             ))}
                             <Chip
