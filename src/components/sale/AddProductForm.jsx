@@ -1,8 +1,8 @@
 import React from 'react';
 import {
-    Button,
+    Box, Button, Divider,
     Dialog, DialogActions, DialogContent, DialogTitle,
-    Grid, TextField, Typography
+    Paper, Stack, Typography
 } from '@mui/material';
 import {Add} from '@mui/icons-material';
 import {QuantityInput} from './QuantityInput';
@@ -24,69 +24,66 @@ export const AddProductForm = ({
             }}>
                 Agregar al carrito
             </DialogTitle>
-            <DialogContent>
-                <Grid container spacing={2} sx={{mt: 2, mb: 3}}>
-                    <Grid item xs={8}>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            label="Producto"
-                            value={selectedProductData.name}
-                            disabled
-                        />
-                    </Grid>
-                    <Grid item xs={4}>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            type="number"
-                            label="Precio"
-                            value={selectedProductData.price}
-                            onChange={(e) => onSelectedProductChange({
-                                ...selectedProductData,
-                                price: e.target.value
-                            })}
-                            slotProps={{
-                                htmlInput: {
-                                    step: '0.1',
-                                    min: '0'
-                                }
-                            }}
-                        />
-                    </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                    <Grid item xs={8}>
-                        <QuantityInput
-                            value={selectedProductData.quantity}
-                            onChange={(value) => onSelectedProductChange({quantity: value})}
-                            unitMeasure={selectedProductData.unitMeasure}
-                            productId={selectedProductData.id}
-                        />
-                    </Grid>
-                    <Grid item xs={4}>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            label="Total"
-                            value={formatCurrency(selectedProductData.total)}
-                            disabled
-                        />
-                    </Grid>
-                </Grid>
-                {errors.cart && (
-                    <Typography color="error" variant="caption" sx={{mt: 1, display: 'block'}}>
-                        {errors.cart}
-                    </Typography>
-                )}
+
+            <DialogContent sx={{pt: 3, pb: 2}}>
+                <Stack spacing={3}>
+                    {/* Producto + precio unitario (solo lectura) */}
+                    <Paper
+                        variant="outlined"
+                        sx={{p: 2, borderRadius: 2,bgcolor: '#f8fafc'}}
+                    >
+                        <Typography variant="h6" sx={{fontWeight: 700, lineHeight: 1.2}}>
+                            {selectedProductData.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{mt: 0.5}}>
+                            Precio unitario: {formatCurrency(selectedProductData.price)}
+                            {selectedProductData.unitMeasure ? ` / ${selectedProductData.unitMeasure.toLowerCase()}` : ''}
+                        </Typography>
+                    </Paper>
+
+                    {/* Cantidad (incluye integración con báscula, intacto) */}
+                    <QuantityInput
+                        value={selectedProductData.quantity}
+                        onChange={(value) => onSelectedProductChange({quantity: value})}
+                        unitMeasure={selectedProductData.unitMeasure}
+                        productId={selectedProductData.id}
+                    />
+
+                    <Divider/>
+
+                    {/* Total destacado: máxima jerarquía visual */}
+                    <Box sx={{
+                        textAlign: 'center',
+                        py: 2,
+                        borderRadius: 2,
+                        bgcolor: '#e8f5e9',
+                        border: '1px solid',
+                        borderColor: 'success.light'
+                    }}>
+                        <Typography variant="overline" color="text.secondary" sx={{letterSpacing: 1}}>
+                            Total
+                        </Typography>
+                        <Typography variant="h3" sx={{fontWeight: 700, color: 'success.main', lineHeight: 1.1}}>
+                            {formatCurrency(selectedProductData.total)}
+                        </Typography>
+                    </Box>
+
+                    {errors.cart && (
+                        <Typography color="error" variant="caption" sx={{display: 'block'}}>
+                            {errors.cart}
+                        </Typography>
+                    )}
+                </Stack>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose} variant="outlined">
+
+            <DialogActions sx={{px: 3, pb: 2, gap: 1}}>
+                <Button onClick={onClose} variant="outlined" size="large">
                     Cancelar
                 </Button>
                 <Button
                     variant="contained"
                     color="primary"
+                    size="large"
                     startIcon={<Add/>}
                     onClick={onAddToCart}
                     disabled={!selectedProductData.id}
