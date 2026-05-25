@@ -1,13 +1,14 @@
 import React, {useState} from 'react';
 import {
-    Box, Button, Card, CardContent,
+    Box, Button, Card, IconButton,
     Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-    IconButton, Table, TableBody, TableCell, TableContainer, TableHead,
+    Table, TableBody, TableCell, TableContainer, TableHead,
     TableRow, Typography
 } from '@mui/material';
-import {Delete, ShoppingCartOutlined} from '@mui/icons-material';
+import {Delete, PointOfSale, ShoppingCartOutlined} from '@mui/icons-material';
 import {PaymentModal} from './PaymentModal';
 import {toNumber} from '../../utils/formatters';
+import {saleFormStyles} from '../../styles/js/SaleFormStyles';
 
 export const ShoppingCart = ({
                                  saleDetails,
@@ -45,24 +46,26 @@ export const ShoppingCart = ({
         onCancel();
     };
 
+    const subtotal = saleDetails.reduce((sum, d) => sum + toNumber(d.subtotal), 0);
+    const totalDiscount = saleDetails.reduce((sum, d) => sum + toNumber(d.discount), 0);
+
     return (
-        <Card sx={{flexShrink: 0, border: '1px solid rgba(48, 63, 159, 0.15)'}}>
+        <Card sx={saleFormStyles.cartCard}>
             <Box sx={{
                 background: 'linear-gradient(135deg, #283593 0%, #5c6bc0 100%)',
                 px: 2, py: 1.5,
-                display: 'flex', alignItems: 'center', gap: 1
+                display: 'flex', alignItems: 'center', gap: 1,
+                flexShrink: 0
             }}>
                 <ShoppingCartOutlined sx={{color: 'white', fontSize: 22}}/>
                 <Typography variant="h6" sx={{color: 'white', fontWeight: 600, fontSize: '1rem'}}>
-                    Carrito de Compras
+                    Ticket Actual
                 </Typography>
             </Box>
-            <CardContent sx={{pb: 2}}>
-                <TableContainer sx={{
-                    overflow: 'auto',
-                    mb: 2,
-                    maxHeight: '250px'
-                }}>
+
+            {/* Lista del carrito: scroll interno */}
+            <Box sx={saleFormStyles.cartScroll}>
+                <TableContainer>
                     <Table size="small" stickyHeader>
                         <TableHead>
                             <TableRow sx={{'& .MuiTableCell-head': {backgroundColor: '#e8eaf6', color: '#283593', fontWeight: 600}}}>
@@ -78,8 +81,8 @@ export const ShoppingCart = ({
                             {saleDetails.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={6} align="center">
-                                        <Typography variant="body2" color="text.secondary" sx={{py: 1}}>
-                                            Haz clic en "+" en la tabla de productos para agregar
+                                        <Typography variant="body2" color="text.secondary" sx={{py: 2}}>
+                                            Haz clic en un producto del catálogo para agregar
                                         </Typography>
                                     </TableCell>
                                 </TableRow>
@@ -88,15 +91,9 @@ export const ShoppingCart = ({
                                     <TableRow key={detail.productId}>
                                         <TableCell>{detail.productName}</TableCell>
                                         <TableCell align="right">{detail.quantity}</TableCell>
-                                        <TableCell align="right">
-                                            {formatCurrency(detail.unitPrice)}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {formatCurrency(detail.discount)}
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            {formatCurrency(detail.total)}
-                                        </TableCell>
+                                        <TableCell align="right">{formatCurrency(detail.unitPrice)}</TableCell>
+                                        <TableCell align="right">{formatCurrency(detail.discount)}</TableCell>
+                                        <TableCell align="right">{formatCurrency(detail.total)}</TableCell>
                                         <TableCell align="center">
                                             <IconButton
                                                 color="error"
@@ -112,54 +109,61 @@ export const ShoppingCart = ({
                         </TableBody>
                     </Table>
                 </TableContainer>
-                <Box>
-                    {saleDetails.length > 0 && (
-                        <Box sx={{mb: 2, textAlign: 'right', backgroundColor: '#f5f5f5', borderRadius: 1, p: 1.5}}>
-                            <Typography variant="body2" sx={{color: 'text.secondary'}}>
-                                Subtotal: {formatCurrency(saleDetails.reduce((sum, d) => sum + toNumber(d.subtotal), 0))}
-                            </Typography>
-                            <Typography variant="body2" color="error">
-                                Descuento:
-                                -{formatCurrency(saleDetails.reduce((sum, d) => sum + toNumber(d.discount), 0))}
-                            </Typography>
-                            <Typography variant="h6" sx={{color: '#283593', fontWeight: 700}}>
-                                Total: {formatCurrency(formData.total)}
-                            </Typography>
-                        </Box>
-                    )}
-                    {errors.saleDetails && (
-                        <Typography color="error" variant="body2" sx={{mb: 2}}>
-                            {errors.saleDetails}
+            </Box>
+
+            {/* Footer pinneado: totales + acciones (siempre visibles) */}
+            <Box sx={saleFormStyles.ticketFooter}>
+                {saleDetails.length > 0 && (
+                    <Box sx={saleFormStyles.totalsBox}>
+                        <Typography variant="body2" sx={{color: 'text.secondary'}}>
+                            Subtotal: {formatCurrency(subtotal)}
                         </Typography>
-                    )}
-                    {errors.customerId && (
-                        <Typography color="error" variant="body2" sx={{mb: 2}}>
-                            {errors.customerId}
+                        <Typography variant="body2" color="error">
+                            Descuento: -{formatCurrency(totalDiscount)}
                         </Typography>
-                    )}
-                    <Box sx={{display: 'flex', gap: 2, justifyContent: 'flex-end'}}>
-                        <Button
-                            variant="outlined"
-                            onClick={handleCancelClick}
-                            disabled={isSubmitting}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            disabled={isSubmitting}
-                            onClick={() => {
-                                if (onValidate()) {
-                                    setPaymentOpen(true);
-                                }
-                            }}
-                        >
-                            {isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar Venta')}
-                        </Button>
+                        <Typography variant="h6" sx={{color: '#283593', fontWeight: 700}}>
+                            Total: {formatCurrency(formData.total)}
+                        </Typography>
                     </Box>
+                )}
+
+                {errors.saleDetails && (
+                    <Typography color="error" variant="body2" sx={{mb: 1}}>
+                        {errors.saleDetails}
+                    </Typography>
+                )}
+                {errors.customerId && (
+                    <Typography color="error" variant="body2" sx={{mb: 1}}>
+                        {errors.customerId}
+                    </Typography>
+                )}
+
+                <Box sx={{display: 'flex', gap: 1.5}}>
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        fullWidth
+                        onClick={handleCancelClick}
+                        disabled={isSubmitting}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        startIcon={<PointOfSale/>}
+                        disabled={isSubmitting}
+                        onClick={() => {
+                            if (onValidate()) {
+                                setPaymentOpen(true);
+                            }
+                        }}
+                    >
+                        {isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Cobrar Venta')}
+                    </Button>
                 </Box>
-            </CardContent>
+            </Box>
 
             <PaymentModal
                 open={paymentOpen}

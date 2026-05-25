@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Grid, FormControl, InputLabel, Select, MenuItem, Paper, Typography} from '@mui/material';
-import {ProductsTable} from './ProductsTable';
+import {Box, Grid} from '@mui/material';
+import {ProductCatalog} from './ProductCatalog';
+import {OperationTypeToggle} from './OperationTypeToggle';
 import {SaleInfo} from './SaleInfo';
 import {DeliveryOrder} from './DeliveryOrder';
 import {AddProductForm} from './AddProductForm';
 import {ShoppingCart} from './ShoppingCart';
 import {useSaleForm} from '../../hooks/sale/useSaleForm';
-import '../../styles/css/SaleForm.css';
+import {saleFormStyles} from '../../styles/js/SaleFormStyles';
 
 export const SaleForm = ({saleSelected}) => {
     const {
@@ -69,128 +70,78 @@ export const SaleForm = ({saleSelected}) => {
     };
 
     return (
-        <Box sx={{flexGrow: 1, p: 3, minHeight: 'calc(100vh - 350px)', backgroundColor: '#fafbfc'}} className="sale-form-container">
-                <Grid container spacing={3} sx={{height: '100%', flexWrap: 'nowrap !important'}}>
-                    <Grid
-                        sx={{height: '100%', minWidth: '400px', flex: '1 1 50%', maxWidth: '50% !important'}}>
-                        <ProductsTable
-                            products={products}
-                            productSearch={productSearch}
-                            onProductSearchChange={setProductSearch}
-                            onSelectProduct={handleOpenProductDialog}
-                            formatCurrency={formatCurrency}
-                        />
-                    </Grid>
-
-                    {/* Columna Derecha */}
-                    <Grid item xs={6} sx={{
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        minWidth: '400px',
-                        flex: '1 1 50%',
-                        maxWidth: '50% !important',
-                        overflow: 'hidden'
-                    }}>
-                        <Box sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 2,
-                            height: '100%',
-                            overflow: 'auto',
-                            minHeight: 0
-                        }}>
-                            {isAdmin && (
-                                <Paper elevation={2} sx={{overflow: 'hidden', border: '1px solid rgba(106, 27, 154, 0.15)'}}>
-                                    <Box sx={{
-                                        background: 'linear-gradient(135deg, #6a1b9a 0%, #ab47bc 100%)',
-                                        px: 2, py: 1.5,
-                                        display: 'flex', alignItems: 'center', gap: 1
-                                    }}>
-                                        <Typography variant="h6" sx={{color: 'white', fontWeight: 600, fontSize: '1rem'}}>
-                                            Tipo de Operación
-                                        </Typography>
-                                    </Box>
-                                    <Box sx={{p: 2}}>
-                                        <FormControl fullWidth>
-                                            <InputLabel id="operation-type-label">Tipo de Operación</InputLabel>
-                                            <Select
-                                                labelId="operation-type-label"
-                                                id="operation-type-select"
-                                                value={operationType}
-                                                label="Tipo de Operación"
-                                                variant="outlined"
-                                                onChange={(e) => setOperationType(e.target.value)}
-                                            >
-                                                <MenuItem value="venta">Venta</MenuItem>
-                                                <MenuItem value="pedido">Pedido</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                        {operationType === 'venta' && (
-                                            <Typography variant="caption" color="text.secondary"
-                                                        sx={{mt: 1, display: 'block'}}>
-                                                Modo Venta: No se creará pedido de entrega
-                                            </Typography>
-                                        )}
-                                        {operationType === 'pedido' && (
-                                            <Typography variant="caption" sx={{mt: 1, display: 'block', color: '#6a1b9a', fontWeight: 500}}>
-                                                Modo Pedido: Se creará pedido de entrega
-                                            </Typography>
-                                        )}
-                                    </Box>
-                                </Paper>
-                            )}
-
-                            <SaleInfo
-                                user={user}
-                                customers={customers}
-                                formData={formData}
-                                selectedCustomer={selectedCustomer}
-                                paymentMethodId={paymentMethodId}
-                                paid={paid}
-                                notes={notes}
-                                errors={errors}
-                                onInputChange={handleInputChange}
-                                onPaymentMethodChange={setPaymentMethodId}
-                                onPaidChange={setPaid}
-                                onNotesChange={setNotes}
-                            />
-
-                            {canSaveDeliveryOrder && (
-                                <DeliveryOrder
-                                    selectedCustomer={selectedCustomer}
-                                    deliveryEmployeeId={deliveryEmployeeId}
-                                    deliveryCost={deliveryCost}
-                                    employees={employees}
-                                    onDeliveryEmployeeChange={setDeliveryEmployeeId}
-                                    onDeliveryCostChange={setDeliveryCost}
-                                    canSaveDeliveryOrder={canSaveDeliveryOrder}
-                                />
-                            )}
-
-                            <ShoppingCart
-                                saleDetails={saleDetails}
-                                formData={formData}
-                                isEditMode={isEditMode}
-                                isSubmitting={isSubmitting}
-                                errors={errors}
-                                amountTendered={amountTendered}
-                                onAmountTenderedChange={setAmountTendered}
-                                onRemoveProduct={handleRemoveProduct}
-                                onCancel={handleLocalCancel}
-                                onValidate={validateForm}
-                                onSaveSale={handleSubmit}
-                                formatCurrency={formatCurrency}
-                                paymentMethodId={paymentMethodId}
-                                requiresInvoice={requiresInvoice}
-                                onRequiresInvoiceChange={setRequiresInvoice}
-                                selectedFiscalId={selectedFiscalId}
-                                onSelectedFiscalIdChange={setSelectedFiscalId}
-                                fiscalList={customerFiscalDataList}
-                            />
-                        </Box>
-                    </Grid>
+        <Box sx={saleFormStyles.pageContainer}>
+            <Grid container spacing={3}>
+                {/* Lado izquierdo (~70%): catálogo de productos */}
+                <Grid size={{xs: 12, md: 8}}>
+                    <ProductCatalog
+                        products={products}
+                        productSearch={productSearch}
+                        onProductSearchChange={setProductSearch}
+                        onSelectProduct={handleOpenProductDialog}
+                        formatCurrency={formatCurrency}
+                    />
                 </Grid>
+
+                {/* Lado derecho (~30%): panel de ticket */}
+                <Grid size={{xs: 12, md: 4}}>
+                    <Box sx={saleFormStyles.rightPanel}>
+                        <OperationTypeToggle
+                            operationType={operationType}
+                            onChange={setOperationType}
+                            isAdmin={isAdmin}
+                        />
+
+                        <SaleInfo
+                            user={user}
+                            customers={customers}
+                            formData={formData}
+                            selectedCustomer={selectedCustomer}
+                            paymentMethodId={paymentMethodId}
+                            paid={paid}
+                            notes={notes}
+                            errors={errors}
+                            onInputChange={handleInputChange}
+                            onPaymentMethodChange={setPaymentMethodId}
+                            onPaidChange={setPaid}
+                            onNotesChange={setNotes}
+                        />
+
+                        {canSaveDeliveryOrder && (
+                            <DeliveryOrder
+                                selectedCustomer={selectedCustomer}
+                                deliveryEmployeeId={deliveryEmployeeId}
+                                deliveryCost={deliveryCost}
+                                employees={employees}
+                                onDeliveryEmployeeChange={setDeliveryEmployeeId}
+                                onDeliveryCostChange={setDeliveryCost}
+                                canSaveDeliveryOrder={canSaveDeliveryOrder}
+                            />
+                        )}
+
+                        <ShoppingCart
+                            saleDetails={saleDetails}
+                            formData={formData}
+                            isEditMode={isEditMode}
+                            isSubmitting={isSubmitting}
+                            errors={errors}
+                            amountTendered={amountTendered}
+                            onAmountTenderedChange={setAmountTendered}
+                            onRemoveProduct={handleRemoveProduct}
+                            onCancel={handleLocalCancel}
+                            onValidate={validateForm}
+                            onSaveSale={handleSubmit}
+                            formatCurrency={formatCurrency}
+                            paymentMethodId={paymentMethodId}
+                            requiresInvoice={requiresInvoice}
+                            onRequiresInvoiceChange={setRequiresInvoice}
+                            selectedFiscalId={selectedFiscalId}
+                            onSelectedFiscalIdChange={setSelectedFiscalId}
+                            fiscalList={customerFiscalDataList}
+                        />
+                    </Box>
+                </Grid>
+            </Grid>
 
             <AddProductForm
                 open={isProductDialogOpen}

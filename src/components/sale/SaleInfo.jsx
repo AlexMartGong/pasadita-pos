@@ -1,9 +1,17 @@
 import React from 'react';
 import {
     Box, Card, CardContent, Chip, Divider,
-    Grid, TextField, Typography
+    FormControl, FormHelperText, Grid, InputLabel,
+    MenuItem, Select, TextField, Typography
 } from '@mui/material';
 import {Person, ReceiptLong} from '@mui/icons-material';
+
+const PAYMENT_METHODS = [
+    {value: 1, label: 'Efectivo'},
+    {value: 2, label: 'Transferencia'},
+    {value: 3, label: 'Tarjeta de Crédito'},
+    {value: 4, label: 'Tarjeta de Débito'},
+];
 
 export const SaleInfo = ({
                              user,
@@ -18,87 +26,93 @@ export const SaleInfo = ({
                              onNotesChange
                          }) => {
     return (
-        <>
-            <Card sx={{flexShrink: 0, border: '1px solid rgba(46, 125, 50, 0.15)'}}>
-                <Box sx={{
-                    background: 'linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%)',
-                    px: 2, py: 1.5,
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-                }}>
-                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                        <ReceiptLong sx={{color: 'white', fontSize: 22}}/>
-                        <Typography variant="h6" sx={{color: 'white', fontWeight: 600, fontSize: '1rem'}}>
-                            Información de Venta
-                        </Typography>
-                    </Box>
-                    <Chip
-                        icon={<Person fontSize="small"/>}
-                        label={user || ''}
-                        size="small"
-                        sx={{backgroundColor: 'rgba(255,255,255,0.9)', fontWeight: 500}}
-                    />
+        <Card sx={{flexShrink: 0, border: '1px solid rgba(46, 125, 50, 0.15)'}}>
+            <Box sx={{
+                background: 'linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%)',
+                px: 2, py: 1.5,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+            }}>
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                    <ReceiptLong sx={{color: 'white', fontSize: 22}}/>
+                    <Typography variant="h6" sx={{color: 'white', fontWeight: 600, fontSize: '1rem'}}>
+                        Información de Venta
+                    </Typography>
                 </Box>
-                <CardContent sx={{pb: 2}}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
-                            <select
-                                className={`form-select ${errors.customerId ? 'is-invalid' : ''}`}
+                <Chip
+                    icon={<Person fontSize="small"/>}
+                    label={user || ''}
+                    size="small"
+                    sx={{backgroundColor: 'rgba(255,255,255,0.9)', fontWeight: 500}}
+                />
+            </Box>
+            <CardContent sx={{pb: 2}}>
+                <Grid container spacing={2}>
+                    <Grid size={{xs: 12}}>
+                        <FormControl fullWidth size="small" error={Boolean(errors.customerId)}>
+                            <InputLabel id="customer-select-label">Cliente</InputLabel>
+                            <Select
+                                labelId="customer-select-label"
+                                id="customer-select"
+                                label="Cliente"
                                 value={formData.customerId || ''}
                                 onChange={onInputChange('customerId')}
                             >
-                                <option value="">Seleccione un cliente</option>
+                                <MenuItem value="">
+                                    <em>Seleccione un cliente</em>
+                                </MenuItem>
                                 {customers.map((customer) => (
-                                    <option key={customer.id} value={customer.id}>
+                                    <MenuItem key={customer.id} value={customer.id}>
                                         {customer.name}
-                                    </option>
+                                    </MenuItem>
                                 ))}
-                            </select>
+                            </Select>
                             {errors.customerId && (
-                                <div className="text-danger small">
-                                    {errors.customerId}
-                                </div>
+                                <FormHelperText>{errors.customerId}</FormHelperText>
                             )}
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <select
-                                className="form-select"
+                        </FormControl>
+                    </Grid>
+
+                    <Grid size={{xs: 12}}>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="payment-method-label">Método de pago</InputLabel>
+                            <Select
+                                labelId="payment-method-label"
+                                id="payment-method-select"
+                                label="Método de pago"
                                 value={paymentMethodId}
                                 onChange={(e) => onPaymentMethodChange(parseInt(e.target.value))}
                             >
-                                <option value={1}>Efectivo</option>
-                                <option value={2}>Transferencia</option>
-                                <option value={3}>Tarjeta de Crédito</option>
-                                <option value={4}>Tarjeta de Débito</option>
-                            </select>
-                        </Grid>
+                                {PAYMENT_METHODS.map((method) => (
+                                    <MenuItem key={method.value} value={method.value}>
+                                        {method.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </Grid>
+                </Grid>
 
-                    {selectedCustomer && (
-                        <Grid item xs={12}>
-                            <Divider/>
-                            <Typography variant="body2" sx={{mt: 1}}>
-                                {(selectedCustomer.customDiscount > 0) && (
-                                    <>
-                                        <strong>Descuento:</strong> {selectedCustomer.customDiscount}
-                                    </>
-                                )}
-                            </Typography>
-                        </Grid>
-                    )}
+                {selectedCustomer && selectedCustomer.customDiscount > 0 && (
+                    <Box sx={{mt: 1.5}}>
+                        <Divider/>
+                        <Typography variant="body2" sx={{mt: 1}}>
+                            <strong>Descuento:</strong> {selectedCustomer.customDiscount}
+                        </Typography>
+                    </Box>
+                )}
 
-                    <Grid item xs={12} sx={{mt: 2}}>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            label="Notas (opcional)"
-                            value={notes}
-                            onChange={(e) => onNotesChange(e.target.value)}
-                            multiline
-                            rows={2}
-                        />
-                    </Grid>
-                </CardContent>
-            </Card>
-        </>
+                <Box sx={{mt: 2}}>
+                    <TextField
+                        fullWidth
+                        size="small"
+                        label="Notas (opcional)"
+                        value={notes}
+                        onChange={(e) => onNotesChange(e.target.value)}
+                        multiline
+                        rows={2}
+                    />
+                </Box>
+            </CardContent>
+        </Card>
     );
 };
