@@ -194,8 +194,7 @@ export const PaymentModal = ({
                                     variant="contained"
                                     onClick={() => handleDenominationClick(denom.value)}
                                     sx={{
-                                        flex: '1 1 28%',
-                                        minWidth: 90,
+                                        flexBasis: 'calc(33.333% - 12px)',
                                         py: 1.5,
                                         fontSize: '1rem',
                                         fontWeight: 700,
@@ -217,7 +216,7 @@ export const PaymentModal = ({
                         <Typography variant="subtitle2" color="text.secondary" sx={{mb: 1}}>
                             Monedas
                         </Typography>
-                        <Box sx={{display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center'}}>
+                        <Box sx={{display: 'flex', gap: 1.5, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center'}}>
                             {QUICK_AMOUNTS.map((item) => (
                                 <Chip
                                     key={item.value}
@@ -347,6 +346,7 @@ export const PaymentModal = ({
                                             labelId="fiscal-data-label"
                                             label="Datos Fiscales"
                                             value={selectedFiscalId ?? ''}
+                                            variant="outlined"
                                             onChange={(e) =>
                                                 onSelectedFiscalIdChange(e.target.value || null)
                                             }
