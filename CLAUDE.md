@@ -48,7 +48,7 @@ pnpm preview
 - **Redux Toolkit** for global state management
 - Store location: `src/stores/store.js`
 - Slices: `auth`, `user`, `product`, `customer`, `customerType`, `customerFiscalData`, `sale`, `invoice`, `deliveryOrder`, `dashboard`
-- Each slice located in `src/stores/slices/{domain}/{domain}Slice.js`
+- Each slice located in `src/stores/slices/{domain}/{domain}Slice.js` — **exception:** `customerType` is nested under `customer/` (`src/stores/slices/customer/customerTypeSlice.js`), and `customerType` has no `src/hooks/customerType/` dir of its own
 
 ### API Communication Pattern
 Three-layer architecture for each domain (user, product, customer, customerType, customerFiscalData, sale, invoice, deliveryOrder):
@@ -125,11 +125,11 @@ Three-layer architecture for each domain (user, product, customer, customerType,
 - MUI `sx` style objects in `src/styles/js/` (FormStyles, PageHeader, PageContainer, StatsCards, SidebarStyles, DashboardStyles, SaleFormStyles, etc.) — each exports a named `*Styles` const of plain `sx` objects (some are functions taking params)
 - New/refactored UI is MUI-only (`sx`); per the AI guidelines, follow the `frontend-design` skill at `.claude/skills/frontend-design`
 
-### Hardware Integration
-- Scale API (`src/apis/scaleApi.js`): Connects to a local scale service
-- Vite dev server proxies `/api/scale` → `http://localhost:8081`
-- Endpoints: `/connect`, `/disconnect`, `/weight`, `/status`
-- Used in `QuantityInput` component for weighing KILOGRAMO products
+### Local Agent (Scale + Station ID)
+A per-terminal local agent runs at `http://localhost:8081` and serves **both** the scale and the station identity. It is optional — the app degrades gracefully when the agent is unreachable.
+- **Scale** (`src/apis/scaleApi.js`): Vite dev server proxies `/api/scale` → `http://localhost:8081`; endpoints `/connect`, `/disconnect`, `/weight`, `/status`. Driven by the `useScale` hook, used in `QuantityInput` to weigh `KILOGRAMO` products.
+- **Station ID** (`src/services/agentService.js`): `getStationId()` fetches `GET /api/station` and caches `stationId` in **localStorage** (key `stationId`); `getCachedStationId()` reads the cache without a network call. Called once on app load in `FruitRoute.jsx`. Unlike auth (`token`/`login` in sessionStorage), the station id lives in localStorage so it persists across sessions on the same physical terminal.
+- **Where stationId flows:** attached to every sale payload (`useSaleForm.handleSubmit` sets `stationId: getCachedStationId()`) and passed as a `?stationId=` query param when fetching a ticket (`saleService.getTicketBySaleId(saleId, stationId)`) so the right terminal prints. A null/uncached stationId is tolerated — the param is simply omitted.
 
 ### Environment Configuration
 - `.env`: `VITE_API_BASE_URL=http://localhost:8080` (development)
