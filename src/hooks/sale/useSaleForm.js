@@ -209,7 +209,7 @@ export const useSaleForm = (saleSelected) => {
         });
     }, []);
 
-    const handleSelectProduct = (product) => {
+    const handleSelectProduct = useCallback((product) => {
         const discountAmount = getCustomerDiscount();
         const discountedPrice = product.price - discountAmount;
         const isKilogram = product.unitMeasure === 'KILOGRAMO';
@@ -224,7 +224,7 @@ export const useSaleForm = (saleSelected) => {
             total: isKilogram ? 0 : discountedPrice,
             unitMeasure: product.unitMeasure || ''
         });
-    };
+    }, [getCustomerDiscount]);
 
     const handleAddToCart = () => {
         if (!selectedProductData.id || !selectedProductData.quantity || selectedProductData.quantity <= 0) {

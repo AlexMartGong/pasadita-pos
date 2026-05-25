@@ -7,9 +7,7 @@ import {
     saleFormStyles
 } from '../../styles/js/SaleFormStyles';
 
-// Tarjeta de un producto (SRP). El Avatar de iniciales actúa como placeholder
-// para una futura imagen del producto (bastará con pasar `src` cuando exista).
-export const ProductCard = ({product, onSelect, formatCurrency}) => {
+const ProductCardComponent = ({product, onSelect, formatCurrency}) => {
     const color = categoryColor(product.category);
 
     return (
@@ -66,3 +64,5 @@ export const ProductCard = ({product, onSelect, formatCurrency}) => {
         </Card>
     );
 };
+
+export const ProductCard = React.memo(ProductCardComponent);

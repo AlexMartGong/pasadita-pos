@@ -68,6 +68,14 @@ export const saleFormStyles = {
         pr: 0.5,
     },
 
+    // Control de paginación del catálogo: fijo bajo el grid, centrado.
+    catalogPagination: {
+        flexShrink: 0,
+        display: 'flex',
+        justifyContent: 'center',
+        pt: 1.5,
+    },
+
     // Tarjeta de producto.
     productCard: {
         height: '100%',

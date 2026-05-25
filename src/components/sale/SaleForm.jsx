@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Box, Grid} from '@mui/material';
 import {ProductCatalog} from './ProductCatalog';
 import {OperationTypeToggle} from './OperationTypeToggle';
@@ -64,10 +64,10 @@ export const SaleForm = ({saleSelected}) => {
         }
     }, [selectedProductData.id, isProductDialogOpen]);
 
-    const handleOpenProductDialog = (product) => {
+    const handleOpenProductDialog = useCallback((product) => {
         handleSelectProduct(product);
         setIsProductDialogOpen(true);
-    };
+    }, [handleSelectProduct]);
 
     return (
         <Box sx={saleFormStyles.pageContainer}>

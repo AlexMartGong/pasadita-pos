@@ -1,12 +1,11 @@
-import React, {useRef} from 'react';
-import {Box, Card, CardContent, Grid, TextField, Typography} from '@mui/material';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {Box, Card, CardContent, Grid, Pagination, TextField, Typography} from '@mui/material';
 import {Inventory2} from '@mui/icons-material';
 import {ProductCard} from './ProductCard';
 import {saleFormStyles} from '../../styles/js/SaleFormStyles';
 
-// Catálogo de productos en formato de tarjetas (reemplaza la tabla anterior).
-// Mantiene el mismo contrato de props y la misma cadena de selección que disparaba
-// la tabla: al elegir un producto se limpia la búsqueda y se vuelve a enfocar el input.
+const ITEMS_PER_PAGE = 20;
+
 export const ProductCatalog = ({
                                    products,
                                    productSearch,
@@ -15,6 +14,7 @@ export const ProductCatalog = ({
                                    formatCurrency
                                }) => {
     const searchInputRef = useRef(null);
+    const [page, setPage] = useState(1);
 
     const filteredProducts = products.filter(p =>
         p.active &&
@@ -22,11 +22,21 @@ export const ProductCatalog = ({
             p.id.toString().includes(productSearch))
     );
 
-    const handleSelect = (product) => {
+    useEffect(() => {
+        setPage(1);
+    }, [productSearch]);
+
+    const pageCount = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+    const pageProducts = filteredProducts.slice(
+        (page - 1) * ITEMS_PER_PAGE,
+        page * ITEMS_PER_PAGE
+    );
+
+    const handleSelect = useCallback((product) => {
         onSelectProduct(product);
         onProductSearchChange('');
         searchInputRef.current?.focus();
-    };
+    }, [onSelectProduct, onProductSearchChange]);
 
     return (
         <Card sx={{...saleFormStyles.leftPanel, border: '1px solid rgba(25, 118, 210, 0.15)'}}>
@@ -62,7 +72,7 @@ export const ProductCatalog = ({
                         </Typography>
                     ) : (
                         <Grid container spacing={1.5}>
-                            {filteredProducts.map((product) => (
+                            {pageProducts.map((product) => (
                                 <Grid key={product.id} size={{xs: 6, sm: 4, md: 3, lg: 2.4}}>
                                     <ProductCard
                                         product={product}
@@ -74,6 +84,18 @@ export const ProductCatalog = ({
                         </Grid>
                     )}
                 </Box>
+
+                {pageCount > 1 && (
+                    <Box sx={saleFormStyles.catalogPagination}>
+                        <Pagination
+                            count={pageCount}
+                            page={page}
+                            onChange={(_, value) => setPage(value)}
+                            color="primary"
+                            size="small"
+                        />
+                    </Box>
+                )}
             </CardContent>
         </Card>
     );
