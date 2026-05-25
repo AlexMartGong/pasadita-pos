@@ -1,0 +1,3 @@
+a, button, input, select, textarea, .MuiCard-root, .MuiButtonBase-root {
+    touch-action: manipulation;
+}
