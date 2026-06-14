@@ -42,7 +42,7 @@ Register any new slice in `src/stores/store.js`.
   - `AdminRoute` — `ROLE_ADMIN` only (users, products, customers, customer types, customer fiscal data)
   - `ProtectedRoute` — any authenticated user (sales, delivery, invoices, tickets)
 - Multi-word domains use kebab-case in URLs: `customerFiscalData` → `/customer-fiscal-data`
-- Non-admin users (`CAJERO`, `PEDIDOS`) get `hasLimitedAccess` and a reduced sidebar menu; redirect after login is `/sale/register`
+- Non-admin users (`CAJERO`, `PEDIDOS`) get `hasLimitedAccess` and a reduced sidebar menu; redirect after login is `/sale/register`. Admin post-login landing is `/products/quick-prices` (not `/dashboard`). Redirect logic lives in `src/auth/hooks/useAuth.js`.
 
 ## API & Environment
 - Dev backend: `.env` → `VITE_API_BASE_URL=http://localhost:8080`
@@ -64,6 +64,9 @@ Register any new slice in `src/stores/store.js`.
 - Independent entity; no FK to `customer`.
 - Backend supports `getAll`, `getById`, `getByRfc/{rfc}`, `save`, `update`. **No delete, no change-status.**
 - Forms use MUI Grid v2 (`size={{xs,sm,md}}`), NOT Bootstrap.
+
+### Product
+- Quick price-edit view at `/products/quick-prices` (`AdminRoute`, admin login landing) is mobile-first and breaks the DataGrid pattern: `ProductPriceEditor` + memoized `ProductPriceCard` (responsive MUI Grid v2, 300ms debounced search, `inputMode="decimal"` price inputs with dynamic `aria-label`, save onBlur + ≥44px button). Reuses `productService.updateProductPrice` + `useProduct.handleUpdatePriceProduct` (via `useApiErrorHandler`); no new layers. Replaced the retired `SimpleProductTable`/`useProductTableSimple`.
 
 ### Sale / Delivery
 - `useSaleForm` is a complex hook managing cart state, customer discounts, product search, delivery order integration, and hot-stamp invoicing.
