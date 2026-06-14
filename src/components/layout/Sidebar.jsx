@@ -8,6 +8,7 @@ import {
     ListItemButton,
     ListItemIcon,
     ListItemText,
+    Collapse,
     Typography,
     Box,
     Avatar,
@@ -32,6 +33,8 @@ import {
     PendingActions,
     Receipt,
     PriceChange,
+    ExpandLess,
+    ExpandMore,
     Menu as MenuIcon
 } from '@mui/icons-material';
 import {sidebarStyles} from '../../styles/js/SidebarStyles.js';
@@ -42,9 +45,14 @@ export const Sidebar = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [openGroups, setOpenGroups] = useState({operaciones: true});
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
+    };
+
+    const handleToggleGroup = (groupId) => {
+        setOpenGroups((prev) => ({...prev, [groupId]: !prev[groupId]}));
     };
 
     const handleMenuItemClick = () => {
@@ -72,26 +80,65 @@ export const Sidebar = () => {
     };
 
     const limitedMenuItems = [
-        {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
-        {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
-        {path: '/pending', icon: 'bi-pending', label: 'Pendientes'},
-        {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
-        {path: '/invoices', icon: 'bi-invoice', label: 'Facturas'},
+        {
+            type: 'group',
+            id: 'operaciones',
+            label: 'Operaciones',
+            icon: 'bi-cart-plus',
+            items: [
+                {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
+                {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
+                {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
+                {path: '/pending', icon: 'bi-pending', label: 'Pendientes'},
+            ]
+        },
+        {
+            type: 'group',
+            id: 'facturacion',
+            label: 'Facturación',
+            icon: 'bi-invoice',
+            items: [
+                {path: '/invoices', icon: 'bi-invoice', label: 'Facturas'},
+            ]
+        },
     ];
 
     const fullMenuItems = [
         {path: '/dashboard', icon: 'bi-speedometer2', label: 'Dashboard'},
-        {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
-        {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
-        {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
-        {path: '/pending', icon: 'bi-pending', label: 'Pendientes'},
-        {path: '/products', icon: 'bi-box-seam', label: 'Productos'},
-        {path: '/products/quick-prices', icon: 'bi-price', label: 'Precios Rápidos'},
-        {path: '/users', icon: 'bi bi-people', label: 'Usuarios'},
-        {path: '/customers', icon: 'bi-people', label: 'Clientes'},
-        {path: '/customer-types', icon: 'bi-category', label: 'Tipos de Clientes'},
-        {path: '/customer-fiscal-data', icon: 'bi-receipt-fiscal', label: 'Datos Fiscales'},
-        {path: '/invoices', icon: 'bi-invoice', label: 'Facturas'},
+        {
+            type: 'group',
+            id: 'operaciones',
+            label: 'Operaciones',
+            icon: 'bi-cart-plus',
+            items: [
+                {path: '/products/quick-prices', icon: 'bi-price', label: 'Precios Rápidos'},
+                {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
+                {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
+                {path: '/pending', icon: 'bi-pending', label: 'Pendientes'},
+            ]
+        },
+        {
+            type: 'group',
+            id: 'administracion',
+            label: 'Administración',
+            icon: 'bi-box-seam',
+            items: [
+                {path: '/products', icon: 'bi-box-seam', label: 'Productos'},
+                {path: '/users', icon: 'bi bi-people', label: 'Usuarios'},
+                {path: '/customers', icon: 'bi-people', label: 'Clientes'},
+                {path: '/customer-types', icon: 'bi-category', label: 'Tipos de Clientes'},
+            ]
+        },
+        {
+            type: 'group',
+            id: 'facturacion',
+            label: 'Facturación',
+            icon: 'bi-invoice',
+            items: [
+                {path: '/invoices', icon: 'bi-invoice', label: 'Facturas'},
+                {path: '/customer-fiscal-data', icon: 'bi-receipt-fiscal', label: 'Datos Fiscales'},
+            ]
+        },
     ];
 
     const menuItems = hasLimitedAccess ? limitedMenuItems : fullMenuItems;
@@ -112,6 +159,61 @@ export const Sidebar = () => {
             <Box sx={sidebarStyles.navigationContainer}>
                 <List>
                     {menuItems.map((item, index) => {
+                        // Grupo colapsable (acordeón)
+                        if (item.type === 'group') {
+                            const isOpen = !!openGroups[item.id];
+                            return (
+                                <Box key={item.id}>
+                                    <ListItem disablePadding sx={sidebarStyles.listItem}>
+                                        <ListItemButton
+                                            onClick={() => handleToggleGroup(item.id)}
+                                            sx={sidebarStyles.groupHeader}
+                                        >
+                                            <ListItemIcon sx={sidebarStyles.listItemIcon(false)}>
+                                                {getIcon(item.icon)}
+                                            </ListItemIcon>
+                                            <ListItemText primary={item.label}/>
+                                            {isOpen
+                                                ? <ExpandLess sx={sidebarStyles.expandIcon}/>
+                                                : <ExpandMore sx={sidebarStyles.expandIcon}/>}
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                                        <List component="div" disablePadding>
+                                            {item.items.map((sub) => {
+                                                const isSelected = location.pathname === sub.path;
+                                                return (
+                                                    <ListItem
+                                                        key={sub.path}
+                                                        disablePadding
+                                                        sx={sidebarStyles.listItem}
+                                                    >
+                                                        <ListItemButton
+                                                            component={Link}
+                                                            to={sub.path}
+                                                            selected={isSelected}
+                                                            onClick={handleMenuItemClick}
+                                                            sx={sidebarStyles.nestedListItemButton}
+                                                        >
+                                                            <ListItemIcon
+                                                                sx={sidebarStyles.listItemIcon(isSelected)}>
+                                                                {getIcon(sub.icon)}
+                                                            </ListItemIcon>
+                                                            <ListItemText
+                                                                primary={sub.label}
+                                                                sx={sidebarStyles.listItemText(isSelected)}
+                                                            />
+                                                        </ListItemButton>
+                                                    </ListItem>
+                                                );
+                                            })}
+                                        </List>
+                                    </Collapse>
+                                </Box>
+                            );
+                        }
+
+                        // Ítem directo
                         const isSelected = location.pathname === item.path;
                         return (
                             <ListItem key={item.path} disablePadding sx={sidebarStyles.listItem}>

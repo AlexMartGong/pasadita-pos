@@ -49,7 +49,7 @@ export const sidebarStyles = {
     mb: 0.5
   },
 
-  listItemButton: (index, isSelected) => ({
+  listItemButton: (index) => ({
     mx: 1,
     borderRadius: 2,
     transition: 'all 0.3s ease',
@@ -70,6 +70,49 @@ export const sidebarStyles = {
       transform: 'translateX(4px)'
     }
   }),
+
+  groupHeader: {
+    mx: 1,
+    borderRadius: 2,
+    transition: 'all 0.3s ease',
+    '& .MuiListItemIcon-root': {
+      color: '#bbb'
+    },
+    '& .MuiListItemText-primary': {
+      color: '#fff',
+      fontSize: '0.95rem',
+      fontWeight: 600
+    },
+    '&:hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.08)'
+    }
+  },
+
+  expandIcon: {
+    color: '#bbb'
+  },
+
+  nestedListItemButton: {
+    mx: 1,
+    pl: 4,
+    borderRadius: 2,
+    transition: 'all 0.3s ease',
+    '&.Mui-selected': {
+      backgroundColor: 'rgba(255, 107, 53, 0.15)',
+      borderLeft: '4px solid #ff6b35',
+      '& .MuiListItemIcon-root': {
+        color: '#ff6b35'
+      },
+      '& .MuiListItemText-primary': {
+        color: '#ff6b35',
+        fontWeight: 600
+      }
+    },
+    '&:hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+      transform: 'translateX(4px)'
+    }
+  },
 
   listItemIcon: (isSelected) => ({
     color: isSelected ? '#ff6b35' : '#bbb',
