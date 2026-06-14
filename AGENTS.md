@@ -7,6 +7,7 @@ Compact guidance for OpenCode sessions. If a fact is obvious from filenames, it 
 - Redux Toolkit (global state)
 - Material-UI (MUI) v7 + MUI X DataGrid v8
 - Axios for HTTP
+- PWA via `vite-plugin-pwa` (installable, Workbox service worker)
 - No test suite exists; do not create or suggest tests unless explicitly asked
 
 ## Development Commands
@@ -49,6 +50,12 @@ Register any new slice in `src/stores/store.js`.
 - Prod backend: `.env.production` → `https://api.lapasadita.app`
 - Scale hardware proxy (Vite only): `/api/scale` → `http://localhost:8081`
 - All API errors MUST go through `useApiErrorHandler` (Spanish toasts, auto-logout on 401)
+
+## PWA
+- Configured as the `VitePWA` plugin in `vite.config.js` (`registerType: 'autoUpdate'` — SW auto-registers, no manual registration).
+- Manifest: name "La Pasadita POS" / short_name "La Pasadita", `display: standalone`, `theme_color`/`background_color` `#ffffff`, icons `/pwa-192x192.png` + `/pwa-512x512.png` (in `public/`).
+- `index.html` has `<meta name="theme-color">` + `<link rel="apple-touch-icon" href="/pwa-192x192.png">`; manifest/SW tags injected at build.
+- `pnpm build` emits `dist/{manifest.webmanifest,sw.js,workbox-*.js,registerSW.js}`. Cross-origin API calls are not Workbox-cached.
 
 ## Domain-Specific Rules
 

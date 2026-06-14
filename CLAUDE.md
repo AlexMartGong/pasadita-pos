@@ -142,6 +142,13 @@ A per-terminal local agent runs at `http://localhost:8081` and serves **both** t
 - `.env.production`: `VITE_API_BASE_URL=https://api.lapasadita.app` (production)
 - Vite build: `esnext` target, manual chunk splitting (vendor, redux, mui), no sourcemaps
 
+### PWA (Progressive Web App)
+- Installable on mobile/desktop via `vite-plugin-pwa` (devDep), configured in `vite.config.js` as the `VitePWA` plugin alongside `react()`.
+- `registerType: 'autoUpdate'` — service worker auto-registers and refreshes on redeploy; no manual SW registration in `main.jsx`.
+- Manifest: name "La Pasadita POS", short_name "La Pasadita", `display: standalone`, `theme_color`/`background_color` `#ffffff`, icons `/pwa-192x192.png` + `/pwa-512x512.png` (PNGs live in `public/`).
+- `index.html` carries `<meta name="theme-color" content="#ffffff">` and `<link rel="apple-touch-icon" href="/pwa-192x192.png">` (no dedicated `apple-touch-icon.png`; reuses the 192 icon). The `<link rel="manifest">` + `registerSW.js` script are injected by the plugin at build.
+- `pnpm build` emits `dist/manifest.webmanifest`, `dist/sw.js`, `dist/workbox-*.js`, `dist/registerSW.js`. Workbox precaches build assets; cross-origin `VITE_API_BASE_URL` calls are not cached.
+
 ### Key Dependencies
 - **Core**: React 19 + Vite 7 (no TypeScript — plain JSX/JS, no type-check script)
 - **UI**: Material-UI (MUI) v7 with MUI X DataGrid v8, Bootstrap for legacy styles
@@ -151,6 +158,7 @@ A per-terminal local agent runs at `http://localhost:8081` and serves **both** t
 - **HTTP**: Axios with interceptors
 - **Notifications**: react-toastify
 - **Icons**: FontAwesome, MUI Icons
+- **PWA**: `vite-plugin-pwa` (Workbox-backed service worker, installable manifest)
 
 ## Adding New Features
 
