@@ -10,7 +10,7 @@ import {AdminRoute} from "../components/auth/AdminRoute.jsx";
 import {ProtectedRoute} from "../components/auth/ProtectedRoute.jsx";
 import {Box} from '@mui/material';
 import {RegisterProductPage} from "../pages/product/RegisterProductPage.jsx";
-import {SimpleProductTable} from "../components/product/SimpleProductTable.jsx";
+import {ProductPriceEditor} from "../components/product/ProductPriceEditor.jsx";
 import {CustomerPage} from "../pages/customer/CustomerPage.jsx";
 import {RegisterCustomerPage} from "../pages/customer/RegisterCustomerPage.jsx";
 import {CustomerTypePage} from "../pages/customer/CustomerTypePage.jsx";
@@ -81,9 +81,9 @@ export const FruitRoute = () => {
                             <RegisterProductPage/>
                         </AdminRoute>
                     }/>
-                    <Route path="product/price-change" element={
+                    <Route path="products/quick-prices" element={
                         <AdminRoute>
-                            <SimpleProductTable/>
+                            <ProductPriceEditor/>
                         </AdminRoute>
                     }/>
                     <Route path="customers" element={

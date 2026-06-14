@@ -26,16 +26,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A Point of Sale (POS) system built with React + Vite frontend. The application manages employees, products, customers, customer types, customer fiscal data (CFDI 4.0), sales, delivery orders, and invoices (CFDI 4.0 stamped via Facturapi) with role-based access control. No test suite exists — there are no test files or test runner configured.
 
+> A condensed version of this guidance lives in `AGENTS.md` (for other agent tools). When you change an architectural rule here, update `AGENTS.md` too so the two stay in sync.
+
 ## Development Commands
 
+These four scripts are the complete set — there is no test runner and no type-check script.
+
 ```bash
-# Start development server with HMR
+# Start development server with HMR (host 0.0.0.0, port 5173)
 pnpm dev
 
 # Build for production
 pnpm build
 
-# Lint the codebase
+# Lint the codebase (ESLint only)
 pnpm lint
 
 # Preview production build
@@ -95,7 +99,8 @@ Three-layer architecture for each domain (user, product, customer, customerType,
 - `src/components/{domain}/`: Domain-specific components
   - `{Domain}Table.jsx`: Data grid/table component
   - `{Domain}Form.jsx`: Create/edit form component
-- **Sale register view (`/sale/register`) breaks the table/form pattern** — it is an asymmetric POS layout, not a CRUD form. `SaleForm.jsx` composes `useSaleForm` and renders a MUI Grid v2 split: left ~70% = `ProductCatalog.jsx` (search + responsive grid of `ProductCard.jsx` tiles, replaced the old products table) and right ~30% = a fixed "ticket" panel (`OperationTypeToggle.jsx` admin-only + `SaleInfo.jsx` + conditional `DeliveryOrder.jsx` + `ShoppingCart.jsx`). `ShoppingCart` is a flex column whose totals + "Cobrar Venta"/"Cancelar" footer stays pinned while the cart list scrolls. Clicking a `ProductCard` opens `AddProductForm.jsx` (quantity + scale via `QuantityInput`, read-only price/total). Reusable `sx` and the per-category color/label/initials helpers for this view live in `src/styles/js/SaleFormStyles.js`.
+- **Sale register view (`/sale/register`) breaks the table/form pattern** — it is an asymmetric POS layout, not a CRUD form. `SaleForm.jsx` composes `useSaleForm` and renders a MUI Grid v2 split: left ~70% = `ProductCatalog.jsx` (search + responsive grid of `ProductCard.jsx` tiles, replaced the old products table) and right ~30% (see perf note below) = a fixed "ticket" panel (`OperationTypeToggle.jsx` admin-only + `SaleInfo.jsx` + conditional `DeliveryOrder.jsx` + `ShoppingCart.jsx`). `ShoppingCart` is a flex column whose totals + "Cobrar Venta"/"Cancelar" footer stays pinned while the cart list scrolls. Clicking a `ProductCard` opens `AddProductForm.jsx` (quantity + scale via `QuantityInput`, read-only price/total). Reusable `sx` and the per-category color/label/initials helpers for this view live in `src/styles/js/SaleFormStyles.js`.
+  - **Catalog performance pattern (preserve this):** the product list can be large (~250 items), so `ProductCatalog` paginates client-side at `ITEMS_PER_PAGE = 20` (slices `filteredProducts` before mapping; MUI `<Pagination>` below the grid; `page` resets to 1 via `useEffect` on `productSearch`). `ProductCard` is wrapped in `React.memo`, kept effective by a referentially stable `onSelect` chain: `useSaleForm.handleSelectProduct` (memoized with `useCallback`) → `SaleForm.handleOpenProductDialog` (`useCallback`) → `ProductCatalog.handleSelect` (`useCallback`). Keep these callbacks stable when editing this view.
 
 ### Custom Hooks
 - `useApiErrorHandler`: Centralized error handling with Spanish messages
@@ -137,7 +142,8 @@ A per-terminal local agent runs at `http://localhost:8081` and serves **both** t
 - Vite build: `esnext` target, manual chunk splitting (vendor, redux, mui), no sourcemaps
 
 ### Key Dependencies
-- **UI**: Material-UI (MUI) with DataGrid, Bootstrap for legacy styles
+- **Core**: React 19 + Vite 7 (no TypeScript — plain JSX/JS, no type-check script)
+- **UI**: Material-UI (MUI) v7 with MUI X DataGrid v8, Bootstrap for legacy styles
 - **Charts**: Recharts (dashboard visualizations)
 - **Routing**: React Router v7
 - **State**: Redux Toolkit

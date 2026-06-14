@@ -31,6 +31,7 @@ import {
     ReceiptLong,
     PendingActions,
     Receipt,
+    PriceChange,
     Menu as MenuIcon
 } from '@mui/icons-material';
 import {sidebarStyles} from '../../styles/js/SidebarStyles.js';
@@ -64,7 +65,8 @@ export const Sidebar = () => {
             'bi-cart-plus': <PointOfSale/>,
             'bi-pending': <PendingActions/>,
             'bi-receipt-fiscal': <Receipt/>,
-            'bi-invoice': <ReceiptLong/>
+            'bi-invoice': <ReceiptLong/>,
+            'bi-price': <PriceChange/>
         };
         return icons[iconName] || <Dashboard/>;
     };
@@ -84,6 +86,7 @@ export const Sidebar = () => {
         {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
         {path: '/pending', icon: 'bi-pending', label: 'Pendientes'},
         {path: '/products', icon: 'bi-box-seam', label: 'Productos'},
+        {path: '/products/quick-prices', icon: 'bi-price', label: 'Precios Rápidos'},
         {path: '/users', icon: 'bi bi-people', label: 'Usuarios'},
         {path: '/customers', icon: 'bi-people', label: 'Clientes'},
         {path: '/customer-types', icon: 'bi-category', label: 'Tipos de Clientes'},

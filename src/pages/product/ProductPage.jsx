@@ -25,7 +25,7 @@ export const ProductPage = () => {
                     <Box sx={pageHeaderStyles.buttonContainer}>
                         <Button
                             component={NavLink}
-                            to="/product/price-change"
+                            to="/products/quick-prices"
                             variant="contained"
                             size="large"
                             startIcon={<Edit/>}

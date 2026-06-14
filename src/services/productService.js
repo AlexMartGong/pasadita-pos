@@ -46,6 +46,7 @@ export const updateProductPrice = async (id, price) => {
         return await productApi.put(`/update-price/${id}`, {price});
     } catch (error) {
         console.error('Error updating product price:', error);
+        throw error;
     }
 };
 

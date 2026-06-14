@@ -39,7 +39,7 @@ export const useAuth = () => {
             if ((isCajeroRole || isPedidosRole) && !isAdmin) {
                 navigate("/sale/register");
             } else {
-                navigate("/dashboard");
+                navigate("/products/quick-prices");
             }
 
         } catch (error) {
