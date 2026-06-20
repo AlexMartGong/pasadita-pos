@@ -1,10 +1,10 @@
 import React from 'react';
 import {
     Box, Card, CardContent, Chip, Divider,
-    FormControl, FormHelperText, Grid, InputLabel,
-    MenuItem, Select, TextField, Typography
+    FormControl, FormHelperText, Grid, IconButton, InputLabel,
+    MenuItem, Select, TextField, Tooltip, Typography
 } from '@mui/material';
-import {Person, ReceiptLong} from '@mui/icons-material';
+import {Person, PointOfSale, ReceiptLong} from '@mui/icons-material';
 
 const PAYMENT_METHODS = [
     {value: 1, label: 'Efectivo'},
@@ -23,7 +23,9 @@ export const SaleInfo = ({
                              errors,
                              onInputChange,
                              onPaymentMethodChange,
-                             onNotesChange
+                             onNotesChange,
+                             canOpenDrawer,
+                             onOpenDrawer
                          }) => {
     return (
         <Card sx={{flexShrink: 0, border: '1px solid rgba(46, 125, 50, 0.15)'}}>
@@ -38,12 +40,32 @@ export const SaleInfo = ({
                         Información de Venta
                     </Typography>
                 </Box>
-                <Chip
-                    icon={<Person fontSize="small"/>}
-                    label={user || ''}
-                    size="small"
-                    sx={{backgroundColor: 'rgba(255,255,255,0.9)', fontWeight: 500}}
-                />
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                    <Chip
+                        icon={<Person fontSize="small"/>}
+                        label={user || ''}
+                        size="small"
+                        sx={{backgroundColor: 'rgba(255,255,255,0.9)', fontWeight: 500}}
+                    />
+                    {canOpenDrawer && (
+                        <Tooltip title="Abrir Caja">
+                            <IconButton
+                                onClick={onOpenDrawer}
+                                aria-label="Abrir caja"
+                                size="small"
+                                sx={{
+                                    width: 44,
+                                    height: 44,
+                                    backgroundColor: 'rgba(255,255,255,0.9)',
+                                    color: '#2e7d32',
+                                    '&:hover': {backgroundColor: '#ffffff'}
+                                }}
+                            >
+                                <PointOfSale fontSize="small"/>
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                </Box>
             </Box>
             <CardContent sx={{pb: 2}}>
                 <Grid container spacing={2}>

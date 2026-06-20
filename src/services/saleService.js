@@ -64,6 +64,16 @@ export const getTicketBySaleId = async (id, stationId) => {
     }
 }
 
+export const openDrawer = async (stationId) => {
+    try {
+        const params = stationId ? `?stationId=${encodeURIComponent(stationId)}` : '';
+        return await saleApi.post(`/open-drawer${params}`);
+    } catch (error) {
+        console.error('Error opening drawer:', error);
+        throw error;
+    }
+}
+
 const saleService = {
     getAllSales,
     saveSale,
@@ -72,6 +82,7 @@ const saleService = {
     getSaleById,
     getSaleDetailsById,
     getTicketBySaleId,
+    openDrawer,
 };
 
 export default saleService;

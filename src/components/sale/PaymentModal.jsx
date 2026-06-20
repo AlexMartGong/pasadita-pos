@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {
     Alert, Box, Button, Checkbox, Chip, Dialog, DialogActions, DialogContent,
-    DialogTitle, Divider, FormControl, FormControlLabel, Grid, InputLabel,
+    DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, Grid, InputLabel,
     MenuItem, Select, Typography
 } from '@mui/material';
 import {AttachMoney, Backspace, RestartAlt} from '@mui/icons-material';
@@ -316,22 +316,24 @@ export const PaymentModal = ({
 
                             <Divider sx={{my: 0.5}}/>
 
-                            {/* Facturación */}
+                            {/* Facturación + impresión */}
                             <Box>
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={!!requiresInvoice}
-                                            onChange={(e) => {
-                                                onRequiresInvoiceChange(e.target.checked);
-                                                if (!e.target.checked) {
-                                                    onSelectedFiscalIdChange(null);
-                                                }
-                                            }}
-                                        />
-                                    }
-                                    label="Requiere Factura"
-                                />
+                                <FormGroup>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={!!requiresInvoice}
+                                                onChange={(e) => {
+                                                    onRequiresInvoiceChange(e.target.checked);
+                                                    if (!e.target.checked) {
+                                                        onSelectedFiscalIdChange(null);
+                                                    }
+                                                }}
+                                            />
+                                        }
+                                        label="Requiere Factura"
+                                    />
+                                </FormGroup>
 
                                 {requiresInvoice && (
                                     <FormControl

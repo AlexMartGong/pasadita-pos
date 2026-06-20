@@ -7,8 +7,9 @@ import {useUser} from '../user/useUser';
 import {useCustomerFiscalData} from '../customerFiscalData/useCustomerFiscalData';
 import {useInvoice} from '../invoice/useInvoice';
 import {useAuth} from '../../auth/hooks/useAuth';
+import {useApiErrorHandler} from '../useApiErrorHandler';
 import {deliveryOrderService} from '../../services/deliveryOrderService';
-import {getSaleDetailsById} from '../../services/saleService';
+import {getSaleDetailsById, getTicketBySaleId, openDrawer} from '../../services/saleService';
 import {toast} from 'react-toastify';
 import {formatCurrency, toNumber} from '../../utils/formatters';
 import {clearActiveDraft, setActiveDraft} from '../../stores/slices/sale/saleSlice';
@@ -23,6 +24,7 @@ export const useSaleForm = (saleSelected) => {
     const {handleGetAllFiscalData} = useCustomerFiscalData();
     const {handleTimbrarInvoice, handleSendInvoiceEmail} = useInvoice();
     const {user, employeeId, role} = useAuth();
+    const {handleApiError} = useApiErrorHandler();
     const {activeDraft} = useSelector(state => state.sale);
     const customerFiscalDataList = useSelector(
         (state) => state.customerFiscalData.customerFiscalDataList
@@ -56,6 +58,13 @@ export const useSaleForm = (saleSelected) => {
 
     const [requiresInvoice, setRequiresInvoice] = useState(false);
     const [selectedFiscalId, setSelectedFiscalId] = useState(null);
+    const [postSaleData, setPostSaleData] = useState({
+        isOpen: false,
+        saleId: null,
+        total: 0,
+        amountTendered: 0,
+        changeDue: 0,
+    });
 
     const hasDeliveryRole = role && (role.includes('ROLE_PEDIDOS') || role.includes('ROLE_ADMIN'));
 
@@ -65,6 +74,9 @@ export const useSaleForm = (saleSelected) => {
     );
 
     const isAdmin = role && role.includes('ROLE_ADMIN');
+
+    // Solo ADMIN y CAJERO pueden abrir la gaveta (backend rechaza PEDIDOS con 403).
+    const canOpenDrawer = role && (role.includes('ROLE_ADMIN') || role.includes('ROLE_CAJERO'));
 
     const changeDue = amountTendered !== '' && !isNaN(parseFloat(amountTendered))
         ? parseFloat(amountTendered) - formData.total
@@ -320,7 +332,7 @@ export const useSaleForm = (saleSelected) => {
         }
     };
 
-    const handleLocalCancel = () => {
+    const handleLocalCancel = useCallback(() => {
         setFormData(initialSaleForm);
         setSaleDetails([]);
         setPaymentMethodId(1);
@@ -349,7 +361,7 @@ export const useSaleForm = (saleSelected) => {
                 customerId: customers[0].id
             }));
         }
-    };
+    }, [customers, initialSaleForm, dispatch]);
 
 
     const formatToTwoDecimals = (value) => {
@@ -383,6 +395,7 @@ export const useSaleForm = (saleSelected) => {
                 amountTendered: formatToTwoDecimals(amountTenderedValue),
                 paid: paid,
                 notes: notes || '',
+                printTicket: false,
                 stationId: getCachedStationId(),
                 saleDetails: saleDetails.map(detail => ({
                     productId: detail.productId,
@@ -417,7 +430,17 @@ export const useSaleForm = (saleSelected) => {
                         }
                     }
                 }
-                handleLocalCancel();
+                const total = formatToTwoDecimals(formData.total);
+                const tendered = formatToTwoDecimals(amountTenderedValue);
+                setPostSaleData({
+                    isOpen: true,
+                    saleId: result.id,
+                    total,
+                    amountTendered: tendered,
+                    changeDue: formatToTwoDecimals(tendered - total),
+                });
+                // La limpieza se difiere a handleClosePostSaleModal para mantener
+                // el ticket visible detrás del modal de resumen post-venta.
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -425,6 +448,28 @@ export const useSaleForm = (saleSelected) => {
             setIsSubmitting(false);
         }
     };
+
+    const handleClosePostSaleModal = useCallback(() => {
+        setPostSaleData(prev => ({...prev, isOpen: false}));
+        handleLocalCancel(); // limpia carrito/form y deja la caja lista
+    }, [handleLocalCancel]);
+
+    const handlePrintPostSaleTicket = useCallback(() => {
+        if (postSaleData.saleId) {
+            // GET con stationId → el backend imprime por WebSocket (fire-and-forget)
+            getTicketBySaleId(postSaleData.saleId, getCachedStationId()).catch(() => {});
+        }
+        handleClosePostSaleModal();
+    }, [postSaleData.saleId, handleClosePostSaleModal]);
+
+    const handleOpenDrawer = useCallback(async () => {
+        try {
+            await openDrawer(getCachedStationId());
+            toast.success('Comando enviado');
+        } catch (error) {
+            handleApiError(error);
+        }
+    }, [handleApiError]);
 
     const selectedCustomer = customers.find(c => c.id === parseInt(formData.customerId));
 
@@ -454,6 +499,8 @@ export const useSaleForm = (saleSelected) => {
         changeDue,
         requiresInvoice,
         selectedFiscalId,
+        postSaleData,
+        canOpenDrawer,
         customerFiscalDataList,
         setRequiresInvoice,
         setSelectedFiscalId,
@@ -472,6 +519,9 @@ export const useSaleForm = (saleSelected) => {
         handleInputChange,
         handleLocalCancel,
         handleSubmit,
+        handleClosePostSaleModal,
+        handlePrintPostSaleTicket,
+        handleOpenDrawer,
         validateForm,
         formatCurrency
     };

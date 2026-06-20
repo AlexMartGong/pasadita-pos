@@ -6,6 +6,7 @@ import {SaleInfo} from './SaleInfo';
 import {DeliveryOrder} from './DeliveryOrder';
 import {AddProductForm} from './AddProductForm';
 import {ShoppingCart} from './ShoppingCart';
+import {PostSaleSummaryModal} from './PostSaleSummaryModal';
 import {useSaleForm} from '../../hooks/sale/useSaleForm';
 import {saleFormStyles} from '../../styles/js/SaleFormStyles';
 
@@ -34,6 +35,8 @@ export const SaleForm = ({saleSelected}) => {
         amountTendered,
         requiresInvoice,
         selectedFiscalId,
+        postSaleData,
+        canOpenDrawer,
         customerFiscalDataList,
         setRequiresInvoice,
         setSelectedFiscalId,
@@ -52,6 +55,9 @@ export const SaleForm = ({saleSelected}) => {
         handleInputChange,
         handleLocalCancel,
         handleSubmit,
+        handleClosePostSaleModal,
+        handlePrintPostSaleTicket,
+        handleOpenDrawer,
         validateForm,
         formatCurrency
     } = useSaleForm(saleSelected);
@@ -105,6 +111,8 @@ export const SaleForm = ({saleSelected}) => {
                             onPaymentMethodChange={setPaymentMethodId}
                             onPaidChange={setPaid}
                             onNotesChange={setNotes}
+                            canOpenDrawer={canOpenDrawer}
+                            onOpenDrawer={handleOpenDrawer}
                         />
 
                         {canSaveDeliveryOrder && (
@@ -150,6 +158,16 @@ export const SaleForm = ({saleSelected}) => {
                 errors={errors}
                 onSelectedProductChange={setSelectedProductData}
                 onAddToCart={handleAddToCart}
+                formatCurrency={formatCurrency}
+            />
+
+            <PostSaleSummaryModal
+                open={postSaleData.isOpen}
+                onClose={handleClosePostSaleModal}
+                onPrint={handlePrintPostSaleTicket}
+                total={postSaleData.total}
+                amountTendered={postSaleData.amountTendered}
+                changeDue={postSaleData.changeDue}
                 formatCurrency={formatCurrency}
             />
         </Box>

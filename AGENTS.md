@@ -79,6 +79,8 @@ Register any new slice in `src/stores/store.js`.
 - `useSaleForm` is a complex hook managing cart state, customer discounts, product search, delivery order integration, and hot-stamp invoicing.
 - Operation types: `'venta'` (sale) or `'pedido'` (delivery order).
 - Tickets: `src/utils/printTicket.jsx` + `src/components/sale/Ticket.jsx` (80mm thermal width).
+- Deferred-print / post-sale: sales always save with `printTicket: false` (backend never auto-prints). After a successful save, `SaleForm` opens `PostSaleSummaryModal` (shows change + total + cash); "Imprimir Ticket" calls `getTicketBySaleId(saleId, getCachedStationId())` whose backend GET side-effect prints over WebSocket, "Cerrar / No Imprimir" just cleans up. No "print ticket" checkbox in `PaymentModal`.
+- Manual cash drawer: `SaleInfo`'s green header shows an "Abrir Caja" `IconButton` (`PointOfSale`) when `canOpenDrawer` (ADMIN/CAJERO only — PEDIDOS gets 403). `useSaleForm.handleOpenDrawer` calls `saleService.openDrawer(getCachedStationId())` → `POST /api/sales/open-drawer?stationId=...` (backend pops drawer over WebSocket, no sale); toasts "Comando enviado" on success, `useApiErrorHandler` on failure.
 
 ## Component & File Conventions
 - Table component: `src/components/{domain}/{Domain}Table.jsx`
