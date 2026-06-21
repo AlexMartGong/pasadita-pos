@@ -28,11 +28,11 @@ export const PostSaleSummaryModal = ({
             </DialogTitle>
 
             <DialogContent sx={{pt: 3}}>
-                {/* Cambio a devolver — protagonista */}
                 <Box sx={{
                     textAlign: 'center',
                     p: 3,
                     mb: 2,
+                    mt: 3,
                     borderRadius: 2,
                     backgroundColor: '#e8f5e9',
                     border: '2px solid #2e7d32',
