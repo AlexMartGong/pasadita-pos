@@ -56,22 +56,27 @@ export const quickPricesStyles = {
         flexDirection: 'column',
         height: '100%',
         p: 2,
+        pt: 1.5,
     },
 
     cardHeader: {
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        gap: 1,
+        gap: 0.25,
+        textAlign: 'center',
         mb: 1.5,
     },
 
+    // Imagen "hero" del producto: banner a todo el ancho en la parte superior de la tarjeta.
+    // Mismo comportamiento de respaldo (iniciales + categoryColor) que ProductCard.
     avatar: {
-        width: 40,
-        height: 40,
-        fontSize: '0.9rem',
+        width: '100%',
+        height: {xs: 110, sm: 130},
+        borderRadius: '8px 8px 0 0',
+        fontSize: {xs: '2.5rem', sm: '3rem'},
         fontWeight: 700,
         color: '#fff',
-        flexShrink: 0,
     },
 
     name: {
@@ -82,6 +87,7 @@ export const quickPricesStyles = {
     metaRow: {
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
         gap: 0.75,
         mb: 1.5,
     },

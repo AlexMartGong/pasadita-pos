@@ -16,13 +16,15 @@ const ProductCardComponent = ({product, onSelect, formatCurrency}) => {
                 sx={saleFormStyles.productCardAction}
                 onClick={() => onSelect(product)}
             >
-                <CardContent sx={{width: '100%', textAlign: 'center', p: 1.5}}>
-                    <Box sx={{display: 'flex', justifyContent: 'center', mb: 1}}>
-                        <Avatar src={product.imageUrl} sx={{...saleFormStyles.productAvatar, backgroundColor: color}}>
-                            {productInitials(product.name)}
-                        </Avatar>
-                    </Box>
+                <Avatar
+                    variant="rounded"
+                    src={product.imageUrl}
+                    sx={{...saleFormStyles.productAvatar, backgroundColor: color}}
+                >
+                    {productInitials(product.name)}
+                </Avatar>
 
+                <CardContent sx={{width: '100%', textAlign: 'center', p: 1.5}}>
                     <Typography
                         variant="subtitle2"
                         sx={{

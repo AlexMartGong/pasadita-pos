@@ -31,19 +31,21 @@ const ProductPriceCardComponent = ({product, onSave}) => {
 
     return (
         <Card sx={quickPricesStyles.card} elevation={1}>
+            <Avatar
+                variant="rounded"
+                src={product.imageUrl}
+                sx={{...quickPricesStyles.avatar, backgroundColor: color}}
+            >
+                {productInitials(product.name)}
+            </Avatar>
             <CardContent sx={quickPricesStyles.cardContent}>
                 <Box sx={quickPricesStyles.cardHeader}>
-                    <Avatar src={product.imageUrl} sx={{...quickPricesStyles.avatar, backgroundColor: color}}>
-                        {productInitials(product.name)}
-                    </Avatar>
-                    <Box sx={{minWidth: 0}}>
-                        <Typography variant="subtitle2" sx={quickPricesStyles.name} title={product.name} noWrap>
-                            {product.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                            ID: {product.id}
-                        </Typography>
-                    </Box>
+                    <Typography variant="subtitle2" sx={quickPricesStyles.name} title={product.name} noWrap>
+                        {product.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                        ID: {product.id}
+                    </Typography>
                 </Box>
 
                 <Box sx={quickPricesStyles.metaRow}>

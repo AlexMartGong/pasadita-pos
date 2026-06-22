@@ -98,17 +98,20 @@ export const saleFormStyles = {
         justifyContent: 'flex-start',
     },
 
-    // Avatar/placeholder de imagen del producto.
+    // Imagen "hero" del producto: banner a todo el ancho en la parte superior de la tarjeta.
+    // Si imageUrl es null/vacío/roto, el Avatar nativo muestra las iniciales + categoryColor.
     productAvatar: {
-        width: 56,
-        height: 56,
-        fontSize: '1.1rem',
+        width: '100%',
+        height: {xs: 120, sm: 140},
+        borderRadius: '8px 8px 0 0', // esquinas superiores redondeadas (igual que la tarjeta), base recta
+        fontSize: {xs: '2.75rem', sm: '3.25rem'},
         fontWeight: 700,
         color: 'white',
     },
 
     productPrice: {
         fontWeight: 800,
+        fontSize: '1.15rem',
         color: '#1b5e20',
         lineHeight: 1.1,
     },
