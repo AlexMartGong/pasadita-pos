@@ -27,6 +27,7 @@ Every domain MUST follow this separation. Never mix business logic into UI compo
    - Request interceptor injects JWT from `sessionStorage.getItem("token")`
 2. **Service Layer** — `src/services/{domain}Service.js`
    - Business logic, CRUD wrappers, domain-specific lookups
+   - File uploads use `multipart/form-data` via the same axios instance (`FormData` with a `file` part; never hand-set `Content-Type` — the browser adds the boundary). E.g. `productService.uploadProductImage(id, file)` → `POST /{id}/image`, returns the updated DTO.
 3. **Hook Layer** — `src/hooks/{domain}/use{Domain}.js`
    - React hooks that compose services with Redux dispatch
 
@@ -74,6 +75,7 @@ Register any new slice in `src/stores/store.js`.
 
 ### Product
 - Quick price-edit view at `/products/quick-prices` (`AdminRoute`, admin login landing) is mobile-first and breaks the DataGrid pattern: `ProductPriceEditor` + memoized `ProductPriceCard` (responsive MUI Grid v2, 300ms debounced search, `inputMode="decimal"` price inputs with dynamic `aria-label`, save onBlur + ≥44px button). Reuses `productService.updateProductPrice` + `useProduct.handleUpdatePriceProduct` (via `useApiErrorHandler`); no new layers. Replaced the retired `SimpleProductTable`/`useProductTableSimple`.
+- Image upload: DTO has `imageUrl` (full R2 public URL — use directly as `<img>`/`<Avatar>` src, no base-URL prefix). `POST /api/products/{id}/image` (multipart `file`, ADMIN/CAJERO) → `productService.uploadProductImage` → `useProduct.handleUploadImage(id, file, {silent})` dispatches the returned DTO via `onUpdateProduct`. `handleSaveProduct(productData, imageFile=null)` chains the upload silently after a successful create/update (create needs the new id). `ProductForm` (Bootstrap) adds an MUI `<Button component="label">` + hidden file input + Avatar preview. `ProductCard` & `ProductPriceCard` render `<Avatar src={product.imageUrl}>` with native fallback to initials+`categoryColor`.
 
 ### Sale / Delivery
 - `useSaleForm` is a complex hook managing cart state, customer discounts, product search, delivery order integration, and hot-stamp invoicing.
