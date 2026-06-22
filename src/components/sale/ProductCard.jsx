@@ -18,7 +18,7 @@ const ProductCardComponent = ({product, onSelect, formatCurrency}) => {
             >
                 <CardContent sx={{width: '100%', textAlign: 'center', p: 1.5}}>
                     <Box sx={{display: 'flex', justifyContent: 'center', mb: 1}}>
-                        <Avatar sx={{...saleFormStyles.productAvatar, backgroundColor: color}}>
+                        <Avatar src={product.imageUrl} sx={{...saleFormStyles.productAvatar, backgroundColor: color}}>
                             {productInitials(product.name)}
                         </Avatar>
                     </Box>

@@ -1,4 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+import {Avatar, Box, Button, Typography} from '@mui/material';
+import {PhotoCamera} from '@mui/icons-material';
 import {useProduct} from '../../hooks/product/useProduct';
 import {formStyles} from '../../styles/js/FormStyles';
 
@@ -8,6 +10,10 @@ export const ProductForm = ({productSelected}) => {
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState(initialProductForm);
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState('');
+    // Guarda la object-URL activa para revocarla al reemplazarla o al desmontar (evita fugas).
+    const objectUrlRef = useRef('');
 
     useEffect(() => {
         if (productSelected && productSelected.id !== 0) {
@@ -20,8 +26,24 @@ export const ProductForm = ({productSelected}) => {
                 active: productSelected.active !== undefined ? productSelected.active : true,
                 claveProductoSat: productSelected.claveProductoSat || '01010101'
             })
+            setImagePreview(productSelected.imageUrl || '');
         }
     }, [productSelected]);
+
+    // Revoca la última object-URL al desmontar el componente.
+    useEffect(() => () => {
+        if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    }, []);
+
+    const handleImageChange = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+        const previewUrl = URL.createObjectURL(file);
+        objectUrlRef.current = previewUrl;
+        setImageFile(file);
+        setImagePreview(previewUrl);
+    };
 
     const validateForm = () => {
         const newErrors = {};
@@ -113,11 +135,15 @@ export const ProductForm = ({productSelected}) => {
 
             console.log('Product Data:', productData);
 
-            const success = await handleSaveProduct(productData);
+            const success = await handleSaveProduct(productData, imageFile);
 
             if (success) {
                 setFormData(initialProductForm);
                 setErrors({});
+                if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+                objectUrlRef.current = '';
+                setImageFile(null);
+                setImagePreview('');
                 handleCancel();
             }
         } catch (error) {
@@ -276,6 +302,39 @@ export const ProductForm = ({productSelected}) => {
                                                 Producto Activo
                                             </label>
                                         </div>
+                                    </div>
+
+                                    <div className="col-12">
+                                        <label className="form-label">Imagen del Producto</label>
+                                        <Box sx={{display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap'}}>
+                                            <Avatar
+                                                variant="rounded"
+                                                src={imagePreview}
+                                                alt={formData.name || 'Producto'}
+                                                sx={{width: 72, height: 72, bgcolor: 'grey.100', color: 'grey.500'}}
+                                            >
+                                                <PhotoCamera/>
+                                            </Avatar>
+                                            <Box>
+                                                <Button
+                                                    component="label"
+                                                    variant="outlined"
+                                                    startIcon={<PhotoCamera/>}
+                                                    disabled={isSubmitting}
+                                                >
+                                                    Seleccionar imagen
+                                                    <input
+                                                        type="file"
+                                                        hidden
+                                                        accept="image/*"
+                                                        onChange={handleImageChange}
+                                                    />
+                                                </Button>
+                                                <Typography variant="caption" display="block" color="text.secondary" sx={{mt: 0.5}}>
+                                                    Opcional. JPG o PNG.
+                                                </Typography>
+                                            </Box>
+                                        </Box>
                                     </div>
 
                                     <input type="hidden" name="id" value={formData.id}/>

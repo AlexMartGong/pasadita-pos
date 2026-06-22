@@ -50,6 +50,17 @@ export const updateProductPrice = async (id, price) => {
     }
 };
 
+export const uploadProductImage = async (id, file) => {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        return await productApi.post(`/${id}/image`, formData);
+    } catch (error) {
+        console.error('Error uploading product image:', error);
+        throw error;
+    }
+};
+
 export const changeStatusProduct = async (id, statusData) => {
     try {
         return await productApi.put(`/change-status/${id}`, statusData);
@@ -64,6 +75,7 @@ const productService = {
     createProduct,
     updateProduct,
     updateProductPrice,
+    uploadProductImage,
     changeStatusProduct,
 };
 

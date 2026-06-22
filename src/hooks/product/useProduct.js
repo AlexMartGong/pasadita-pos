@@ -13,7 +13,8 @@ import {
     createProduct,
     updateProduct,
     changeStatusProduct,
-    updateProductPrice
+    updateProductPrice,
+    uploadProductImage
 } from "../../services/productService.js";
 import {useNavigate} from "react-router-dom";
 
@@ -37,7 +38,20 @@ export const useProduct = () => {
         }
     }, [dispatch, handleApiError]);
 
-    const handleSaveProduct = useCallback(async (productData) => {
+    const handleUploadImage = useCallback(async (id, file, {silent = false} = {}) => {
+        try {
+            const result = await uploadProductImage(id, file);
+            dispatch(onUpdateProduct(result.data));
+            if (!silent) toast.success('Imagen del producto actualizada.');
+            return result.data;
+        } catch (error) {
+            console.error('Error uploading product image:', error);
+            handleApiError(error);
+            return null;
+        }
+    }, [dispatch, handleApiError]);
+
+    const handleSaveProduct = useCallback(async (productData, imageFile = null) => {
         let result;
         try {
             if (productData.id === 0) {
@@ -47,15 +61,19 @@ export const useProduct = () => {
                 result = await updateProduct(productData);
                 dispatch(onUpdateProduct(result.data));
             }
-            if (result.status === 201 || result.status === 200) toast.success('Producto guardado exitosamente.');
-            else toast.error('Error al guardar el producto.');
+            if (result.status === 201 || result.status === 200) {
+                if (imageFile) await handleUploadImage(result.data.id, imageFile, {silent: true});
+                toast.success('Producto guardado exitosamente.');
+            } else {
+                toast.error('Error al guardar el producto.');
+            }
             return true;
         } catch (error) {
             console.error('Error creating product:', error);
             handleApiError(error);
             return false;
         }
-    }, [handleApiError, dispatch]);
+    }, [handleApiError, dispatch, handleUploadImage]);
 
     const handleProductToggleStatus = useCallback(async (id, currentStatus) => {
         const newStatus = !currentStatus;
@@ -122,6 +140,7 @@ export const useProduct = () => {
         initialProductForm,
         handleGetProducts,
         handleSaveProduct,
+        handleUploadImage,
         handleProductEdit,
         handleProductToggleStatus,
         handleUpdatePriceProduct,

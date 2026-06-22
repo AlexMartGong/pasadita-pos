@@ -33,7 +33,7 @@ const ProductPriceCardComponent = ({product, onSave}) => {
         <Card sx={quickPricesStyles.card} elevation={1}>
             <CardContent sx={quickPricesStyles.cardContent}>
                 <Box sx={quickPricesStyles.cardHeader}>
-                    <Avatar sx={{...quickPricesStyles.avatar, backgroundColor: color}}>
+                    <Avatar src={product.imageUrl} sx={{...quickPricesStyles.avatar, backgroundColor: color}}>
                         {productInitials(product.name)}
                     </Avatar>
                     <Box sx={{minWidth: 0}}>
