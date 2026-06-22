@@ -68,8 +68,6 @@ export const quickPricesStyles = {
         mb: 1.5,
     },
 
-    // Imagen "hero" del producto: banner a todo el ancho en la parte superior de la tarjeta.
-    // Mismo comportamiento de respaldo (iniciales + categoryColor) que ProductCard.
     avatar: {
         width: '100%',
         height: {xs: 110, sm: 130},

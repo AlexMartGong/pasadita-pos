@@ -98,8 +98,6 @@ export const saleFormStyles = {
         justifyContent: 'flex-start',
     },
 
-    // Imagen "hero" del producto: banner a todo el ancho en la parte superior de la tarjeta.
-    // Si imageUrl es null/vacío/roto, el Avatar nativo muestra las iniciales + categoryColor.
     productAvatar: {
         width: '100%',
         height: {xs: 120, sm: 140},
