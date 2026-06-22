@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Avatar, Box, Button, Typography} from '@mui/material';
 import {PhotoCamera} from '@mui/icons-material';
 import {useProduct} from '../../hooks/product/useProduct';
+import {compressImageToWebP} from '../../utils/imageUtils';
 import {formStyles} from '../../styles/js/FormStyles';
 
 export const ProductForm = ({productSelected}) => {
@@ -12,6 +13,7 @@ export const ProductForm = ({productSelected}) => {
     const [formData, setFormData] = useState(initialProductForm);
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState('');
+    const [isProcessingImage, setIsProcessingImage] = useState(false);
     // Guarda la object-URL activa para revocarla al reemplazarla o al desmontar (evita fugas).
     const objectUrlRef = useRef('');
 
@@ -35,13 +37,28 @@ export const ProductForm = ({productSelected}) => {
         if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     }, []);
 
-    const handleImageChange = (event) => {
+    const handleImageChange = async (event) => {
         const file = event.target.files?.[0];
         if (!file) return;
+
+        setIsProcessingImage(true);
+        let processed;
+        try {
+            // Comprime y convierte a WebP antes de subir para ahorrar ancho de banda.
+            processed = await compressImageToWebP(file);
+        } catch (error) {
+            // Si la compresión falla, usamos el archivo original para no bloquear al usuario.
+            console.error('Image compression failed, using original file:', error);
+            processed = file;
+        } finally {
+            setIsProcessingImage(false);
+        }
+
+        // La preview muestra exactamente lo que se subirá (el WebP comprimido).
         if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
-        const previewUrl = URL.createObjectURL(file);
+        const previewUrl = URL.createObjectURL(processed);
         objectUrlRef.current = previewUrl;
-        setImageFile(file);
+        setImageFile(processed);
         setImagePreview(previewUrl);
     };
 
@@ -320,9 +337,9 @@ export const ProductForm = ({productSelected}) => {
                                                     component="label"
                                                     variant="outlined"
                                                     startIcon={<PhotoCamera/>}
-                                                    disabled={isSubmitting}
+                                                    disabled={isSubmitting || isProcessingImage}
                                                 >
-                                                    Seleccionar imagen
+                                                    {isProcessingImage ? 'Procesando...' : 'Seleccionar imagen'}
                                                     <input
                                                         type="file"
                                                         hidden
@@ -331,7 +348,7 @@ export const ProductForm = ({productSelected}) => {
                                                     />
                                                 </Button>
                                                 <Typography variant="caption" display="block" color="text.secondary" sx={{mt: 0.5}}>
-                                                    Opcional. JPG o PNG.
+                                                    Opcional. Se optimiza a WebP automáticamente.
                                                 </Typography>
                                             </Box>
                                         </Box>
@@ -353,7 +370,7 @@ export const ProductForm = ({productSelected}) => {
                                             <button
                                                 type="submit"
                                                 className="btn btn-primary order-1 order-sm-2"
-                                                disabled={isSubmitting}
+                                                disabled={isSubmitting || isProcessingImage}
                                             >
                                                 <i className="fas fa-save me-2"></i>
                                                 {isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar')}

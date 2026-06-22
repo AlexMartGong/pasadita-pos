@@ -160,6 +160,7 @@ A per-terminal local agent runs at `http://localhost:8081` and serves **both** t
 - **HTTP**: Axios with interceptors
 - **Notifications**: react-toastify
 - **Icons**: FontAwesome, MUI Icons
+- **Images**: `browser-image-compression` (client-side resize/compress + WebP conversion before product-image upload; see `src/utils/imageUtils.js`)
 - **PWA**: `vite-plugin-pwa` (Workbox-backed service worker, installable manifest)
 
 ## Adding New Features
@@ -183,6 +184,7 @@ When adding a new domain entity:
 - Endpoint: `POST /api/products/{id}/image` (`multipart/form-data`, `file` part; ADMIN/CAJERO). Returns the updated `ProductResponseDto`. Wrapped by `productService.uploadProductImage(id, file)`.
 - `useProduct.handleUploadImage(id, file, {silent})` dispatches the returned DTO via `onUpdateProduct` (so cards refresh) and toasts unless `silent`; errors via `useApiErrorHandler`. `handleSaveProduct(productData, imageFile=null)` chains the upload (silently) **after** a successful create/update — the create path is the reason, since the new id only exists post-save; a single "Producto guardado" toast covers both steps.
 - `ProductForm.jsx` (still Bootstrap) adds an MUI image block: `<Button component="label">` + hidden `<input type="file" accept="image/*">` and a 72px rounded `<Avatar>` preview. Selected file is held in component state (object-URL preview, revoked on replace/unmount), seeded from `productSelected.imageUrl` in edit mode, and passed to `handleSaveProduct` on submit. Display fallback lives in `ProductCard`/`ProductPriceCard` (Avatar `src` → initials+`categoryColor`).
+- **Client-side compression (before upload):** `ProductForm`'s file-input `onChange` (`handleImageChange`, now async) runs the picked file through `compressImageToWebP` (`src/utils/imageUtils.js`, backed by the `browser-image-compression` dep) **before** setting `imageFile`/preview — resizes to 800px max side, quality `0.8`, forces `image/webp` output (returned `File` renamed to `.webp`), `useWebWorker: true` keeps the UI responsive. The object-URL preview is built from the compressed WebP so the user sees exactly what uploads. Wrapped in try/catch: on any compression failure it logs and **falls back to the original file** (never blocks saving). An `isProcessingImage` flag disables the select button (label → "Procesando...") and the submit button while compressing. The util throws on error (single-responsibility); the graceful fallback lives in the component.
 
 ### customerFiscalData (CFDI 4.0)
 - Independent entity (no FK to `customer`); identified by `fiscalId`
