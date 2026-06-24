@@ -73,7 +73,7 @@ export const ProductCatalog = ({
                     ) : (
                         <Grid container spacing={1.5}>
                             {pageProducts.map((product) => (
-                                <Grid key={product.id} size={{xs: 6, sm: 4, md: 3, lg: 2.4}}>
+                                <Grid key={product.id} size={{xs: 6, sm: 4, md: 3, lg: 2.4, xl: 2}}>
                                     <ProductCard
                                         product={product}
                                         onSelect={handleSelect}

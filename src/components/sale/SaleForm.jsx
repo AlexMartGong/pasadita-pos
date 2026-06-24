@@ -79,7 +79,7 @@ export const SaleForm = ({saleSelected}) => {
         <Box sx={saleFormStyles.pageContainer}>
             <Grid container spacing={3}>
                 {/* Lado izquierdo (~70%): catálogo de productos */}
-                <Grid size={{xs: 12, md: 8}}>
+                <Grid size={{xs: 12, md: 8, lg: 8.5}}>
                     <ProductCatalog
                         products={products}
                         productSearch={productSearch}
@@ -90,7 +90,7 @@ export const SaleForm = ({saleSelected}) => {
                 </Grid>
 
                 {/* Lado derecho (~30%): panel de ticket */}
-                <Grid size={{xs: 12, md: 4}}>
+                <Grid size={{xs: 12, md: 4, lg: 3.5}}>
                     <Box sx={saleFormStyles.rightPanel}>
                         <OperationTypeToggle
                             operationType={operationType}
