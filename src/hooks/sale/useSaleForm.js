@@ -28,9 +28,6 @@ const formatToThreeDecimals = (value) => {
     return Number(Math.round(n + "e3") + "e-3");
 };
 
-// Espeja SaleServiceImpl.resolveApplicableUnitDiscount del backend:
-// productos con precio en [1, 10] no admiten descuento; en el resto el
-// descuento por unidad se topa al precio para que el neto nunca sea negativo.
 const resolveApplicableUnitDiscount = (unitPrice, requestedUnitDiscount) => {
     const price = toNumber(unitPrice);
     const requested = Math.max(toNumber(requestedUnitDiscount), 0);
@@ -38,21 +35,16 @@ const resolveApplicableUnitDiscount = (unitPrice, requestedUnitDiscount) => {
     return Math.min(requested, price);
 };
 
-// Matemática por renglón, idéntica a la del backend (redondeo HALF_UP por detalle).
-// `discount` en el renglón es el total del renglón (unitDiscount × qty);
-// `unitDiscount` es el valor por unidad que viaja al backend.
 const computeLineAmounts = (unitPrice, quantity, requestedUnitDiscount) => {
     const price = toNumber(unitPrice);
     const qty = toNumber(quantity);
     const unitDiscount = resolveApplicableUnitDiscount(price, requestedUnitDiscount);
     const subtotal = formatToTwoDecimals(price * qty);
     const discount = formatToTwoDecimals(unitDiscount * qty);
-    const total = formatToTwoDecimals((price - unitDiscount) * qty);
+    const total = formatToTwoDecimals(subtotal - discount);
     return {unitDiscount, subtotal, discount, total};
 };
 
-// Total global estricto: Σ subtotal − Σ descuento (no Σ line.total), igual que
-// el header del backend — evita desfases de un centavo con cantidades de 3 decimales.
 const calculateTotal = (details) => {
     const subtotal = details.reduce((sum, d) => sum + toNumber(d.subtotal), 0);
     const discount = details.reduce((sum, d) => sum + toNumber(d.discount), 0);
@@ -119,7 +111,6 @@ export const useSaleForm = (saleSelected) => {
 
     const isAdmin = role && role.includes('ROLE_ADMIN');
 
-    // Solo ADMIN y CAJERO pueden abrir la gaveta (backend rechaza PEDIDOS con 403).
     const canOpenDrawer = role && (role.includes('ROLE_ADMIN') || role.includes('ROLE_CAJERO'));
 
     const changeDue = amountTendered !== '' && !isNaN(parseFloat(amountTendered))
@@ -168,8 +159,6 @@ export const useSaleForm = (saleSelected) => {
                 try {
                     const response = await getSaleDetailsById(saleSelected.id);
                     if (response && response.data) {
-                        // El backend responde `discount` como total del renglón:
-                        // se deriva el valor por unidad y se re-aplica la regla.
                         const cartDetails = response.data.map(detail => {
                             const quantity = formatToThreeDecimals(detail.quantity);
                             const unitPrice = formatToTwoDecimals(detail.unitPrice);
@@ -417,8 +406,6 @@ export const useSaleForm = (saleSelected) => {
                     quantity: formatToThreeDecimals(detail.quantity),
                     unitPrice: formatToTwoDecimals(detail.unitPrice),
                     subtotal: formatToTwoDecimals(detail.subtotal),
-                    // Nuevo contrato: `discount` viaja POR UNIDAD (el backend lo
-                    // multiplica por quantity). Fallback para renglones de drafts viejos.
                     discount: formatToTwoDecimals(
                         detail.unitDiscount ??
                         (toNumber(detail.quantity) > 0
@@ -461,8 +448,6 @@ export const useSaleForm = (saleSelected) => {
                     amountTendered: tendered,
                     changeDue: formatToTwoDecimals(tendered - total),
                 });
-                // La limpieza se difiere a handleClosePostSaleModal para mantener
-                // el ticket visible detrás del modal de resumen post-venta.
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -491,12 +476,11 @@ export const useSaleForm = (saleSelected) => {
 
     const handleClosePostSaleModal = useCallback(() => {
         setPostSaleData(prev => ({...prev, isOpen: false}));
-        handleLocalCancel(); // limpia carrito/form y deja la caja lista
+        handleLocalCancel();
     }, [handleLocalCancel]);
 
     const handlePrintPostSaleTicket = useCallback(() => {
         if (postSaleData.saleId) {
-            // GET con stationId → el backend imprime por WebSocket (fire-and-forget)
             getTicketBySaleId(postSaleData.saleId, getCachedStationId()).catch(() => {});
         }
         handleClosePostSaleModal();

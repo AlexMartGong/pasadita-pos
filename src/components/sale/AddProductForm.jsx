@@ -27,7 +27,6 @@ export const AddProductForm = ({
 
             <DialogContent sx={{pt: 3, pb: 2, mt: 3}}>
                 <Stack spacing={3}>
-                    {/* Producto + precio unitario (solo lectura) */}
                     <Paper
                         variant="outlined"
                         sx={{p: 2, borderRadius: 2,bgcolor: '#f8fafc'}}
@@ -39,9 +38,14 @@ export const AddProductForm = ({
                             Precio unitario: {formatCurrency(selectedProductData.price)}
                             {selectedProductData.unitMeasure ? ` / ${selectedProductData.unitMeasure.toLowerCase()}` : ''}
                         </Typography>
+                        {selectedProductData.discount > 0 && (
+                            <Typography variant="caption" color="error" sx={{display: 'block', mt: 0.5}}>
+                                Desc. unitario: −{formatCurrency(selectedProductData.discount)}
+                                {' '}(precio normal {formatCurrency(selectedProductData.originalPrice)})
+                            </Typography>
+                        )}
                     </Paper>
 
-                    {/* Cantidad (incluye integración con báscula, intacto) */}
                     <QuantityInput
                         value={selectedProductData.quantity}
                         onChange={(value) => onSelectedProductChange({quantity: value})}
@@ -51,7 +55,6 @@ export const AddProductForm = ({
 
                     <Divider/>
 
-                    {/* Total destacado: máxima jerarquía visual */}
                     <Box sx={{
                         textAlign: 'center',
                         py: 2,
