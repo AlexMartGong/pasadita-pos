@@ -15,6 +15,50 @@ import {formatCurrency, toNumber} from '../../utils/formatters';
 import {clearActiveDraft, setActiveDraft} from '../../stores/slices/sale/saleSlice';
 import {getCachedStationId} from '../../services/agentService';
 
+const NO_DISCOUNT_PRICE_MIN = 1;
+const NO_DISCOUNT_PRICE_MAX = 10;
+
+const formatToTwoDecimals = (value) => {
+    const n = toNumber(value);
+    return Number(Math.round(n + "e2") + "e-2");
+};
+
+const formatToThreeDecimals = (value) => {
+    const n = toNumber(value);
+    return Number(Math.round(n + "e3") + "e-3");
+};
+
+// Espeja SaleServiceImpl.resolveApplicableUnitDiscount del backend:
+// productos con precio en [1, 10] no admiten descuento; en el resto el
+// descuento por unidad se topa al precio para que el neto nunca sea negativo.
+const resolveApplicableUnitDiscount = (unitPrice, requestedUnitDiscount) => {
+    const price = toNumber(unitPrice);
+    const requested = Math.max(toNumber(requestedUnitDiscount), 0);
+    if (price >= NO_DISCOUNT_PRICE_MIN && price <= NO_DISCOUNT_PRICE_MAX) return 0;
+    return Math.min(requested, price);
+};
+
+// Matemática por renglón, idéntica a la del backend (redondeo HALF_UP por detalle).
+// `discount` en el renglón es el total del renglón (unitDiscount × qty);
+// `unitDiscount` es el valor por unidad que viaja al backend.
+const computeLineAmounts = (unitPrice, quantity, requestedUnitDiscount) => {
+    const price = toNumber(unitPrice);
+    const qty = toNumber(quantity);
+    const unitDiscount = resolveApplicableUnitDiscount(price, requestedUnitDiscount);
+    const subtotal = formatToTwoDecimals(price * qty);
+    const discount = formatToTwoDecimals(unitDiscount * qty);
+    const total = formatToTwoDecimals((price - unitDiscount) * qty);
+    return {unitDiscount, subtotal, discount, total};
+};
+
+// Total global estricto: Σ subtotal − Σ descuento (no Σ line.total), igual que
+// el header del backend — evita desfases de un centavo con cantidades de 3 decimales.
+const calculateTotal = (details) => {
+    const subtotal = details.reduce((sum, d) => sum + toNumber(d.subtotal), 0);
+    const discount = details.reduce((sum, d) => sum + toNumber(d.discount), 0);
+    return formatToTwoDecimals(subtotal - discount);
+};
+
 export const useSaleForm = (saleSelected) => {
     const dispatch = useDispatch();
     const {handleSaveSale, initialSaleForm} = useSale();
@@ -124,15 +168,22 @@ export const useSaleForm = (saleSelected) => {
                 try {
                     const response = await getSaleDetailsById(saleSelected.id);
                     if (response && response.data) {
-                        const cartDetails = response.data.map(detail => ({
-                            productId: detail.productId,
-                            productName: detail.productName,
-                            quantity: formatToThreeDecimals(detail.quantity),
-                            unitPrice: formatToTwoDecimals(detail.unitPrice),
-                            subtotal: formatToTwoDecimals(detail.subtotal),
-                            discount: formatToTwoDecimals(detail.discount),
-                            total: formatToTwoDecimals(detail.total)
-                        }));
+                        // El backend responde `discount` como total del renglón:
+                        // se deriva el valor por unidad y se re-aplica la regla.
+                        const cartDetails = response.data.map(detail => {
+                            const quantity = formatToThreeDecimals(detail.quantity);
+                            const unitPrice = formatToTwoDecimals(detail.unitPrice);
+                            const requestedUnit = quantity > 0
+                                ? toNumber(detail.discount) / quantity
+                                : 0;
+                            return {
+                                productId: detail.productId,
+                                productName: detail.productName,
+                                quantity,
+                                unitPrice,
+                                ...computeLineAmounts(unitPrice, quantity, requestedUnit)
+                            };
+                        });
                         setSaleDetails(cartDetails);
                     }
                 } catch (error) {
@@ -171,10 +222,6 @@ export const useSaleForm = (saleSelected) => {
         }
     }, [customers, formData.customerId, isEditMode]);
 
-    const calculateTotal = (details) => {
-        return formatToTwoDecimals(details.reduce((sum, detail) => sum + toNumber(detail.total), 0));
-    };
-
     const getCustomerDiscount = useCallback(() => {
         if (!formData.customerId) return 0;
         const customer = customers.find(c => c.id === parseInt(formData.customerId));
@@ -186,22 +233,12 @@ export const useSaleForm = (saleSelected) => {
             setSaleDetails(prevDetails => {
                 if (prevDetails.length === 0) return prevDetails;
 
-                const discountAmount = getCustomerDiscount();
+                const requested = getCustomerDiscount();
 
-                const updatedDetails = prevDetails.map(detail => {
-                    const quantity = toNumber(detail.quantity);
-                    const unitPrice = toNumber(detail.unitPrice);
-                    const subtotal = formatToTwoDecimals(quantity * unitPrice);
-                    const discountTotal = formatToTwoDecimals(quantity * discountAmount);
-                    const total = formatToTwoDecimals(subtotal - discountTotal);
-
-                    return {
-                        ...detail,
-                        subtotal: subtotal,
-                        discount: discountTotal,
-                        total: total
-                    };
-                });
+                const updatedDetails = prevDetails.map(detail => ({
+                    ...detail,
+                    ...computeLineAmounts(detail.unitPrice, detail.quantity, requested)
+                }));
 
                 setFormData(prev => ({...prev, total: calculateTotal(updatedDetails)}));
                 return updatedDetails;
@@ -222,8 +259,8 @@ export const useSaleForm = (saleSelected) => {
     }, []);
 
     const handleSelectProduct = useCallback((product) => {
-        const discountAmount = getCustomerDiscount();
-        const discountedPrice = product.price - discountAmount;
+        const unitDiscount = resolveApplicableUnitDiscount(product.price, getCustomerDiscount());
+        const discountedPrice = formatToTwoDecimals(product.price - unitDiscount);
         const isKilogram = product.unitMeasure === 'KILOGRAMO';
 
         setSelectedProductData({
@@ -232,59 +269,50 @@ export const useSaleForm = (saleSelected) => {
             quantity: isKilogram ? '' : '1',
             price: discountedPrice,
             originalPrice: product.price,
-            discount: discountAmount,
+            discount: unitDiscount,
             total: isKilogram ? 0 : discountedPrice,
             unitMeasure: product.unitMeasure || ''
         });
     }, [getCustomerDiscount]);
 
-    const handleAddToCart = () => {
+    const handleAddToCart = useCallback(() => {
         if (!selectedProductData.id || !selectedProductData.quantity || selectedProductData.quantity <= 0) {
-            setErrors({...errors, cart: 'Complete todos los campos del producto'});
+            setErrors(prev => ({...prev, cart: 'Complete todos los campos del producto'}));
             return;
         }
 
         const quantity = toNumber(selectedProductData.quantity);
-        const unitPrice = toNumber(selectedProductData.originalPrice);
-        const discountPerUnit = toNumber(selectedProductData.discount);
-        const subtotal = formatToTwoDecimals(quantity * unitPrice);
-        const discountAmount = formatToTwoDecimals(quantity * discountPerUnit);
-        const total = formatToTwoDecimals(subtotal - discountAmount);
+        const requested = getCustomerDiscount();
 
-        const existingDetail = saleDetails.find(d => d.productId === selectedProductData.id);
+        setSaleDetails(prevDetails => {
+            const existingDetail = prevDetails.find(d => d.productId === selectedProductData.id);
 
-        let newDetails;
-        if (existingDetail) {
-            const newQuantity = toNumber(existingDetail.quantity) + quantity;
-            const newSubtotal = formatToTwoDecimals(newQuantity * unitPrice);
-            const newDiscountAmount = formatToTwoDecimals(newQuantity * discountPerUnit);
-            const newTotal = formatToTwoDecimals(newSubtotal - newDiscountAmount);
+            let newDetails;
+            if (existingDetail) {
+                const newQuantity = toNumber(existingDetail.quantity) + quantity;
+                newDetails = prevDetails.map(d =>
+                    d.productId === selectedProductData.id
+                        ? {
+                            ...d,
+                            quantity: newQuantity,
+                            ...computeLineAmounts(d.unitPrice, newQuantity, requested)
+                        }
+                        : d
+                );
+            } else {
+                const unitPrice = toNumber(selectedProductData.originalPrice);
+                newDetails = [...prevDetails, {
+                    productId: selectedProductData.id,
+                    productName: selectedProductData.name,
+                    unitPrice: unitPrice,
+                    quantity: quantity,
+                    ...computeLineAmounts(unitPrice, quantity, requested)
+                }];
+            }
 
-            newDetails = saleDetails.map(d =>
-                d.productId === selectedProductData.id
-                    ? {
-                        ...d,
-                        quantity: newQuantity,
-                        subtotal: newSubtotal,
-                        discount: newDiscountAmount,
-                        total: newTotal
-                    }
-                    : d
-            );
-        } else {
-            newDetails = [...saleDetails, {
-                productId: selectedProductData.id,
-                productName: selectedProductData.name,
-                unitPrice: unitPrice,
-                quantity: quantity,
-                subtotal: subtotal,
-                discount: discountAmount,
-                total: total
-            }];
-        }
-
-        setSaleDetails(newDetails);
-        setFormData({...formData, total: calculateTotal(newDetails)});
+            setFormData(prev => ({...prev, total: calculateTotal(newDetails)}));
+            return newDetails;
+        });
 
         setSelectedProductData({
             id: '',
@@ -293,16 +321,18 @@ export const useSaleForm = (saleSelected) => {
             price: '',
             total: 0
         });
-        setErrors({...errors, cart: ''});
-    };
+        setErrors(prev => ({...prev, cart: ''}));
+    }, [selectedProductData, getCustomerDiscount]);
 
-    const handleRemoveProduct = (productId) => {
-        const newDetails = saleDetails.filter(d => d.productId !== productId);
-        setSaleDetails(newDetails);
-        setFormData({...formData, total: calculateTotal(newDetails)});
-    };
+    const handleRemoveProduct = useCallback((productId) => {
+        setSaleDetails(prevDetails => {
+            const newDetails = prevDetails.filter(d => d.productId !== productId);
+            setFormData(prev => ({...prev, total: calculateTotal(newDetails)}));
+            return newDetails;
+        });
+    }, []);
 
-    const validateForm = () => {
+    const validateForm = useCallback(() => {
         const newErrors = {};
 
         if (!formData.customerId) {
@@ -315,22 +345,17 @@ export const useSaleForm = (saleSelected) => {
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-    };
+    }, [formData.customerId, saleDetails.length]);
 
-    const handleInputChange = (field) => (event) => {
+    const handleInputChange = useCallback((field) => (event) => {
         const value = event.target.value;
         setFormData(prev => ({
             ...prev,
             [field]: value
         }));
 
-        if (errors[field]) {
-            setErrors(prev => ({
-                ...prev,
-                [field]: ''
-            }));
-        }
-    };
+        setErrors(prev => (prev[field] ? {...prev, [field]: ''} : prev));
+    }, []);
 
     const handleLocalCancel = useCallback(() => {
         setFormData(initialSaleForm);
@@ -364,17 +389,7 @@ export const useSaleForm = (saleSelected) => {
     }, [customers, initialSaleForm, dispatch]);
 
 
-    const formatToTwoDecimals = (value) => {
-        const n = toNumber(value);
-        return Number(Math.round(n + "e2") + "e-2");
-    };
-
-    const formatToThreeDecimals = (value) => {
-        const n = toNumber(value);
-        return Number(Math.round(n + "e3") + "e-3");
-    };
-
-    const handleSubmit = async (amountTenderedValue) => {
+    const handleSubmit = useCallback(async (amountTenderedValue) => {
         setIsSubmitting(true);
 
         try {
@@ -402,7 +417,14 @@ export const useSaleForm = (saleSelected) => {
                     quantity: formatToThreeDecimals(detail.quantity),
                     unitPrice: formatToTwoDecimals(detail.unitPrice),
                     subtotal: formatToTwoDecimals(detail.subtotal),
-                    discount: formatToTwoDecimals(detail.discount),
+                    // Nuevo contrato: `discount` viaja POR UNIDAD (el backend lo
+                    // multiplica por quantity). Fallback para renglones de drafts viejos.
+                    discount: formatToTwoDecimals(
+                        detail.unitDiscount ??
+                        (toNumber(detail.quantity) > 0
+                            ? toNumber(detail.discount) / toNumber(detail.quantity)
+                            : 0)
+                    ),
                     total: formatToTwoDecimals(detail.total)
                 })),
                 deliveryOrder: canSaveDeliveryOrder ? {
@@ -447,7 +469,25 @@ export const useSaleForm = (saleSelected) => {
         } finally {
             setIsSubmitting(false);
         }
-    };
+    }, [
+        saleDetails,
+        formData.customerId,
+        formData.total,
+        customers,
+        saleSelected,
+        employeeId,
+        paymentMethodId,
+        paid,
+        notes,
+        deliveryCost,
+        canSaveDeliveryOrder,
+        requiresInvoice,
+        selectedFiscalId,
+        customerFiscalDataList,
+        handleSaveSale,
+        handleTimbrarInvoice,
+        handleSendInvoiceEmail
+    ]);
 
     const handleClosePostSaleModal = useCallback(() => {
         setPostSaleData(prev => ({...prev, isOpen: false}));
