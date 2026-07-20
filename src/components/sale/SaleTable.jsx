@@ -40,6 +40,9 @@ export const SaleTable = ({filterOption, onStatsChange}) => {
                         pagination: {
                             paginationModel: {pageSize: 10},
                         },
+                        sorting: {
+                            sortModel: [{field: 'id', sort: 'desc'}],
+                        },
                     }}
                     pageSizeOptions={[5, 10, 25, 50]}
                     disableRowSelectionOnClick
