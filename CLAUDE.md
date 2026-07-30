@@ -30,6 +30,8 @@ A Point of Sale (POS) system built with React + Vite frontend. The application m
 
 ## Development Commands
 
+Requires **Node.js >= 20** (dev environment runs Node 24 via nvm). `pnpm build` fails on Node 18 with `ReferenceError: crypto is not defined` (transitive `serialize-javascript` needs the global `crypto`, and Vite 7 itself requires Node ^20.19 / >=22.12).
+
 These four scripts are the complete set — there is no test runner and no type-check script.
 
 ```bash

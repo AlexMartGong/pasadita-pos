@@ -1,12 +1,25 @@
-# React + Vite
+# La Pasadita POS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Point of Sale (POS) frontend built with React 19 + Vite 7. See `CLAUDE.md` for full architecture docs.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Node.js >= 20** (Node 24 recommended; `pnpm build` fails on Node 18 with `crypto is not defined`)
+- **pnpm** (all tooling uses pnpm)
 
-## Expanding the ESLint configuration
+## Commands
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+pnpm dev      # Dev server with HMR (host 0.0.0.0, port 5173)
+pnpm build    # Production build
+pnpm lint     # ESLint
+pnpm preview  # Preview production build
+```
+
+There is no test runner or type-check script.
+
+## Environment
+
+- `.env`: `VITE_API_BASE_URL=http://localhost:8080` (development)
+- `.env.production`: `VITE_API_BASE_URL=https://api.lapasadita.app` (production)
+- Optional local agent at `http://localhost:8081` (scale hardware + station ID); the app degrades gracefully without it.

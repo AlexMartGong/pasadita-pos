@@ -11,6 +11,7 @@ Compact guidance for OpenCode sessions. If a fact is obvious from filenames, it 
 - No test suite exists; do not create or suggest tests unless explicitly asked
 
 ## Development Commands
+Requires Node.js >= 20 (`pnpm build` fails on Node 18: `crypto is not defined` from transitive `serialize-javascript`; Vite 7 needs Node ^20.19 / >=22.12).
 ```bash
 pnpm dev      # Vite dev server (host 0.0.0.0, port 5173)
 pnpm build    # Production build (esnext, no sourcemaps, manual chunks)
