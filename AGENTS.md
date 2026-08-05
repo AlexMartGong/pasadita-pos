@@ -80,6 +80,7 @@ Register any new slice in `src/stores/store.js`.
 
 ### Sale / Delivery
 - `useSaleForm` is a complex hook managing cart state, customer discounts, product search, delivery order integration, and hot-stamp invoicing.
+- Decimal precision: `useSaleForm`'s private `formatToTwoDecimals`/`formatToThreeDecimals` use `Math.round((n + Number.EPSILON) * factor) / factor` — never string-exponent tricks (`"e2"`). Quantities normalize to 3 decimals at every cart mutation; money rounds to 2. Display: `formatQuantity` in `src/utils/formatters.js` (max 3 decimals, trailing zeros stripped).
 - Operation types: `'venta'` (sale) or `'pedido'` (delivery order).
 - Tickets: `src/utils/printTicket.jsx` + `src/components/sale/Ticket.jsx` (80mm thermal width).
 - Deferred-print / post-sale: sales always save with `printTicket: false` (backend never auto-prints). After a successful save, `SaleForm` opens `PostSaleSummaryModal` (shows change + total + cash); "Imprimir Ticket" calls `getTicketBySaleId(saleId, getCachedStationId())` whose backend GET side-effect prints over WebSocket, "Cerrar / No Imprimir" just cleans up. No "print ticket" checkbox in `PaymentModal`.

@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import {Delete, PointOfSale, ShoppingCartOutlined} from '@mui/icons-material';
 import {PaymentModal} from './PaymentModal';
-import {toNumber} from '../../utils/formatters';
+import {formatQuantity, toNumber} from '../../utils/formatters';
 import {saleFormStyles} from '../../styles/js/SaleFormStyles';
 
 export const ShoppingCart = ({
@@ -90,7 +90,7 @@ export const ShoppingCart = ({
                                 saleDetails.map((detail) => (
                                     <TableRow key={detail.productId}>
                                         <TableCell>{detail.productName}</TableCell>
-                                        <TableCell align="right">{detail.quantity}</TableCell>
+                                        <TableCell align="right">{formatQuantity(detail.quantity)}</TableCell>
                                         <TableCell align="right">{formatCurrency(detail.unitPrice)}</TableCell>
                                         <TableCell align="right">{formatCurrency(detail.discount)}</TableCell>
                                         <TableCell align="right">{formatCurrency(detail.total)}</TableCell>
@@ -115,13 +115,13 @@ export const ShoppingCart = ({
             <Box sx={saleFormStyles.ticketFooter}>
                 {saleDetails.length > 0 && (
                     <Box sx={saleFormStyles.totalsBox}>
-                        <Typography variant="body2" sx={{color: 'text.secondary'}}>
+                        <Typography variant="subtitle1" sx={{color: 'text.secondary', fontWeight: 500}}>
                             Subtotal: {formatCurrency(subtotal)}
                         </Typography>
-                        <Typography variant="body2" color="error">
+                        <Typography variant="subtitle1" color="error" sx={{fontWeight: 500}}>
                             Descuento: -{formatCurrency(totalDiscount)}
                         </Typography>
-                        <Typography variant="h6" sx={{color: '#283593', fontWeight: 700}}>
+                        <Typography variant="h5" sx={{color: '#283593', fontWeight: 700}}>
                             Total: {formatCurrency(formData.total)}
                         </Typography>
                     </Box>

@@ -20,12 +20,12 @@ const NO_DISCOUNT_PRICE_MAX = 10;
 
 const formatToTwoDecimals = (value) => {
     const n = toNumber(value);
-    return Number(Math.round(n + "e2") + "e-2");
+    return Math.round((n + Number.EPSILON) * 100) / 100;
 };
 
 const formatToThreeDecimals = (value) => {
     const n = toNumber(value);
-    return Number(Math.round(n + "e3") + "e-3");
+    return Math.round((n + Number.EPSILON) * 1000) / 1000;
 };
 
 const resolveApplicableUnitDiscount = (unitPrice, requestedUnitDiscount) => {
@@ -37,7 +37,7 @@ const resolveApplicableUnitDiscount = (unitPrice, requestedUnitDiscount) => {
 
 const computeLineAmounts = (unitPrice, quantity, requestedUnitDiscount) => {
     const price = toNumber(unitPrice);
-    const qty = toNumber(quantity);
+    const qty = formatToThreeDecimals(quantity);
     const unitDiscount = resolveApplicableUnitDiscount(price, requestedUnitDiscount);
     const subtotal = formatToTwoDecimals(price * qty);
     const discount = formatToTwoDecimals(unitDiscount * qty);
@@ -270,7 +270,7 @@ export const useSaleForm = (saleSelected) => {
             return;
         }
 
-        const quantity = toNumber(selectedProductData.quantity);
+        const quantity = formatToThreeDecimals(selectedProductData.quantity);
         const requested = getCustomerDiscount();
 
         setSaleDetails(prevDetails => {
@@ -278,7 +278,7 @@ export const useSaleForm = (saleSelected) => {
 
             let newDetails;
             if (existingDetail) {
-                const newQuantity = toNumber(existingDetail.quantity) + quantity;
+                const newQuantity = formatToThreeDecimals(toNumber(existingDetail.quantity) + quantity);
                 newDetails = prevDetails.map(d =>
                     d.productId === selectedProductData.id
                         ? {

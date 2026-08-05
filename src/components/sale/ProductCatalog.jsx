@@ -4,7 +4,7 @@ import {Inventory2} from '@mui/icons-material';
 import {ProductCard} from './ProductCard';
 import {saleFormStyles} from '../../styles/js/SaleFormStyles';
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 24;
 
 export const ProductCatalog = ({
                                    products,
@@ -73,7 +73,7 @@ export const ProductCatalog = ({
                     ) : (
                         <Grid container spacing={1.5}>
                             {pageProducts.map((product) => (
-                                <Grid key={product.id} size={{xs: 6, sm: 4, md: 3, lg: 2.4, xl: 2}}>
+                                <Grid key={product.id} size={{xs: 6, sm: 4, md: 3, lg: 3, xl: 2}}>
                                     <ProductCard
                                         product={product}
                                         onSelect={handleSelect}

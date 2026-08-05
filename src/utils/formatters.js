@@ -18,6 +18,11 @@ export const formatCurrency = (value) => {
     }).format(value || 0);
 };
 
+export const formatQuantity = (value) => {
+    const n = toNumber(value);
+    return Math.round((n + Number.EPSILON) * 1000) / 1000;
+};
+
 export const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
     if (typeof value === 'number') return isFinite(value) ? value : 0;
