@@ -52,7 +52,7 @@ export const QuantityInput = ({
         <Stack spacing={1}>
             <TextField
                 fullWidth
-                size="small"
+                size="medium"
                 type="number"
                 label={isKilogram ? "Cantidad (kg)" : "Cantidad"}
                 value={value ?? ''}
@@ -66,7 +66,7 @@ export const QuantityInput = ({
                     input: (isKilogram && productId) ? {
                         startAdornment: (
                             <InputAdornment position="start">
-                                <Scale color={isConnected ? "primary" : "disabled"} fontSize="small"/>
+                                <Scale color={isConnected ? "primary" : "disabled"} fontSize="medium"/>
                             </InputAdornment>
                         ),
                         endAdornment: (
@@ -79,7 +79,7 @@ export const QuantityInput = ({
                                         edge="end"
                                     >
                                         <Refresh
-                                            fontSize="small"
+                                            fontSize="medium"
                                             color={isConnected ? "primary" : "error"}
                                         />
                                     </IconButton>
@@ -97,12 +97,12 @@ export const QuantityInput = ({
                             icon={isStable ? <Check/> : undefined}
                             label={isStable ? "Estable" : "Inestable"}
                             color={isStable ? "success" : "warning"}
-                            size="small"
+                            size="medium"
                         />
                         <Chip
                             label={`${weight.toFixed(3)} kg`}
                             color="primary"
-                            size="small"
+                            size="medium"
                         />
                     </>
                 )}
@@ -110,7 +110,7 @@ export const QuantityInput = ({
                     icon={isConnected ? <LinkIcon/> : <LinkOff/>}
                     label={isConnected ? "Conectada" : "Desconectada"}
                     color={isConnected ? "success" : "error"}
-                    size="small"
+                    size="medium"
                 />
             </Stack>
         </Stack>
