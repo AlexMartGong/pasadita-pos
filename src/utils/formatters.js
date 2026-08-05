@@ -18,6 +18,8 @@ export const formatCurrency = (value) => {
     }).format(value || 0);
 };
 
+export const formatQuantity = (value) => Number(toNumber(value).toFixed(3));
+
 export const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
     if (typeof value === 'number') return isFinite(value) ? value : 0;

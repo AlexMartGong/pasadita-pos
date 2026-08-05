@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import {Delete, PointOfSale, ShoppingCartOutlined} from '@mui/icons-material';
 import {PaymentModal} from './PaymentModal';
-import {toNumber} from '../../utils/formatters';
+import {formatQuantity, toNumber} from '../../utils/formatters';
 import {saleFormStyles} from '../../styles/js/SaleFormStyles';
 
 export const ShoppingCart = ({
@@ -90,7 +90,7 @@ export const ShoppingCart = ({
                                 saleDetails.map((detail) => (
                                     <TableRow key={detail.productId}>
                                         <TableCell>{detail.productName}</TableCell>
-                                        <TableCell align="right">{detail.quantity}</TableCell>
+                                        <TableCell align="right">{formatQuantity(detail.quantity)}</TableCell>
                                         <TableCell align="right">{formatCurrency(detail.unitPrice)}</TableCell>
                                         <TableCell align="right">{formatCurrency(detail.discount)}</TableCell>
                                         <TableCell align="right">{formatCurrency(detail.total)}</TableCell>
