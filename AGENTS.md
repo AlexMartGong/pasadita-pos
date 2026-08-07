@@ -92,7 +92,7 @@ Register any new slice in `src/stores/store.js`.
 - Form component: `src/components/{domain}/{Domain}Form.jsx`
 - Page components: `src/pages/{domain}/`
 - MUI `sx` style objects: `src/styles/js/`
-- Legacy CSS: `src/styles/css/`
+- Legacy CSS: `src/styles/css/` (Ticket, Sidebar only)
 
 ## Adding a New Domain Entity
 Follow this exact order:
@@ -111,6 +111,8 @@ Follow this exact order:
 - UI components MUST use MUI.
 - Follow the `frontend-design` skill rules at `.agents/skills/frontend-design` when working on any UI or styling.
 - `customerFiscalData` forms use MUI Grid v2; older forms may still use Bootstrap — do not refactor legacy forms unless asked.
+- FontAwesome is imported globally in `src/main.jsx` — do not remove it; the four Bootstrap-era forms still use `fas fa-*` icons.
+- Login (`/login`) is MUI-only: `src/auth/pages/LoginPage.jsx` + `loginPageStyles` (`src/styles/js/LoginPageStyles.js`), corporate green `#2e7d32`. Auth logic uses `handlerLogin`/`isLoginLoading` from `useAuth`.
 
 ## Important Constraints
 - Never bypass the 3-layer architecture.
