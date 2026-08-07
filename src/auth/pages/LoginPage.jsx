@@ -1,12 +1,27 @@
 import {useState} from "react";
+import {
+    Avatar,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CircularProgress,
+    IconButton,
+    InputAdornment,
+    TextField,
+    Typography
+} from "@mui/material";
+import {LockOutlined, PersonOutline, Store, Visibility, VisibilityOff} from "@mui/icons-material";
 import {useAuth} from "../hooks/useAuth";
-import "../../styles/css/LoginPage.css";
+import {loginPageStyles} from "../../styles/js/LoginPageStyles";
 
 export const LoginPage = () => {
     const [formData, setFormData] = useState({
         username: "",
         password: ""
     });
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const {handlerLogin, isLoginLoading} = useAuth();
 
@@ -18,6 +33,10 @@ export const LoginPage = () => {
         }));
     };
 
+    const handleTogglePassword = () => {
+        setShowPassword(prev => !prev);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (formData.username.trim() && formData.password.trim()) {
@@ -26,87 +45,105 @@ export const LoginPage = () => {
     };
 
     return (
-        <div className="login-container">
-            <div className="container">
-                <div className="row justify-content-center">
-                    <div className="col-md-6 col-lg-5">
-                        <div className="card login-card shadow-lg">
-                            <div className="card-body login-card-body">
-                                <div className="text-center mb-4">
-                                    <div className="mb-3">
-                                        <span className="fruit-logo">🍎🍊🍌</span>
-                                    </div>
-                                    <h2 className="brand-title mb-2">Pasadita</h2>
-                                    <p className="text-muted">Punto de Venta para Frutería</p>
-                                </div>
+        <Box sx={loginPageStyles.container}>
+            <Card elevation={0} sx={loginPageStyles.card}>
+                <CardContent sx={loginPageStyles.cardContent}>
+                    <Box sx={loginPageStyles.header}>
+                        <Avatar sx={loginPageStyles.avatar}>
+                            <Store sx={loginPageStyles.storeIcon}/>
+                        </Avatar>
+                        <Typography variant="h5" component="h1" sx={loginPageStyles.title}>
+                            La Pasadita
+                        </Typography>
+                        <Typography variant="body2" sx={loginPageStyles.subtitle}>
+                            Punto de Venta para Frutería
+                        </Typography>
+                    </Box>
 
-                                <form onSubmit={handleSubmit}>
-                                    <div className="mb-4">
-                                        <label htmlFor="username" className="form-label form-label-custom">
-                                            <i className="fas fa-user me-2 icon-user"></i>Usuario
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="form-control form-control-lg login-input"
-                                            id="username"
-                                            name="username"
-                                            value={formData.username}
-                                            onChange={handleInputChange}
-                                            placeholder="Ingresa tu usuario"
-                                            required
-                                        />
-                                    </div>
+                    <Box component="form" onSubmit={handleSubmit} sx={loginPageStyles.form}>
+                        <TextField
+                            id="username"
+                            name="username"
+                            label="Usuario"
+                            value={formData.username}
+                            onChange={handleInputChange}
+                            fullWidth
+                            required
+                            autoFocus
+                            autoComplete="username"
+                            disabled={isLoginLoading}
+                            sx={loginPageStyles.textField}
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <PersonOutline/>
+                                        </InputAdornment>
+                                    )
+                                }
+                            }}
+                        />
 
-                                    <div className="mb-4">
-                                        <label htmlFor="password" className="form-label form-label-custom">
-                                            <i className="fas fa-lock me-2 icon-lock"></i>Contraseña
-                                        </label>
-                                        <input
-                                            type="password"
-                                            className="form-control form-control-lg login-input"
-                                            id="password"
-                                            name="password"
-                                            value={formData.password}
-                                            onChange={handleInputChange}
-                                            placeholder="Ingresa tu contraseña"
-                                            required
-                                        />
-                                    </div>
+                        <TextField
+                            id="password"
+                            name="password"
+                            label="Contraseña"
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            fullWidth
+                            required
+                            autoComplete="current-password"
+                            disabled={isLoginLoading}
+                            sx={loginPageStyles.textField}
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <LockOutlined/>
+                                        </InputAdornment>
+                                    ),
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                                onClick={handleTogglePassword}
+                                                disabled={isLoginLoading}
+                                                edge="end"
+                                            >
+                                                {showPassword ? <VisibilityOff/> : <Visibility/>}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }
+                            }}
+                        />
 
-                                    <div className="d-grid">
-                                        <button
-                                            type="submit"
-                                            className="btn btn-success btn-lg login-button"
-                                            disabled={isLoginLoading}
-                                        >
-                                            {isLoginLoading ? (
-                                                <>
-                                                    <span
-                                                        className="spinner-border spinner-border-sm me-2 loading-spinner"
-                                                        role="status"></span>
-                                                    Iniciando sesión...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <i className="fas fa-sign-in-alt me-2 icon-signin"></i>
-                                                    Iniciar Sesión
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
-                                </form>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            fullWidth
+                            disabled={isLoginLoading}
+                            sx={loginPageStyles.loginButton}
+                        >
+                            {isLoginLoading ? (
+                                <>
+                                    <CircularProgress size={20} color="inherit" sx={loginPageStyles.buttonSpinner}/>
+                                    Iniciando sesión...
+                                </>
+                            ) : (
+                                "Iniciar Sesión"
+                            )}
+                        </Button>
+                    </Box>
 
-                                <div className="text-center mt-4">
-                                    <small className="footer-text">
-                                        <i className="fas fa-leaf me-1 icon-leaf"></i>
-                                        Frutas frescas, servicio de calidad
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    <Box sx={loginPageStyles.footer}>
+                        <Typography variant="caption">
+                            Frutas frescas, servicio de calidad
+                        </Typography>
+                    </Box>
+                </CardContent>
+            </Card>
+        </Box>
     );
 };
