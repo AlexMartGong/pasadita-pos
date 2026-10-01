@@ -10,7 +10,7 @@ const PAYMENT_METHODS = [
     {value: 1, label: 'Efectivo'},
     {value: 2, label: 'Transferencia'},
     {value: 3, label: 'Tarjeta de Crédito'},
-    {value: 4, label: 'Tarjeta de Débito'},
+    {value: 5, label: 'Tarjeta de Débito'},
 ];
 
 export const SaleInfo = ({
