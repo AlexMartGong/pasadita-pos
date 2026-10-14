@@ -491,7 +491,7 @@ export const useSaleForm = (saleSelected) => {
             await openDrawer(getCachedStationId());
             toast.success('Comando enviado');
         } catch (error) {
-            handleApiError(error);
+            handleApiError(error, {}, {serverMessageStatuses: [503]});
         }
     }, [handleApiError]);
 
