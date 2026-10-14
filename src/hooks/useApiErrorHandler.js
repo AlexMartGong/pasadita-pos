@@ -2,10 +2,15 @@ import {useAuth} from "../auth/hooks/useAuth.js";
 import {useCallback} from "react";
 import {toast} from "react-toastify";
 
+const getServerErrorMessage = (data) => {
+    const message = data?.error;
+    return typeof message === 'string' && message.trim() ? message : null;
+};
+
 export const useApiErrorHandler = () => {
     const {handlerLogout} = useAuth();
 
-    const handleApiError = useCallback((error, customMessages = {}) => {
+    const handleApiError = useCallback((error, customMessages = {}, {serverMessageStatuses = []} = {}) => {
         if (error.response) {
             const status = error.response.status;
             const defaultMessages = {
@@ -21,7 +26,10 @@ export const useApiErrorHandler = () => {
                 503: 'Servicio temporalmente no disponible.',
                 default: 'Error inesperado.'
             };
-            const message = customMessages[status] || defaultMessages[status] || defaultMessages.default;
+            const serverMessage = serverMessageStatuses.includes(status)
+                ? getServerErrorMessage(error.response.data)
+                : null;
+            const message = serverMessage || customMessages[status] || defaultMessages[status] || defaultMessages.default;
             toast.error(message);
             if (status === 401) {
                 handlerLogout();

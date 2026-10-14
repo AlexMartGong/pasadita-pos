@@ -51,7 +51,7 @@ Register any new slice in `src/stores/store.js`.
 - Dev backend: `.env` → `VITE_API_BASE_URL=http://localhost:8080`
 - Prod backend: `.env.production` → `https://api.lapasadita.app`
 - Scale hardware proxy (Vite only): `/api/scale` → `http://localhost:8081`
-- All API errors MUST go through `useApiErrorHandler` (Spanish toasts, auto-logout on 401)
+- All API errors MUST go through `useApiErrorHandler` (Spanish toasts, auto-logout on 401). Optional 3rd arg `{serverMessageStatuses: [...]}` shows the backend's `response.data.error` for those statuses only (falls back to the default text); keep it per-status — Spring's 403/500 bodies are English
 
 ## PWA
 - Configured as the `VitePWA` plugin in `vite.config.js` (`registerType: 'autoUpdate'` — SW auto-registers, no manual registration).
@@ -84,7 +84,7 @@ Register any new slice in `src/stores/store.js`.
 - Operation types: `'venta'` (sale) or `'pedido'` (delivery order).
 - Tickets: `src/utils/printTicket.jsx` + `src/components/sale/Ticket.jsx` (80mm thermal width).
 - Deferred-print / post-sale: sales always save with `printTicket: false` (backend never auto-prints). After a successful save, `SaleForm` opens `PostSaleSummaryModal` (shows change + total + cash); "Imprimir Ticket" calls `getTicketBySaleId(saleId, getCachedStationId())` whose backend GET side-effect prints over WebSocket, "Cerrar / No Imprimir" just cleans up. No "print ticket" checkbox in `PaymentModal`.
-- Manual cash drawer: `SaleInfo`'s green header shows an "Abrir Caja" `IconButton` (`PointOfSale`) when `canOpenDrawer` (ADMIN/CAJERO only — PEDIDOS gets 403). `useSaleForm.handleOpenDrawer` calls `saleService.openDrawer(getCachedStationId())` → `POST /api/sales/open-drawer?stationId=...` (backend pops drawer over WebSocket, no sale); toasts "Comando enviado" on success, `useApiErrorHandler` on failure.
+- Manual cash drawer: `SaleInfo`'s green header shows an "Abrir Caja" `IconButton` (`PointOfSale`) when `canOpenDrawer` (ADMIN/CAJERO only — PEDIDOS gets 403). `useSaleForm.handleOpenDrawer` calls `saleService.openDrawer(getCachedStationId())` → `POST /api/sales/open-drawer?stationId=...` (backend pops drawer over WebSocket, no sale); toasts "Comando enviado" on success, `useApiErrorHandler` on failure (with `serverMessageStatuses: [503]` so the backend's "station not connected" message reaches the cashier).
 
 ## Component & File Conventions
 - Table component: `src/components/{domain}/{Domain}Table.jsx`
