@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Box, Card, CardContent, Grid, Pagination, TextField, Typography} from '@mui/material';
 import {Inventory2} from '@mui/icons-material';
 import {ProductCard} from './ProductCard';
@@ -11,9 +11,9 @@ export const ProductCatalog = ({
                                    productSearch,
                                    onProductSearchChange,
                                    onSelectProduct,
-                                   formatCurrency
+                                   formatCurrency,
+                                   searchInputRef
                                }) => {
-    const searchInputRef = useRef(null);
     const [page, setPage] = useState(1);
 
     const filteredProducts = products.filter(p =>
@@ -35,8 +35,8 @@ export const ProductCatalog = ({
     const handleSelect = useCallback((product) => {
         onSelectProduct(product);
         onProductSearchChange('');
-        searchInputRef.current?.focus();
-    }, [onSelectProduct, onProductSearchChange]);
+        searchInputRef?.current?.focus();
+    }, [onSelectProduct, onProductSearchChange, searchInputRef]);
 
     return (
         <Card sx={{...saleFormStyles.leftPanel, border: '1px solid rgba(25, 118, 210, 0.15)'}}>
@@ -60,7 +60,7 @@ export const ProductCatalog = ({
                     onChange={(e) => onProductSearchChange(e.target.value)}
                     inputRef={searchInputRef}
                     autoFocus
-                    sx={{mb: 2}}
+                    sx={saleFormStyles.searchInput}
                 />
 
                 <Box sx={saleFormStyles.catalogGridScroll}>
