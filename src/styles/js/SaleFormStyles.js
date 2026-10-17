@@ -145,4 +145,36 @@ export const saleFormStyles = {
         borderRadius: 1,
         p: 1.5,
     },
+
+    // ── Ergonomía táctil (tablets) ──────────────────────────────────────────
+
+    // Barra de búsqueda del catálogo: altura táctil (50px) y fuente cómoda.
+    searchInput: {
+        mb: 2,
+        '& .MuiInputBase-root': {
+            height: 50,
+        },
+        '& .MuiInputBase-input': {
+            fontSize: '1rem',
+        },
+    },
+
+    // Botones de acción principales: altura táctil (48–52px) y tipografía legible.
+    touchButton: {
+        minHeight: 50,
+        fontSize: '1.05rem',
+    },
+
+    // Fila de botones del footer del ticket (Cobrar / Cancelar).
+    cartActions: {
+        display: 'flex',
+        gap: 1.5,
+    },
+
+    // Acciones de los diálogos del flujo de venta: separación táctil amplia.
+    dialogActions: {
+        px: 3,
+        pb: 2,
+        gap: 1.5,
+    },
 };

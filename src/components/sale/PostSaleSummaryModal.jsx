@@ -3,6 +3,7 @@ import {
     Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography,
 } from '@mui/material';
 import {CheckCircle, Print} from '@mui/icons-material';
+import {saleFormStyles} from '../../styles/js/SaleFormStyles';
 
 export const PostSaleSummaryModal = ({
                                          open,
@@ -66,8 +67,13 @@ export const PostSaleSummaryModal = ({
                 </Box>
             </DialogContent>
 
-            <DialogActions sx={{px: 3, pb: 2, gap: 1}}>
-                <Button onClick={onClose} variant="outlined" color="inherit">
+            <DialogActions sx={saleFormStyles.dialogActions}>
+                <Button
+                    onClick={onClose}
+                    variant="outlined"
+                    color="inherit"
+                    sx={saleFormStyles.touchButton}
+                >
                     Cerrar / No Imprimir
                 </Button>
                 <Button
@@ -75,7 +81,7 @@ export const PostSaleSummaryModal = ({
                     variant="contained"
                     color="success"
                     startIcon={<Print/>}
-                    sx={{fontWeight: 600}}
+                    sx={{...saleFormStyles.touchButton, fontWeight: 600}}
                 >
                     Imprimir Ticket
                 </Button>

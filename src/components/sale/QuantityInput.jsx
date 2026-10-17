@@ -21,7 +21,8 @@ export const QuantityInput = ({
                                   onChange,
                                   unitMeasure,
                                   productId,
-                                  disabled = false
+                                  disabled = false,
+                                  inputRef
                               }) => {
     const isKilogram = unitMeasure === 'KILOGRAMO';
 
@@ -57,6 +58,8 @@ export const QuantityInput = ({
                 label={isKilogram ? "Cantidad (kg)" : "Cantidad"}
                 value={value ?? ''}
                 onChange={(e) => onChange(e.target.value.replace(',', '.'))}
+                onFocus={(e) => e.target.select()}
+                inputRef={inputRef}
                 disabled={disabled}
                 slotProps={{
                     htmlInput: {
