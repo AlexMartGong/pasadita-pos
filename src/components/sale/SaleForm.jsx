@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Box, Grid} from '@mui/material';
 import {ProductCatalog} from './ProductCatalog';
 import {OperationTypeToggle} from './OperationTypeToggle';
@@ -63,6 +63,20 @@ export const SaleForm = ({saleSelected}) => {
     } = useSaleForm(saleSelected);
 
     const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
+    const searchInputRef = useRef(null);
+
+    // Enfoca la barra de búsqueda tras un breve retardo para aguardar el
+    // cierre de las transiciones de los diálogos de MUI.
+    const focusSearch = useCallback(() => {
+        setTimeout(() => {
+            searchInputRef.current?.focus();
+        }, 100);
+    }, []);
+
+    // Foco inicial al montar la vista.
+    useEffect(() => {
+        focusSearch();
+    }, [focusSearch]);
 
     useEffect(() => {
         if (isProductDialogOpen && selectedProductData.id === '') {
@@ -75,6 +89,24 @@ export const SaleForm = ({saleSelected}) => {
         setIsProductDialogOpen(true);
     }, [handleSelectProduct]);
 
+    // Cancelar la venta actual: limpia el estado y devuelve el foco al buscador.
+    const handleCancelSale = useCallback(() => {
+        handleLocalCancel();
+        focusSearch();
+    }, [handleLocalCancel, focusSearch]);
+
+    // Cierre del modal post-venta ("Cerrar / No Imprimir"): foco al buscador.
+    const handleClosePostSale = useCallback(() => {
+        handleClosePostSaleModal();
+        focusSearch();
+    }, [handleClosePostSaleModal, focusSearch]);
+
+    // "Imprimir Ticket" del modal post-venta: imprime, cierra y enfoca.
+    const handlePrintPostSale = useCallback(() => {
+        handlePrintPostSaleTicket();
+        focusSearch();
+    }, [handlePrintPostSaleTicket, focusSearch]);
+
     return (
         <Box sx={saleFormStyles.pageContainer}>
             <Grid container spacing={3}>
@@ -86,6 +118,7 @@ export const SaleForm = ({saleSelected}) => {
                         onProductSearchChange={setProductSearch}
                         onSelectProduct={handleOpenProductDialog}
                         formatCurrency={formatCurrency}
+                        searchInputRef={searchInputRef}
                     />
                 </Grid>
 
@@ -136,7 +169,7 @@ export const SaleForm = ({saleSelected}) => {
                             amountTendered={amountTendered}
                             onAmountTenderedChange={setAmountTendered}
                             onRemoveProduct={handleRemoveProduct}
-                            onCancel={handleLocalCancel}
+                            onCancel={handleCancelSale}
                             onValidate={validateForm}
                             onSaveSale={handleSubmit}
                             formatCurrency={formatCurrency}
@@ -163,8 +196,8 @@ export const SaleForm = ({saleSelected}) => {
 
             <PostSaleSummaryModal
                 open={postSaleData.isOpen}
-                onClose={handleClosePostSaleModal}
-                onPrint={handlePrintPostSaleTicket}
+                onClose={handleClosePostSale}
+                onPrint={handlePrintPostSale}
                 total={postSaleData.total}
                 amountTendered={postSaleData.amountTendered}
                 changeDue={postSaleData.changeDue}

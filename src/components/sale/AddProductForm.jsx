@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import {
     Box, Button, Divider,
     Dialog, DialogActions, DialogContent, DialogTitle,
@@ -16,6 +16,23 @@ export const AddProductForm = ({
                                    onAddToCart,
                                    formatCurrency
                                }) => {
+    const quantityInputRef = useRef(null);
+
+    // Al abrir el diálogo: enfoca y preselecciona la cantidad para que el
+    // cajero pueda teclear el nuevo valor directamente (sin borrar el actual).
+    // El retardo aguarda la animación de entrada del Dialog.
+    useEffect(() => {
+        if (!open) return;
+        const timer = setTimeout(() => {
+            const input = quantityInputRef.current;
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }, 120);
+        return () => clearTimeout(timer);
+    }, [open]);
+
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle sx={{
@@ -51,6 +68,7 @@ export const AddProductForm = ({
                         onChange={(value) => onSelectedProductChange({quantity: value})}
                         unitMeasure={selectedProductData.unitMeasure}
                         productId={selectedProductData.id}
+                        inputRef={quantityInputRef}
                     />
 
                     <Divider/>

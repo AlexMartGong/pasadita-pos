@@ -5,6 +5,7 @@ import {
     MenuItem, Select, Typography
 } from '@mui/material';
 import {AttachMoney, Backspace, RestartAlt} from '@mui/icons-material';
+import {saleFormStyles} from '../../styles/js/SaleFormStyles';
 
 const DENOMINATIONS = [
     {value: 50, label: '$50', color: '#e65100'},
@@ -380,8 +381,12 @@ export const PaymentModal = ({
                     </Grid>
                 </Grid>
             </DialogContent>
-            <DialogActions sx={{px: 3, pb: 2}}>
-                <Button onClick={onClose} variant="outlined">
+            <DialogActions sx={saleFormStyles.dialogActions}>
+                <Button
+                    onClick={onClose}
+                    variant="outlined"
+                    sx={saleFormStyles.touchButton}
+                >
                     Cancelar
                 </Button>
                 <Button
@@ -389,7 +394,7 @@ export const PaymentModal = ({
                     color="success"
                     onClick={handleSave}
                     disabled={saveDisabled}
-                    sx={{fontWeight: 600}}
+                    sx={{...saleFormStyles.touchButton, fontWeight: 600}}
                 >
                     {isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar Venta')}
                 </Button>

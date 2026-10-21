@@ -138,13 +138,14 @@ export const ShoppingCart = ({
                     </Typography>
                 )}
 
-                <Box sx={{display: 'flex', gap: 1.5}}>
+                <Box sx={saleFormStyles.cartActions}>
                     <Button
                         variant="outlined"
                         color="inherit"
                         fullWidth
                         onClick={handleCancelClick}
                         disabled={isSubmitting}
+                        sx={saleFormStyles.touchButton}
                     >
                         Cancelar
                     </Button>
@@ -154,6 +155,7 @@ export const ShoppingCart = ({
                         fullWidth
                         startIcon={<PointOfSale/>}
                         disabled={isSubmitting}
+                        sx={saleFormStyles.touchButton}
                         onClick={() => {
                             if (onValidate()) {
                                 setPaymentOpen(true);
