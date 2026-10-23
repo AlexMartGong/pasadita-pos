@@ -22,7 +22,7 @@ export const DeliveryOrder = ({selectedCustomer}) => {
             </Box>
             <CardContent sx={{pb: 2}}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6} size={{xs: 12}}>
+                    <Grid size={{xs: 12}}>
                         <TextField
                             fullWidth
                             size="small"
@@ -31,7 +31,7 @@ export const DeliveryOrder = ({selectedCustomer}) => {
                             disabled
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} size={{xs: 12}}>
+                    <Grid size={{xs: 12}}>
                         <TextField
                             fullWidth
                             size="small"
@@ -40,7 +40,7 @@ export const DeliveryOrder = ({selectedCustomer}) => {
                             disabled
                         />
                     </Grid>
-                    {/*<Grid item xs={12} sm={6} size={{xs: 12}}>*/}
+                    {/*<Grid size={{xs: 12}}>*/}
                     {/*    <TextField*/}
                     {/*        fullWidth*/}
                     {/*        size="small"*/}

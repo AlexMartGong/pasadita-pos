@@ -51,7 +51,7 @@ export const AddProductForm = ({
                         <Typography variant="h6" sx={{fontWeight: 700, lineHeight: 1.2}}>
                             {selectedProductData.name}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{mt: 0.5}}>
+                        <Typography variant="body2" sx={{color: 'text.secondary', mt: 0.5}}>
                             Precio unitario: {formatCurrency(selectedProductData.price)}
                             {selectedProductData.unitMeasure ? ` / ${selectedProductData.unitMeasure.toLowerCase()}` : ''}
                         </Typography>
@@ -81,7 +81,7 @@ export const AddProductForm = ({
                         border: '1px solid',
                         borderColor: 'success.light'
                     }}>
-                        <Typography variant="overline" color="text.secondary" sx={{letterSpacing: 1}}>
+                        <Typography variant="overline" sx={{color: 'text.secondary', letterSpacing: 1}}>
                             Total
                         </Typography>
                         <Typography variant="h3" sx={{fontWeight: 700, color: 'success.main', lineHeight: 1.1}}>

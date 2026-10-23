@@ -93,7 +93,7 @@ export const QuantityInput = ({
                 }}
             />
 
-            <Stack direction="row" spacing={1} justifyContent="flex-end">
+            <Stack direction="row" spacing={1} sx={{justifyContent: 'flex-end'}}>
                 {isConnected && (
                     <>
                         <Chip

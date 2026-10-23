@@ -179,7 +179,7 @@ export const PaymentModal = ({
                         </Button>
 
                         {/* Billetes */}
-                        <Typography variant="subtitle2" color="text.secondary" sx={{mb: 1}}>
+                        <Typography variant="subtitle2" sx={{color: 'text.secondary', mb: 1}}>
                             Billetes
                         </Typography>
                         <Box sx={{
@@ -214,7 +214,7 @@ export const PaymentModal = ({
                         </Box>
 
                         {/* Monedas + Exacto + Limpiar */}
-                        <Typography variant="subtitle2" color="text.secondary" sx={{mb: 1}}>
+                        <Typography variant="subtitle2" sx={{color: 'text.secondary', mb: 1}}>
                             Monedas
                         </Typography>
                         <Box sx={{display: 'flex', gap: 1.5, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center'}}>
@@ -271,7 +271,7 @@ export const PaymentModal = ({
                                 backgroundColor: '#f5f5f5',
                                 borderRadius: 2,
                             }}>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography variant="body2" sx={{color: 'text.secondary'}}>
                                     Total a pagar
                                 </Typography>
                                 <Typography variant="h4" sx={{fontWeight: 700, color: '#283593'}}>
@@ -286,7 +286,7 @@ export const PaymentModal = ({
                                 backgroundColor: '#f5f5f5',
                                 borderRadius: 2,
                             }}>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography variant="body2" sx={{color: 'text.secondary'}}>
                                     Cantidad recibida
                                 </Typography>
                                 <Typography variant="h4" sx={{fontWeight: 700, color: '#1b5e20'}}>
@@ -302,7 +302,7 @@ export const PaymentModal = ({
                                 backgroundColor: isValid ? '#e8f5e9' : '#ffebee',
                                 border: `2px solid ${isValid ? '#2e7d32' : '#c62828'}`,
                             }}>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography variant="body2" sx={{color: 'text.secondary'}}>
                                     Cambio
                                 </Typography>
                                 <Typography variant="h4" sx={{

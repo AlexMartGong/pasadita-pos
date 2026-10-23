@@ -11,7 +11,7 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import {LockOutlined, PersonOutline, Store, Visibility, VisibilityOff} from "@mui/icons-material";
+import {LockOutlined, PersonOutlined, Store, Visibility, VisibilityOff} from "@mui/icons-material";
 import {useAuth} from "../hooks/useAuth";
 import {loginPageStyles} from "../../styles/js/LoginPageStyles";
 
@@ -77,7 +77,7 @@ export const LoginPage = () => {
                                 input: {
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <PersonOutline/>
+                                            <PersonOutlined/>
                                         </InputAdornment>
                                     )
                                 }

@@ -46,7 +46,7 @@ export const OperationTypeToggle = ({operationType, onChange, isAdmin}) => {
                 </ToggleButtonGroup>
 
                 {operationType === 'venta' && (
-                    <Typography variant="caption" color="text.secondary" sx={{mt: 1, display: 'block'}}>
+                    <Typography variant="caption" sx={{color: 'text.secondary', mt: 1, display: 'block'}}>
                         Modo Venta: No se creará pedido de entrega
                     </Typography>
                 )}

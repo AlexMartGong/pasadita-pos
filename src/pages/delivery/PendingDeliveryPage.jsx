@@ -53,7 +53,7 @@ export const PendingDeliveryPage = () => {
                     <Typography variant="h6" component="h2" sx={pageContainerStyles.contentTitle}>
                         Lista de Pedidos Pendientes
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={pageContainerStyles.contentSubtitle}>
+                    <Typography variant="body2" sx={{color: 'text.secondary', ...pageContainerStyles.contentSubtitle}}>
                         Pedidos de entrega que aun no han sido pagados
                     </Typography>
                 </Box>

@@ -44,7 +44,7 @@ export const ProductPriceEditor = () => {
                     <Typography variant="h5" sx={{fontWeight: 700}}>
                         Precios Rápidos
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" sx={{color: 'text.secondary'}}>
                         {filteredProducts.length} producto{filteredProducts.length === 1 ? '' : 's'}
                     </Typography>
                 </Box>
@@ -66,7 +66,7 @@ export const ProductPriceEditor = () => {
             </Box>
 
             {filteredProducts.length === 0 ? (
-                <Typography variant="body2" color="text.secondary" sx={quickPricesStyles.empty}>
+                <Typography variant="body2" sx={{color: 'text.secondary', ...quickPricesStyles.empty}}>
                     {searchText
                         ? 'No se encontraron productos con ese criterio de búsqueda.'
                         : 'No hay productos disponibles.'}

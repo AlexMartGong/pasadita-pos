@@ -72,7 +72,7 @@ export const SendEmailModal = ({open, onClose, invoice}) => {
                         : `Factura #${invoice?.invoiceId ?? ''}`}
                     {' '}(Venta #{invoice?.saleId ?? ''}). Se enviará el PDF y XML al correo indicado.
                 </DialogContentText>
-                <Typography variant="body2" color="text.secondary" sx={{mb: 1}}>
+                <Typography variant="body2" sx={{color: 'text.secondary', mb: 1}}>
                     Puedes dejar el correo registrado del cliente o escribir uno distinto.
                 </Typography>
                 <TextField

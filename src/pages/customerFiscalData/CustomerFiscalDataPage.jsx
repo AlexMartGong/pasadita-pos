@@ -41,7 +41,7 @@ export const CustomerFiscalDataPage = () => {
                     <Typography variant="h6" component="h2" sx={pageContainerStyles.contentTitle}>
                         Lista de Perfiles Fiscales
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={pageContainerStyles.contentSubtitle}>
+                    <Typography variant="body2" sx={{color: 'text.secondary', ...pageContainerStyles.contentSubtitle}}>
                         Visualiza y gestiona todos los datos fiscales registrados en el sistema
                     </Typography>
                 </Box>

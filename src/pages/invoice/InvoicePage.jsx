@@ -36,7 +36,7 @@ export const InvoicePage = () => {
                     <Typography variant="h6" component="h2" sx={pageContainerStyles.contentTitle}>
                         Lista de Facturas
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={pageContainerStyles.contentSubtitle}>
+                    <Typography variant="body2" sx={{color: 'text.secondary', ...pageContainerStyles.contentSubtitle}}>
                         Visualiza el historial completo de timbrado y cancelación de facturas
                     </Typography>
                 </Box>

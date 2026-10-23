@@ -42,7 +42,7 @@ export const UserPage = () => {
                     <Typography variant="h6" component="h2" sx={pageContainerStyles.contentTitle}>
                         Lista de Usuarios
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={pageContainerStyles.contentSubtitle}>
+                    <Typography variant="body2" sx={{color: 'text.secondary', ...pageContainerStyles.contentSubtitle}}>
                         Visualiza y gestiona todos los usuarios registrados en el sistema
                     </Typography>
                 </Box>

@@ -87,8 +87,8 @@ export const DateRangeFilter = ({onFilterChange}) => {
                     label="Desde"
                     value={customStart}
                     onChange={(e) => setCustomStart(e.target.value)}
-                    InputLabelProps={{shrink: true}}
                     sx={{width: 160}}
+                    slotProps={{inputLabel: {shrink: true}}}
                 />
                 <TextField
                     type="date"
@@ -96,8 +96,8 @@ export const DateRangeFilter = ({onFilterChange}) => {
                     label="Hasta"
                     value={customEnd}
                     onChange={(e) => setCustomEnd(e.target.value)}
-                    InputLabelProps={{shrink: true}}
                     sx={{width: 160}}
+                    slotProps={{inputLabel: {shrink: true}}}
                 />
                 <Button
                     size="small"
