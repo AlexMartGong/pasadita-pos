@@ -30,7 +30,7 @@ A Point of Sale (POS) system built with React + Vite frontend. The application m
 
 ## Development Commands
 
-Requires **Node.js >= 20** (dev environment runs Node 24 via nvm). `pnpm build` fails on Node 18 with `ReferenceError: crypto is not defined` (transitive `serialize-javascript` needs the global `crypto`, and Vite 7 itself requires Node ^20.19 / >=22.12).
+Requires **Node.js ^20.19 or >=22.13** (dev environment runs Node 24 via nvm): Vite 8 needs ^20.19 / >=22.12 and ESLint 10 needs ^20.19 / ^22.13 / >=24. `pnpm build` fails on Node 18 with `ReferenceError: crypto is not defined` (transitive `serialize-javascript` needs the global `crypto`).
 
 These four scripts are the complete set — there is no test runner and no type-check script.
 
@@ -150,7 +150,7 @@ A per-terminal local agent runs at `http://localhost:8081` and serves **both** t
 ### Environment Configuration
 - `.env`: `VITE_API_BASE_URL=http://localhost:8080` (development)
 - `.env.production`: `VITE_API_BASE_URL=https://api.lapasadita.app` (production)
-- Vite build: `esnext` target, manual chunk splitting (vendor, redux, mui), no sourcemaps
+- Vite build: `esnext` target, Oxc minifier, no sourcemaps. Chunks (vendor, redux, mui) are Rolldown `codeSplitting.groups` under `build.rolldownOptions.output` — Vite 8 renamed `rollupOptions` to `rolldownOptions` and removed object-form `manualChunks`, so add new vendor chunks as another `{name, test: /node_modules[\\/]pkg[\\/]/}` group
 
 ### PWA (Progressive Web App)
 - Installable on mobile/desktop via `vite-plugin-pwa` (devDep), configured in `vite.config.js` as the `VitePWA` plugin alongside `react()`.
@@ -160,8 +160,9 @@ A per-terminal local agent runs at `http://localhost:8081` and serves **both** t
 - `pnpm build` emits `dist/manifest.webmanifest`, `dist/sw.js`, `dist/workbox-*.js`, `dist/registerSW.js`. Workbox precaches build assets; cross-origin `VITE_API_BASE_URL` calls are not cached.
 
 ### Key Dependencies
-- **Core**: React 19 + Vite 7 (no TypeScript — plain JSX/JS, no type-check script)
-- **UI**: Material-UI (MUI) v7 with MUI X DataGrid v8, Bootstrap for legacy styles
+- **Core**: React 19 + Vite 8 (Rolldown bundler, Oxc transforms via `@vitejs/plugin-react` v6; no TypeScript — plain JSX/JS, no type-check script)
+- **UI**: Material-UI (MUI) v9 with MUI X DataGrid v9, Bootstrap for legacy styles. v9 **removed system props** — style via `sx` only (`<Typography sx={{color: 'text.secondary', fontWeight: 600}}>`, never `color="text.secondary"`/`fontWeight={600}`; same for `Box`/`Stack`/`Grid` layout props like `justifyContent`), TextField takes `slotProps` (`{input, htmlInput, inputLabel, select}`) instead of `InputProps`/`inputProps`/`InputLabelProps`/`SelectProps`, `Grid` takes only `size` (no `item`/`xs`/`sm`), and icon names ending in `Outline` are gone (use `…Outlined`)
+- **Lint**: ESLint 10 flat config with `eslint-plugin-react-hooks` v7 (`configs.flat['recommended-latest']`, includes the React Compiler rules) + `eslint-plugin-react-refresh`. `react-hooks/set-state-in-effect` is downgraded to `warn` in `eslint.config.js` because existing forms sync props into state inside effects — don't add new violations
 - **Charts**: Recharts (dashboard visualizations)
 - **Routing**: React Router v7
 - **State**: Redux Toolkit

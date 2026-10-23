@@ -1,10 +1,10 @@
 # La Pasadita POS
 
-Point of Sale (POS) frontend built with React 19 + Vite 7. See `CLAUDE.md` for full architecture docs.
+Point of Sale (POS) frontend built with React 19 + Vite 8 and Material UI 9. See `CLAUDE.md` for full architecture docs.
 
 ## Requirements
 
-- **Node.js >= 20** (Node 24 recommended; `pnpm build` fails on Node 18 with `crypto is not defined`)
+- **Node.js ^20.19 or >=22.13** (Node 24 recommended; required by Vite 8 and ESLint 10, and `pnpm build` fails on Node 18 with `crypto is not defined`)
 - **pnpm** (all tooling uses pnpm)
 
 ## Commands
