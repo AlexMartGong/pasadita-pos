@@ -43,7 +43,7 @@ export const InvoiceSaleModal = ({open, onClose, saleId}) => {
                 Generar Factura para Venta # {saleId}
             </DialogTitle>
             <DialogContent sx={{pt: 3}}>
-                <Typography variant="body2" color="text.secondary" sx={{mb: 2, mt: 1}}>
+                <Typography variant="body2" sx={{color: 'text.secondary', mb: 2, mt: 1}}>
                     Selecciona el perfil fiscal del cliente para timbrar la factura CFDI 4.0.
                 </Typography>
                 <FormControl

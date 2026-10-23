@@ -38,7 +38,7 @@ export const PostSaleSummaryModal = ({
                     backgroundColor: '#e8f5e9',
                     border: '2px solid #2e7d32',
                 }}>
-                    <Typography variant="body1" color="text.secondary">
+                    <Typography variant="body1" sx={{color: 'text.secondary'}}>
                         Cambio a devolver
                     </Typography>
                     <Typography variant="h3" sx={{fontWeight: 800, color: '#2e7d32'}}>
@@ -49,7 +49,7 @@ export const PostSaleSummaryModal = ({
                 {/* Total + efectivo recibido — secundarios */}
                 <Box sx={{display: 'flex', justifyContent: 'space-between', px: 1}}>
                     <Box sx={{textAlign: 'center'}}>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" sx={{color: 'text.secondary'}}>
                             Total de la venta
                         </Typography>
                         <Typography variant="h6" sx={{fontWeight: 700, color: '#283593'}}>
@@ -57,7 +57,7 @@ export const PostSaleSummaryModal = ({
                         </Typography>
                     </Box>
                     <Box sx={{textAlign: 'center'}}>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" sx={{color: 'text.secondary'}}>
                             Efectivo recibido
                         </Typography>
                         <Typography variant="h6" sx={{fontWeight: 700, color: '#1b5e20'}}>

@@ -3,19 +3,19 @@
 Compact guidance for OpenCode sessions. If a fact is obvious from filenames, it is omitted.
 
 ## Tech Stack
-- React 19 + Vite 7 + React Router v7
+- React 19 + Vite 8 (Rolldown/Oxc) + React Router v7
 - Redux Toolkit (global state)
-- Material-UI (MUI) v7 + MUI X DataGrid v8
+- Material-UI (MUI) v9 + MUI X DataGrid v9 — no system props: style with `sx` only (`sx={{color: 'text.secondary'}}`, not `color="text.secondary"`), TextField uses `slotProps`, `Grid` uses only `size`
 - Axios for HTTP
 - PWA via `vite-plugin-pwa` (installable, Workbox service worker)
 - No test suite exists; do not create or suggest tests unless explicitly asked
 
 ## Development Commands
-Requires Node.js >= 20 (`pnpm build` fails on Node 18: `crypto is not defined` from transitive `serialize-javascript`; Vite 7 needs Node ^20.19 / >=22.12).
+Requires Node.js ^20.19 or >=22.13 (Vite 8 needs ^20.19 / >=22.12, ESLint 10 needs ^20.19 / ^22.13 / >=24; `pnpm build` fails on Node 18: `crypto is not defined` from transitive `serialize-javascript`).
 ```bash
 pnpm dev      # Vite dev server (host 0.0.0.0, port 5173)
-pnpm build    # Production build (esnext, no sourcemaps, manual chunks)
-pnpm lint     # ESLint only
+pnpm build    # Production build (esnext, no sourcemaps, Rolldown codeSplitting groups in build.rolldownOptions)
+pnpm lint     # ESLint 10 only (react-hooks v7 flat config; set-state-in-effect is a warning)
 pnpm preview  # Preview production build
 ```
 There is no test runner or type-check script.

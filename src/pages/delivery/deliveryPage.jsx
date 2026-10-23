@@ -62,7 +62,7 @@ export const DeliveryPage = () => {
                     <Typography variant="h6" component="h2" sx={pageContainerStyles.contentTitle}>
                         Lista de Órdenes de Entrega
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={pageContainerStyles.contentSubtitle}>
+                    <Typography variant="body2" sx={{color: 'text.secondary', ...pageContainerStyles.contentSubtitle}}>
                         Visualiza y gestiona todas las órdenes de entrega registradas en el sistema
                     </Typography>
                 </Box>

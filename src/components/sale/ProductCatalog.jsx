@@ -65,7 +65,7 @@ export const ProductCatalog = ({
 
                 <Box sx={saleFormStyles.catalogGridScroll}>
                     {filteredProducts.length === 0 ? (
-                        <Typography variant="body2" color="text.secondary" sx={{py: 4, textAlign: 'center'}}>
+                        <Typography variant="body2" sx={{color: 'text.secondary', py: 4, textAlign: 'center'}}>
                             {productSearch
                                 ? 'No se encontraron productos con ese criterio de búsqueda'
                                 : 'No hay productos disponibles'}

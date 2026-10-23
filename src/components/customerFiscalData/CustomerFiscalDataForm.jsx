@@ -315,8 +315,7 @@ export const CustomerFiscalDataForm = ({fiscalDataSelected}) => {
                                 <Stack
                                     direction={{xs: 'column', sm: 'row'}}
                                     spacing={2}
-                                    justifyContent="flex-end"
-                                    sx={{mt: 2}}>
+                                    sx={{justifyContent: 'flex-end', mt: 2}}>
                                     <Button
                                         type="button"
                                         variant="outlined"

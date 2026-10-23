@@ -102,7 +102,7 @@ export const TicketPage = () => {
             >
                 <Box sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 2}}>
                     <Receipt sx={{color: 'text.secondary', fontSize: 20}}/>
-                    <Typography variant="subtitle1" fontWeight={700}>
+                    <Typography variant="subtitle1" sx={{fontWeight: 700}}>
                         Resumen de la venta
                     </Typography>
                     <Chip
@@ -121,26 +121,26 @@ export const TicketPage = () => {
                     <Box>
                         <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5}}>
                             <Person sx={{fontSize: 14, color: 'text.secondary'}}/>
-                            <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                            <Typography variant="caption" sx={{color: 'text.secondary', fontWeight: 600}}>
                                 CLIENTE
                             </Typography>
                         </Box>
-                        <Typography variant="body2" fontWeight={600}>{ticketData.customerName}</Typography>
-                        <Typography variant="caption" color="text.secondary">{ticketData.customerPhone}</Typography>
+                        <Typography variant="body2" sx={{fontWeight: 600}}>{ticketData.customerName}</Typography>
+                        <Typography variant="caption" sx={{color: 'text.secondary'}}>{ticketData.customerPhone}</Typography>
                     </Box>
                     <Box>
                         <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5}}>
                             <Person sx={{fontSize: 14, color: 'text.secondary'}}/>
-                            <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                            <Typography variant="caption" sx={{color: 'text.secondary', fontWeight: 600}}>
                                 EMPLEADO
                             </Typography>
                         </Box>
-                        <Typography variant="body2" fontWeight={600}>{ticketData.employeeName}</Typography>
+                        <Typography variant="body2" sx={{fontWeight: 600}}>{ticketData.employeeName}</Typography>
                     </Box>
                     <Box>
                         <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5}}>
                             <CalendarToday sx={{fontSize: 14, color: 'text.secondary'}}/>
-                            <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                            <Typography variant="caption" sx={{color: 'text.secondary', fontWeight: 600}}>
                                 FECHA
                             </Typography>
                         </Box>
@@ -149,11 +149,11 @@ export const TicketPage = () => {
                     <Box>
                         <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5}}>
                             <AttachMoney sx={{fontSize: 14, color: 'text.secondary'}}/>
-                            <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                            <Typography variant="caption" sx={{color: 'text.secondary', fontWeight: 600}}>
                                 TOTAL
                             </Typography>
                         </Box>
-                        <Typography variant="body2" fontWeight={700} color="success.dark" fontSize={16}>
+                        <Typography variant="body2" sx={{fontWeight: 700, color: 'success.dark', fontSize: 16}}>
                             {formatCurrency(ticketData.total)}
                         </Typography>
                         <Chip
@@ -172,8 +172,7 @@ export const TicketPage = () => {
                 <Box>
                     <Typography
                         variant="caption"
-                        color="text.secondary"
-                        sx={{display: 'block', mb: 1, textAlign: 'center', letterSpacing: 1}}
+                        sx={{color: 'text.secondary', display: 'block', mb: 1, textAlign: 'center', letterSpacing: 1}}
                     >
                         VISTA PREVIA DEL TICKET
                     </Typography>

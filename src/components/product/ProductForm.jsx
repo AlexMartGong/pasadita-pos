@@ -347,7 +347,7 @@ export const ProductForm = ({productSelected}) => {
                                                         onChange={handleImageChange}
                                                     />
                                                 </Button>
-                                                <Typography variant="caption" display="block" color="text.secondary" sx={{mt: 0.5}}>
+                                                <Typography variant="caption" sx={{display: 'block', color: 'text.secondary', mt: 0.5}}>
                                                     Opcional. Se optimiza a WebP automáticamente.
                                                 </Typography>
                                             </Box>

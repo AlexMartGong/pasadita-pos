@@ -43,7 +43,7 @@ const ProductPriceCardComponent = ({product, onSave}) => {
                     <Typography variant="subtitle2" sx={quickPricesStyles.name} title={product.name} noWrap>
                         {product.name}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" sx={{color: 'text.secondary'}}>
                         ID: {product.id}
                     </Typography>
                 </Box>
@@ -54,7 +54,7 @@ const ProductPriceCardComponent = ({product, onSave}) => {
                         label={categoryLabel(product.category)}
                         sx={{...quickPricesStyles.categoryChip, backgroundColor: color}}
                     />
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" sx={{color: 'text.secondary'}}>
                         {product.unitMeasure}
                     </Typography>
                 </Box>

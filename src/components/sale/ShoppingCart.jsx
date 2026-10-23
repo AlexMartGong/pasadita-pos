@@ -81,7 +81,7 @@ export const ShoppingCart = ({
                             {saleDetails.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={6} align="center">
-                                        <Typography variant="body2" color="text.secondary" sx={{py: 2}}>
+                                        <Typography variant="body2" sx={{color: 'text.secondary', py: 2}}>
                                             Haz clic en un producto del catálogo para agregar
                                         </Typography>
                                     </TableCell>

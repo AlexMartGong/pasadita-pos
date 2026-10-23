@@ -16,7 +16,7 @@ export const StatsCard = ({label, value, icon: Icon, color = 'primary'}) => {
             <CardContent>
                 <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
                     <Box>
-                        <Typography variant="body2" color="text.secondary" sx={statsCardStyles.label}>
+                        <Typography variant="body2" sx={{color: 'text.secondary', ...statsCardStyles.label}}>
                             {label}
                         </Typography>
                         <Typography variant="h4" sx={{...statsCardStyles.value, color: colorValue}}>

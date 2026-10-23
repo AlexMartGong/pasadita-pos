@@ -24,7 +24,7 @@ export const CustomerAnalysisSection = ({customerAnalysis}) => {
             <Box sx={dashboardStyles.sectionBody}>
                 <Box sx={dashboardStyles.twoColumnGrid}>
                     <Box>
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        <Typography variant="subtitle2" gutterBottom sx={{color: 'text.secondary'}}>
                             Ventas por Tipo de Cliente
                         </Typography>
                         <Box sx={{...dashboardStyles.chartContainer, height: 260}}>
@@ -67,7 +67,7 @@ export const CustomerAnalysisSection = ({customerAnalysis}) => {
                     </Box>
 
                     <Box>
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        <Typography variant="subtitle2" gutterBottom sx={{color: 'text.secondary'}}>
                             Clientes VIP
                         </Typography>
                         <TableContainer>
@@ -90,7 +90,7 @@ export const CustomerAnalysisSection = ({customerAnalysis}) => {
                                     {vipCustomers.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={3} align="center">
-                                                <Typography variant="body2" color="text.secondary">Sin datos</Typography>
+                                                <Typography variant="body2" sx={{color: 'text.secondary'}}>Sin datos</Typography>
                                             </TableCell>
                                         </TableRow>
                                     )}

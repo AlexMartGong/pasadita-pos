@@ -46,7 +46,7 @@ export const TimeAnalysisSection = ({timeAnalysis}) => {
                 </Typography>
             </Box>
             <Box sx={dashboardStyles.sectionBody}>
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                <Typography variant="subtitle2" gutterBottom sx={{color: 'text.secondary'}}>
                     Mapa de Calor - Ventas por Dia y Hora
                 </Typography>
                 <Box sx={{overflowX: 'auto', mb: 3}}>
@@ -82,15 +82,15 @@ export const TimeAnalysisSection = ({timeAnalysis}) => {
                         ))}
                     </Box>
                     <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5, mt: 1, justifyContent: 'flex-end'}}>
-                        <Typography variant="caption" color="text.secondary">Menos</Typography>
+                        <Typography variant="caption" sx={{color: 'text.secondary'}}>Menos</Typography>
                         {['#f5f5f5', '#bbdefb', '#64b5f6', '#1976d2', '#003c8f'].map(color => (
                             <Box key={color} sx={{width: 14, height: 14, borderRadius: 0.5, backgroundColor: color}}/>
                         ))}
-                        <Typography variant="caption" color="text.secondary">Mas</Typography>
+                        <Typography variant="caption" sx={{color: 'text.secondary'}}>Mas</Typography>
                     </Box>
                 </Box>
 
-                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                <Typography variant="subtitle2" gutterBottom sx={{color: 'text.secondary'}}>
                     Ticket Promedio por Hora
                 </Typography>
                 <Box sx={dashboardStyles.chartContainer}>

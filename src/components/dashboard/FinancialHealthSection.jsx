@@ -49,7 +49,7 @@ export const FinancialHealthSection = ({financialHealth, basketAnalysis}) => {
 
                 <Box sx={dashboardStyles.twoColumnGrid}>
                     <Box>
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        <Typography variant="subtitle2" gutterBottom sx={{color: 'text.secondary'}}>
                             Impacto de Descuentos
                         </Typography>
                         <Box sx={dashboardStyles.chartContainer}>
@@ -70,7 +70,7 @@ export const FinancialHealthSection = ({financialHealth, basketAnalysis}) => {
                     </Box>
 
                     <Box>
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{display: 'flex', alignItems: 'center', gap: 0.5}}>
+                        <Typography variant="subtitle2" gutterBottom sx={{color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.5}}>
                             <Warning fontSize="small" color="error"/> Ventas Sin Pagar ({unpaidSales.length})
                         </Typography>
                         <TableContainer sx={{maxHeight: 300}}>
@@ -95,7 +95,7 @@ export const FinancialHealthSection = ({financialHealth, basketAnalysis}) => {
                                     {unpaidSales.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={4} align="center">
-                                                <Typography variant="body2" color="text.secondary">Sin deudas pendientes</Typography>
+                                                <Typography variant="body2" sx={{color: 'text.secondary'}}>Sin deudas pendientes</Typography>
                                             </TableCell>
                                         </TableRow>
                                     )}

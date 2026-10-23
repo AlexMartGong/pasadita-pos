@@ -10,8 +10,8 @@ const CustomTooltip = ({active, payload}) => {
     if (active && payload && payload.length) {
         return (
             <Box sx={{backgroundColor: 'white', p: 1.5, border: '1px solid #e0e0e0', borderRadius: 1}}>
-                <Typography variant="body2" fontWeight={600}>{payload[0].payload.productName || payload[0].payload.category}</Typography>
-                <Typography variant="body2" color="text.secondary">{formatCurrency(payload[0].value)}</Typography>
+                <Typography variant="body2" sx={{fontWeight: 600}}>{payload[0].payload.productName || payload[0].payload.category}</Typography>
+                <Typography variant="body2" sx={{color: 'text.secondary'}}>{formatCurrency(payload[0].value)}</Typography>
             </Box>
         );
     }
@@ -38,7 +38,7 @@ export const ProductAnalysisSection = ({productAnalysis}) => {
             <Box sx={dashboardStyles.sectionBody}>
                 <Box sx={dashboardStyles.twoColumnGrid}>
                     <Box>
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        <Typography variant="subtitle2" gutterBottom sx={{color: 'text.secondary'}}>
                             Top 10 Productos por Ingreso
                         </Typography>
                         <Box sx={dashboardStyles.chartContainer}>
@@ -55,7 +55,7 @@ export const ProductAnalysisSection = ({productAnalysis}) => {
                     </Box>
 
                     <Box>
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        <Typography variant="subtitle2" gutterBottom sx={{color: 'text.secondary'}}>
                             Ventas por Categoria
                         </Typography>
                         <Box sx={dashboardStyles.chartContainer}>
@@ -85,7 +85,7 @@ export const ProductAnalysisSection = ({productAnalysis}) => {
 
                 {deadProducts.length > 0 && (
                     <Box sx={{mt: 3}}>
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{display: 'flex', alignItems: 'center', gap: 0.5}}>
+                        <Typography variant="subtitle2" gutterBottom sx={{color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 0.5}}>
                             <Warning fontSize="small" color="warning"/> Productos Sin Movimiento
                         </Typography>
                         <TableContainer>
