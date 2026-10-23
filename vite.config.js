@@ -43,14 +43,16 @@ export default defineConfig({
     },
     build: {
         target: 'esnext',
-        minify: 'esbuild',
+        minify: 'oxc',
         sourcemap: false,
-        rollupOptions: {
+        rolldownOptions: {
             output: {
-                manualChunks: {
-                    vendor: ['react', 'react-dom', 'react-router-dom'],
-                    redux: ['@reduxjs/toolkit', 'react-redux'],
-                    mui: ['@mui/material', '@mui/icons-material'],
+                codeSplitting: {
+                    groups: [
+                        {name: 'vendor', test: /node_modules[\\/](react|react-dom|react-router-dom)[\\/]/},
+                        {name: 'redux', test: /node_modules[\\/](@reduxjs[\\/]toolkit|react-redux)[\\/]/},
+                        {name: 'mui', test: /node_modules[\\/]@mui[\\/](material|icons-material)[\\/]/},
+                    ]
                 }
             }
         }
