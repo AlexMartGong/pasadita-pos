@@ -24,13 +24,10 @@ export const useDeliveryOrder = () => {
             const result = await deliveryOrderService.getAllDeliveryOrders();
             dispatch(setDeliveryOrders(result.orders));
 
-            // Calcular totalAmount solo de las órdenes con status ACTIVO
-            const activeOrders = result.orders.filter(order => order.status === 'ACTIVO');
-            const totalAmountActive = activeOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-
+            // totalAmount del backend: suma de los pedidos pagados (ACTIVO) del día.
             dispatch(setTotalAmountAndOrders({
                 totalOrders: result.totalOrders,
-                totalAmount: totalAmountActive
+                totalAmount: result.totalAmount
             }));
             return true;
         } catch (error) {
@@ -76,7 +73,7 @@ export const useDeliveryOrder = () => {
             return true;
         } catch (error) {
             console.error('Error changing delivery order status:', error);
-            handleApiError(error);
+            handleApiError(error, {}, {serverMessageStatuses: [400]});
             return false;
         }
     }, [dispatch, handleApiError]);

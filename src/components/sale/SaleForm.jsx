@@ -28,6 +28,11 @@ export const SaleForm = ({saleSelected}) => {
         isEditMode,
         selectedCustomer,
         canSaveDeliveryOrder,
+        credit,
+        creditLoading,
+        creditReached,
+        creditBlocked,
+        creditWarning,
         isAdmin,
         operationType,
         deliveryEmployeeId,
@@ -157,6 +162,12 @@ export const SaleForm = ({saleSelected}) => {
                                 onDeliveryEmployeeChange={setDeliveryEmployeeId}
                                 onDeliveryCostChange={setDeliveryCost}
                                 canSaveDeliveryOrder={canSaveDeliveryOrder}
+                                credit={credit}
+                                creditLoading={creditLoading}
+                                creditReached={creditReached}
+                                creditBlocked={creditBlocked}
+                                creditWarning={creditWarning}
+                                isAdmin={isAdmin}
                             />
                         )}
 
@@ -179,6 +190,7 @@ export const SaleForm = ({saleSelected}) => {
                             selectedFiscalId={selectedFiscalId}
                             onSelectedFiscalIdChange={setSelectedFiscalId}
                             fiscalList={customerFiscalDataList}
+                            saveBlocked={creditBlocked}
                         />
                     </Box>
                 </Grid>

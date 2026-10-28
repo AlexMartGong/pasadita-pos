@@ -7,10 +7,26 @@ const getServerErrorMessage = (data) => {
     return typeof message === 'string' && message.trim() ? message : null;
 };
 
+// Errores de validación de Spring (@Valid): un mapa plano {campo: mensaje}, sin la clave `error`.
+const getFieldErrors = (status, data) => {
+    if (status !== 400 || !data || typeof data !== 'object' || Array.isArray(data) || 'error' in data) {
+        return null;
+    }
+    const entries = Object.entries(data);
+    if (entries.length === 0 || !entries.every(([, value]) => typeof value === 'string')) {
+        return null;
+    }
+    return Object.fromEntries(entries);
+};
+
 export const useApiErrorHandler = () => {
     const {handlerLogout} = useAuth();
 
+    // Muestra el toast y devuelve {status, message, fieldErrors, isNetworkError} para que la vista que lo
+    // necesite marque campos u ofrezca "Reintentar".
     const handleApiError = useCallback((error, customMessages = {}, {serverMessageStatuses = []} = {}) => {
+        let outcome;
+
         if (error.response) {
             const status = error.response.status;
             const defaultMessages = {
@@ -26,25 +42,40 @@ export const useApiErrorHandler = () => {
                 503: 'Servicio temporalmente no disponible.',
                 default: 'Error inesperado.'
             };
+
+            // Mensaje del backend solo para los status que el llamador habilita: los 403/500 de Spring
+            // vienen en inglés ("Forbidden", "An unexpected error occurred").
             const serverMessage = serverMessageStatuses.includes(status)
                 ? getServerErrorMessage(error.response.data)
                 : null;
             const message = serverMessage || customMessages[status] || defaultMessages[status] || defaultMessages.default;
             toast.error(message);
+
             if (status === 401) {
                 handlerLogout();
             }
+
+            outcome = {
+                status,
+                message,
+                fieldErrors: getFieldErrors(status, error.response.data),
+                isNetworkError: false,
+            };
         } else if (error.request) {
-            toast.error('Error de conexion. Verifica tu conexion a internet.');
+            const message = 'Error de conexion. Verifica tu conexion a internet.';
+            toast.error(message);
+            outcome = {status: null, message, fieldErrors: null, isNetworkError: true};
         } else {
-            toast.error('Error inesperado.');
+            const message = 'Error inesperado.';
+            toast.error(message);
+            outcome = {status: null, message, fieldErrors: null, isNetworkError: false};
         }
 
         console.error('Error:', error);
+        return outcome;
     }, [handlerLogout]);
 
     return {
         handleApiError
     };
-
 };
