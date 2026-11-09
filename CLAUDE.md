@@ -104,7 +104,7 @@ Three-layer architecture for each domain (user, product, customer, customerType,
 ### Component Organization
 - `src/components/layout/`: Layout components (Sidebar)
 - `src/components/auth/`: Auth guards (AdminRoute)
-- `src/components/common/`: Reusable UI components (StatsCard, StatsCardContainer, ConfirmDialog)
+- `src/components/common/`: Reusable UI components (StatsCard, StatsCardContainer, ConfirmDialog, PwaUpdatePrompt — see PWA)
 - `src/components/{domain}/`: Domain-specific components
   - `{Domain}Table.jsx`: Data grid/table component
   - `{Domain}Form.jsx`: Create/edit form component
@@ -126,6 +126,7 @@ Three-layer architecture for each domain (user, product, customer, customerType,
 - Special hooks:
   - `useSaleForm`: Complex form hook managing cart state, customer discounts, product search, validation, delivery order integration, and **hot-stamp invoicing** (composes `useCustomerFiscalData` for the fiscal-profile list and `useInvoice` to call `handleTimbrarInvoice` after a successful save, then auto-fires `handleSendInvoiceEmail` fire-and-forget if `fiscalData.emailFacturacion` is populated — email failure never blocks the committed sale). Supports two operation types: `'venta'` (sale) and `'pedido'` (delivery order). Exposes `requiresInvoice`, `selectedFiscalId`, `customerFiscalDataList`, and their setters alongside the cart/customer state. **Deferred-print / post-sale summary:** the sale payload always sends `printTicket: false` (backend never auto-prints on save). On a successful save `handleSubmit` does **not** clear the form immediately — it fills `postSaleData` (`{isOpen, saleId, total, amountTendered, changeDue}`) to open `PostSaleSummaryModal`. `handlePrintPostSaleTicket` (memoized) calls `getTicketBySaleId(saleId, getCachedStationId())` to trigger the backend's print side-effect, then runs cleanup; `handleClosePostSaleModal` (memoized) just runs cleanup. The `shouldPrintTicket` checkbox approach was removed. Also exposes `handleOpenDrawer` (memoized) + `canOpenDrawer` (ADMIN/CAJERO) for the manual cash-drawer button — calls `saleService.openDrawer(getCachedStationId())`, toasts `"Comando enviado"` on success, routes failures through `useApiErrorHandler` with `serverMessageStatuses: [503]` so the cashier sees the backend's Spanish "station not connected / check the print agent" message instead of the generic 503 text.
   - `useScale`: Hardware integration for digital scales with weight reading, connection management, and polling
+  - `usePwaUpdate` (`src/hooks/pwa/`): Service Worker registration + "new version waiting" state for `PwaUpdatePrompt` (see PWA). Not an API domain — no api/service/slice
 
 ### Ticket/Printing System
 - `src/utils/printTicket.jsx`: `printTicket()` and `previewTicket()` functions
@@ -170,10 +171,15 @@ A per-terminal local agent runs at `http://localhost:8081` and serves **both** t
 
 ### PWA (Progressive Web App)
 - Installable on mobile/desktop via `vite-plugin-pwa` (devDep), configured in `vite.config.js` as the `VitePWA` plugin alongside `react()`.
-- `registerType: 'autoUpdate'` — service worker auto-registers and refreshes on redeploy; no manual SW registration in `main.jsx`.
+- **`registerType: 'prompt'` + `injectRegister: false`** + `workbox: {cleanupOutdatedCaches: true}`. A new SW installs and **waits**; nothing reloads until the user chooses to, because an automatic reload would throw away a half-built cart on `/sale/register`. Never switch back to `autoUpdate` and never set `skipWaiting`/`clientsClaim` by hand — `updateServiceWorker(true)` sends `SKIP_WAITING` and workbox-window reloads the page on `controlling`.
+- **Registration lives in `usePwaUpdate`** (`src/hooks/pwa/usePwaUpdate.js`), which wraps `useRegisterSW` from `virtual:pwa-register/react` — `registerSW.js` is **no longer injected or emitted**. In `onRegisteredSW` it runs `registration.update()` every `UPDATE_CHECK_INTERVAL_MS` (15 min), skipping the cycle when there's no registration, a SW is already `installing`, or `navigator.onLine === false`; rejections are swallowed. Terminals keep the tab open all day, and the browser alone only checks for a new `sw.js` on navigation or every ~24 h. `useRegisterSW` reads its options once, so the interval lives for the whole app (no cleanup); in `pnpm dev` the virtual module is a stub. Exposes `{needRefresh, updateApp}` (`needRefresh` comes from a `[value, setter]` tuple — unwrap it).
+- **`PwaUpdatePrompt`** (`src/components/common/`, `sx` in `src/styles/js/PwaUpdatePromptStyles.js`) is mounted in `src/AppRoutes.jsx` next to `<Routes>`, so it shows on `/login` and inside the app. MUI `Snackbar` (bottom-left, no `onClose`) + filled info `Alert` (no close X): "Hay una nueva versión disponible" + a ≥48px "Actualizar" button → `updateApp`. It stays until the user updates. Bottom-left keeps it clear of `ShoppingCart`'s footer on the right (on `md`+ it sits over the Sidebar's profile/Logout block until dismissed by updating).
+- `virtual:pwa-register/react` imports `workbox-window`, which pnpm's strict layout hides from the project root, so `workbox-window` is an explicit devDependency (same version vite-plugin-pwa pulls in). Never import the virtual module from `src/utils/__tests__/` — `vitest.config.js` doesn't load the PWA plugin.
 - Manifest: name "La Pasadita POS", short_name "La Pasadita", `display: standalone`, `theme_color`/`background_color` `#ffffff`, icons `/pwa-192x192.png` + `/pwa-512x512.png` (PNGs live in `public/`).
-- `index.html` carries `<meta name="theme-color" content="#ffffff">` and `<link rel="apple-touch-icon" href="/pwa-192x192.png">` (no dedicated `apple-touch-icon.png`; reuses the 192 icon). The `<link rel="manifest">` + `registerSW.js` script are injected by the plugin at build.
-- `pnpm build` emits `dist/manifest.webmanifest`, `dist/sw.js`, `dist/workbox-*.js`, `dist/registerSW.js`. Workbox precaches build assets; cross-origin `VITE_API_BASE_URL` calls are not cached.
+- `index.html` carries `<meta name="theme-color" content="#ffffff">` and `<link rel="apple-touch-icon" href="/pwa-192x192.png">` (no dedicated `apple-touch-icon.png`; reuses the 192 icon). The `<link rel="manifest">` is injected by the plugin at build (no SW script tag any more).
+- **Cloudflare Pages headers** (`public/_headers`, next to the SPA-fallback `public/_redirects`): `Cache-Control: no-cache` for `/`, `/index.html`, `/sw.js`, `/manifest.webmanifest`; `public, max-age=31536000, immutable` for `/assets/*` (hashed filenames). Keep the rules non-overlapping — Pages joins header values when several rules match. `pnpm preview` ignores this file; check it with `curl -I` on the deployed domain.
+- `pnpm build` emits `dist/manifest.webmanifest`, `dist/sw.js`, `dist/workbox-*.js` (SW runtime), plus `dist/_headers` / `dist/_redirects` copied from `public/`; the workbox-window client is bundled as `dist/assets/workbox-window.prod.es5-*.js`. No `registerSW.js`. Workbox precaches build assets; cross-origin `VITE_API_BASE_URL` calls are not cached.
+- **Rollout note:** a tab still running a pre-prompt bundle (old `autoUpdate` SW) can't show the notice, and F5 doesn't activate a waiting SW — after the first deploy of prompt mode each terminal needed one Shift+F5 (or all app tabs/PWA windows closed).
 
 ### Key Dependencies
 - **Core**: React 19 + Vite 8 (Rolldown bundler, Oxc transforms via `@vitejs/plugin-react` v6; no TypeScript — plain JSX/JS, no type-check script)
@@ -187,7 +193,7 @@ A per-terminal local agent runs at `http://localhost:8081` and serves **both** t
 - **Notifications**: react-toastify
 - **Icons**: FontAwesome, MUI Icons
 - **Images**: `browser-image-compression` (client-side resize/compress + WebP conversion before product-image upload; see `src/utils/imageUtils.js`)
-- **PWA**: `vite-plugin-pwa` (Workbox-backed service worker, installable manifest)
+- **PWA**: `vite-plugin-pwa` (Workbox-backed service worker, installable manifest) + `workbox-window` (devDep; client for `virtual:pwa-register/react`, must be resolvable from the root under pnpm)
 
 ## Adding New Features
 

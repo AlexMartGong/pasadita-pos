@@ -6,7 +6,13 @@ export default defineConfig({
     plugins: [
         react(),
         VitePWA({
-            registerType: 'autoUpdate',
+            // Modo prompt: el SW nuevo queda en espera hasta que el usuario pulse "Actualizar" (PwaUpdatePrompt),
+            // así una recarga automática nunca tira un carrito a medias. El registro vive en usePwaUpdate.
+            registerType: 'prompt',
+            injectRegister: false,
+            workbox: {
+                cleanupOutdatedCaches: true,
+            },
             manifest: {
                 name: 'La Pasadita POS',
                 short_name: 'La Pasadita',
