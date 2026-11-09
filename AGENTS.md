@@ -7,7 +7,7 @@ Compact guidance for OpenCode sessions. If a fact is obvious from filenames, it 
 - Redux Toolkit (global state)
 - Material-UI (MUI) v9 + MUI X DataGrid v9 — no system props: style with `sx` only (`sx={{color: 'text.secondary'}}`, not `color="text.secondary"`), TextField uses `slotProps`, `Grid` uses only `size`
 - Axios for HTTP
-- PWA via `vite-plugin-pwa` (installable, Workbox service worker)
+- PWA via `vite-plugin-pwa` (installable, Workbox service worker, prompt-to-update) + `workbox-window` devDep
 - Vitest covers **pure utilities only** (`src/utils/__tests__/`: `money`, `paymentPreview`); do not add component/hook tests or suggest more unless explicitly asked
 
 ## Development Commands
@@ -59,10 +59,14 @@ Register any new slice in `src/stores/store.js`.
 - All API errors MUST go through `useApiErrorHandler` (Spanish toasts, auto-logout on 401). Optional 3rd arg `{serverMessageStatuses: [...]}` shows the backend's `response.data.error` for those statuses only (falls back to the default text); keep it per-status — Spring's 403/500 bodies are English. `handleApiError` is **not referentially stable** (it depends on the unmemoized `useAuth().handlerLogout`), so never put it or domain-hook callbacks built on it (`getAllUsers`, `handleGetCustomers`, …) in effect deps — use `[]` or `useEffectEvent`. It also **returns** `{status, message, fieldErrors, isNetworkError}` (`fieldErrors` = Spring `@Valid` 400 body `{field: msg}`), so dialogs can mark fields or offer "Reintentar"
 
 ## PWA
-- Configured as the `VitePWA` plugin in `vite.config.js` (`registerType: 'autoUpdate'` — SW auto-registers, no manual registration).
+- `VitePWA` in `vite.config.js`: `registerType: 'prompt'`, `injectRegister: false`, `workbox: {cleanupOutdatedCaches: true}`. A new SW waits until the user clicks "Actualizar" — no auto-reload (it would lose a half-built cart). Don't go back to `autoUpdate` or set `skipWaiting`/`clientsClaim` by hand; `updateServiceWorker(true)` does it.
+- Registration lives in `src/hooks/pwa/usePwaUpdate.js` (wraps `useRegisterSW` from `virtual:pwa-register/react`; `registerSW.js` is no longer injected). It calls `registration.update()` every 15 min (`UPDATE_CHECK_INTERVAL_MS`), skipping when no registration, a SW is `installing`, or offline. Returns `{needRefresh, updateApp}`. No api/service/slice (not an API domain).
+- `src/components/common/PwaUpdatePrompt.jsx` (`sx` in `src/styles/js/PwaUpdatePromptStyles.js`), mounted in `src/AppRoutes.jsx` beside `<Routes>` (shows on `/login` too): bottom-left `Snackbar` + filled info `Alert`, "Hay una nueva versión disponible" + "Actualizar"; no close button, stays until updated. Bottom-left avoids `ShoppingCart`'s footer.
+- `workbox-window` is an explicit devDep: pnpm's strict layout hides it from the root, where the virtual module resolves it. Never import the virtual module from tests (vitest has no PWA plugin).
 - Manifest: name "La Pasadita POS" / short_name "La Pasadita", `display: standalone`, `theme_color`/`background_color` `#ffffff`, icons `/pwa-192x192.png` + `/pwa-512x512.png` (in `public/`).
-- `index.html` has `<meta name="theme-color">` + `<link rel="apple-touch-icon" href="/pwa-192x192.png">`; manifest/SW tags injected at build.
-- `pnpm build` emits `dist/{manifest.webmanifest,sw.js,workbox-*.js,registerSW.js}`. Cross-origin API calls are not Workbox-cached.
+- `index.html` has `<meta name="theme-color">` + `<link rel="apple-touch-icon" href="/pwa-192x192.png">`; the manifest link is injected at build.
+- Cloudflare Pages: `public/_headers` → `no-cache` for `/`, `/index.html`, `/sw.js`, `/manifest.webmanifest`; `public, max-age=31536000, immutable` for `/assets/*`. Keep rules non-overlapping (Pages merges matches). `pnpm preview` ignores it.
+- `pnpm build` emits `dist/{manifest.webmanifest,sw.js,workbox-*.js,_headers,_redirects}` + `dist/assets/workbox-window.prod.es5-*.js`; **no** `registerSW.js`. Cross-origin API calls are not Workbox-cached.
 
 ## Domain-Specific Rules
 
