@@ -37,6 +37,7 @@ class DeliveryOrderService {
             return response.data;
         } catch (error) {
             console.error('Error updating delivery order:', error);
+            throw error;
         }
     }
 }

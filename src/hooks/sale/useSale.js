@@ -16,6 +16,10 @@ import {useNavigate} from "react-router-dom";
 import {getCachedStationId} from "../../services/agentService.js";
 import {onChangeStatusDeliveryOrder} from "../../stores/slices/deliveryOrder/deliveryOrderSlice.js";
 
+// Los 400 de guardar o cambiar el pago de una venta traen reglas de negocio en español (crédito del cliente,
+// "tiene pedido a domicilio", "tiene abonos registrados"): se muestran tal cual.
+const SALE_RULE_ERROR_OPTIONS = {serverMessageStatuses: [400]};
+
 export const useSale = () => {
     const {sales, saleSelected, totalSales, totalAmount} = useSelector(state => state.sale);
     const {handleApiError} = useApiErrorHandler();
@@ -76,7 +80,7 @@ export const useSale = () => {
             return null;
         } catch (error) {
             console.error('Error saving sale:', error);
-            handleApiError(error);
+            handleApiError(error, {}, SALE_RULE_ERROR_OPTIONS);
             return null;
         }
     }, [dispatch, handleApiError]);
@@ -94,7 +98,7 @@ export const useSale = () => {
             return null;
         } catch (error) {
             console.error('Error changing sale status:', error);
-            handleApiError(error);
+            handleApiError(error, {}, SALE_RULE_ERROR_OPTIONS);
             return null;
         }
     }, [dispatch, handleApiError]);

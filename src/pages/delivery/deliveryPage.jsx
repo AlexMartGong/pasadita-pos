@@ -2,15 +2,17 @@ import {NavLink} from "react-router-dom";
 import {pageContainerStyles} from "../../styles/js/PageContainer.js";
 import {pageHeaderStyles} from "../../styles/js/PageHeader.js";
 import {Box, Button, Card, CardContent, Container, Paper, Typography} from "@mui/material";
-import {Add, LocalShipping, ShoppingCart, AttachMoney} from "@mui/icons-material";
+import {Add, LocalShipping, ShoppingCart, AttachMoney, AccountBalanceWalletOutlined} from "@mui/icons-material";
 import {DeliveryTable} from "../../components/delivery/deliveryTable.jsx";
 import {useDeliveryOrder} from "../../hooks/deliveryOrder/useDeliveryOrder.js";
-import {formatCurrency} from "../../utils/formatters.js";
+import {useDeliveryOrderStats} from "../../hooks/deliveryOrder/useDeliveryOrderStats.js";
+import {formatMoney} from "../../utils/money.js";
 import {StatsCard} from "../../components/common/StatsCard.jsx";
 import {StatsCardContainer} from "../../components/common/StatsCardContainer.jsx";
 
 export const DeliveryPage = () => {
-    const {totalOrders, totalAmount} = useDeliveryOrder();
+    const {deliveryOrders, totalOrders} = useDeliveryOrder();
+    const {soldToday, receivable} = useDeliveryOrderStats(deliveryOrders);
 
     return (
         <Container maxWidth="xl" sx={pageContainerStyles.main}>
@@ -50,10 +52,16 @@ export const DeliveryPage = () => {
                     color="primary"
                 />
                 <StatsCard
-                    label="Monto Total"
-                    value={formatCurrency(totalAmount)}
+                    label="Vendido hoy"
+                    value={formatMoney(soldToday)}
                     icon={AttachMoney}
                     color="success"
+                />
+                <StatsCard
+                    label="Por cobrar"
+                    value={formatMoney(receivable)}
+                    icon={AccountBalanceWalletOutlined}
+                    color="warning"
                 />
             </StatsCardContainer>
 
@@ -63,7 +71,7 @@ export const DeliveryPage = () => {
                         Lista de Órdenes de Entrega
                     </Typography>
                     <Typography variant="body2" sx={{color: 'text.secondary', ...pageContainerStyles.contentSubtitle}}>
-                        Visualiza y gestiona todas las órdenes de entrega registradas en el sistema
+                        Pedidos de hoy. Los saldos de días anteriores están en el estado de cuenta de cada cliente
                     </Typography>
                 </Box>
 

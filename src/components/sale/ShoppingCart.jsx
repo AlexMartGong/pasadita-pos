@@ -29,6 +29,7 @@ export const ShoppingCart = ({
                                  selectedFiscalId,
                                  onSelectedFiscalIdChange,
                                  fiscalList,
+                                 saveBlocked = false,
                              }) => {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [paymentOpen, setPaymentOpen] = useState(false);
@@ -154,7 +155,7 @@ export const ShoppingCart = ({
                         color="primary"
                         fullWidth
                         startIcon={<PointOfSale/>}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || saveBlocked}
                         sx={saleFormStyles.touchButton}
                         onClick={() => {
                             if (onValidate()) {

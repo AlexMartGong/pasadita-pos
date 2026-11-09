@@ -30,8 +30,9 @@ import {
     Category,
     PointOfSale,
     ReceiptLong,
-    PendingActions,
     Receipt,
+    AccountBalanceWallet,
+    History,
     PriceChange,
     ExpandLess,
     ExpandMore,
@@ -71,10 +72,11 @@ export const Sidebar = () => {
             'bi-receipt': <ReceiptLong/>,
             'bi-truck': <PointOfSale/>,
             'bi-cart-plus': <PointOfSale/>,
-            'bi-pending': <PendingActions/>,
             'bi-receipt-fiscal': <Receipt/>,
             'bi-invoice': <ReceiptLong/>,
-            'bi-price': <PriceChange/>
+            'bi-price': <PriceChange/>,
+            'bi-debts': <AccountBalanceWallet/>,
+            'bi-payment-history': <History/>
         };
         return icons[iconName] || <Dashboard/>;
     };
@@ -89,7 +91,6 @@ export const Sidebar = () => {
                 {path: '/sale/register', icon: 'bi-cart-plus', label: 'Nueva Venta'},
                 {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
                 {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
-                {path: '/pending', icon: 'bi-pending', label: 'Pendientes'},
             ]
         },
         {
@@ -114,7 +115,16 @@ export const Sidebar = () => {
                 {path: '/products/quick-prices', icon: 'bi-price', label: 'Precios Rápidos'},
                 {path: '/sales', icon: 'bi-receipt', label: 'Ventas'},
                 {path: '/delivery', icon: 'bi-truck', label: 'Pedidos'},
-                {path: '/pending', icon: 'bi-pending', label: 'Pendientes'},
+            ]
+        },
+        {
+            type: 'group',
+            id: 'cobranza',
+            label: 'Cobranza',
+            icon: 'bi-debts',
+            items: [
+                {path: '/customers/debts', icon: 'bi-debts', label: 'Clientes con saldo'},
+                {path: '/payments/history', icon: 'bi-payment-history', label: 'Historial de abonos'},
             ]
         },
         {

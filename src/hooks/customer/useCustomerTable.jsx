@@ -1,8 +1,10 @@
 import {useEffect, useMemo, useState, useCallback} from "react";
+import {useNavigate} from "react-router-dom";
 import {userTableStyles} from "../../styles/js/UserTable.js";
 import {useCustomer} from "./useCustomer.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
-import {Edit, ToggleOn, ToggleOff} from "@mui/icons-material";
+import {AccountBalanceWalletOutlined, Edit, ToggleOn, ToggleOff} from "@mui/icons-material";
+import {formatMoney, toCents} from "../../utils/money.js";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -24,6 +26,7 @@ export const useCustomerTable = (customers) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
     const {handleCustomerEdit, handleCustomerToggleStatus} = useCustomer();
+    const navigate = useNavigate();
 
     const filteredCustomers = useMemo(() => {
         if (!customers || !debouncedSearchText) return customers || [];
@@ -93,6 +96,16 @@ export const useCustomerTable = (customers) => {
             ),
         },
         {
+            field: "creditLimit",
+            headerName: "Límite",
+            width: 120,
+            renderCell: (params) => {
+                if (params.row.walkIn) return "—";
+                const limit = toCents(params.value);
+                return limit > 0 ? formatMoney(limit) : "Sin crédito";
+            },
+        },
+        {
             field: "active",
             headerName: "Activo",
             width: 100,
@@ -108,7 +121,7 @@ export const useCustomerTable = (customers) => {
         {
             field: "actions",
             headerName: "Acciones",
-            width: 220,
+            width: 270,
             sortable: false,
             filterable: false,
             renderCell: (params) => (
@@ -129,10 +142,20 @@ export const useCustomerTable = (customers) => {
                             {params.row.active ? <ToggleOn/> : <ToggleOff/>} Estado
                         </IconButton>
                     </Tooltip>
+                    {!params.row.walkIn && (
+                        <Tooltip title="Estado de cuenta">
+                            <IconButton
+                                size="small"
+                                aria-label="Estado de cuenta"
+                                onClick={() => navigate(`/customers/${params.row.id}/account`)}>
+                                <AccountBalanceWalletOutlined/>
+                            </IconButton>
+                        </Tooltip>
+                    )}
                 </Box>
             ),
         },
-    ], [handleCustomerEdit, handleCustomerToggleStatus]);
+    ], [handleCustomerEdit, handleCustomerToggleStatus, navigate]);
 
     return {
         searchText,

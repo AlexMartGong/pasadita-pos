@@ -14,6 +14,11 @@ import {toast} from 'react-toastify';
 import {formatCurrency, toNumber} from '../../utils/formatters';
 import {clearActiveDraft, setActiveDraft} from '../../stores/slices/sale/saleSlice';
 import {getCachedStationId} from '../../services/agentService';
+import {useCustomerCredit} from '../customerAccount/useCustomerCredit';
+import {toCents} from '../../utils/money';
+
+const CREDIT_BLOCKED_MESSAGE =
+    'Este cliente ya alcanzó su límite de crédito. Requiere autorización del administrador.';
 
 const NO_DISCOUNT_PRICE_MIN = 1;
 const NO_DISCOUNT_PRICE_MAX = 10;
@@ -116,6 +121,19 @@ export const useSaleForm = (saleSelected) => {
     const changeDue = amountTendered !== '' && !isNaN(parseFloat(amountTendered))
         ? parseFloat(amountTendered) - formData.total
         : null;
+
+    const selectedCustomer = customers.find(c => c.id === parseInt(formData.customerId));
+
+    // Crédito (R12): solo para pedidos a domicilio nuevos de clientes registrados. Las ventas de mostrador,
+    // Público en general y la edición de ventas no cambian. El backend vuelve a validar al guardar.
+    const checksCredit = Boolean(canSaveDeliveryOrder && !isEditMode && selectedCustomer && !selectedCustomer.walkIn);
+    const {credit, loading: creditLoading} = useCustomerCredit(selectedCustomer?.id, checksCredit);
+    const creditReached = Boolean(checksCredit && credit && credit.debt > 0 && credit.debt >= credit.creditLimit);
+    const creditBlocked = creditReached && !isAdmin;
+    const creditWarning = Boolean(
+        checksCredit && credit && !creditReached && credit.creditLimit > 0
+        && credit.debt + toCents(formData.total) > credit.creditLimit
+    );
 
     useEffect(() => {
         if (!isEditMode) {
@@ -379,6 +397,10 @@ export const useSaleForm = (saleSelected) => {
 
 
     const handleSubmit = useCallback(async (amountTenderedValue) => {
+        if (creditBlocked) {
+            toast.error(CREDIT_BLOCKED_MESSAGE);
+            return;
+        }
         setIsSubmitting(true);
 
         try {
@@ -466,6 +488,7 @@ export const useSaleForm = (saleSelected) => {
         notes,
         deliveryCost,
         canSaveDeliveryOrder,
+        creditBlocked,
         requiresInvoice,
         selectedFiscalId,
         customerFiscalDataList,
@@ -495,8 +518,6 @@ export const useSaleForm = (saleSelected) => {
         }
     }, [handleApiError]);
 
-    const selectedCustomer = customers.find(c => c.id === parseInt(formData.customerId));
-
     return {
         user,
         customers,
@@ -515,6 +536,11 @@ export const useSaleForm = (saleSelected) => {
         selectedCustomer,
         hasDeliveryRole,
         canSaveDeliveryOrder,
+        credit,
+        creditLoading,
+        creditReached,
+        creditBlocked,
+        creditWarning,
         isAdmin,
         operationType,
         deliveryEmployeeId,

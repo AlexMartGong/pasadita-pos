@@ -5,13 +5,7 @@ import {
     MenuItem, Select, TextField, Tooltip, Typography
 } from '@mui/material';
 import {Person, PointOfSale, ReceiptLong} from '@mui/icons-material';
-
-const PAYMENT_METHODS = [
-    {value: 1, label: 'Efectivo'},
-    {value: 2, label: 'Transferencia'},
-    {value: 3, label: 'Tarjeta de Crédito'},
-    {value: 5, label: 'Tarjeta de Débito'},
-];
+import {PAYMENT_METHODS} from '../../utils/paymentMethods.js';
 
 export const SaleInfo = ({
                              user,

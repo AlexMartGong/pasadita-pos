@@ -1,5 +1,5 @@
 import {useEffect} from "react";
-import {Route, Routes} from "react-router-dom";
+import {Navigate, Route, Routes} from "react-router-dom";
 import {DashboardPage} from "../pages/DashboardPage.jsx";
 import {Sidebar} from "../components/layout/Sidebar.jsx";
 import {getStationId} from "../services/agentService.js";
@@ -21,9 +21,11 @@ import {CustomerFiscalDataEditPage} from "../pages/customerFiscalData/CustomerFi
 import {SalePage} from "../pages/sale/SalePage.jsx";
 import {RegisterSalePage} from "../pages/sale/RegisterSalePage.jsx";
 import {DeliveryPage} from "../pages/delivery/deliveryPage.jsx";
-import {PendingDeliveryPage} from "../pages/delivery/PendingDeliveryPage.jsx";
 import {TicketPage} from "../pages/sale/TicketPage.jsx";
 import {InvoicePage} from "../pages/invoice/InvoicePage.jsx";
+import {CustomerAccountPage} from "../pages/customerAccount/CustomerAccountPage.jsx";
+import {CustomerDebtsPage} from "../pages/customerAccount/CustomerDebtsPage.jsx";
+import {PaymentHistoryPage} from "../pages/customerAccount/PaymentHistoryPage.jsx";
 
 export const FruitRoute = () => {
     useEffect(() => {
@@ -151,11 +153,8 @@ export const FruitRoute = () => {
                             <DeliveryPage/>
                         </ProtectedRoute>
                     }/>
-                    <Route path={"pending"} element={
-                        <ProtectedRoute>
-                            <PendingDeliveryPage/>
-                        </ProtectedRoute>
-                    }/>
+                    {/* "Pendientes" se retiró: ahora es el filtro "Solo con saldo" de Pedidos. */}
+                    <Route path={"pending"} element={<Navigate to="/delivery?filtro=saldo" replace/>}/>
                     <Route path={"sale/ticket/:id"} element={
                         <ProtectedRoute>
                             <TicketPage/>
@@ -165,6 +164,21 @@ export const FruitRoute = () => {
                         <ProtectedRoute>
                             <InvoicePage/>
                         </ProtectedRoute>
+                    }/>
+                    <Route path="customers/:customerId/account" element={
+                        <ProtectedRoute>
+                            <CustomerAccountPage/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="customers/debts" element={
+                        <AdminRoute>
+                            <CustomerDebtsPage/>
+                        </AdminRoute>
+                    }/>
+                    <Route path="payments/history" element={
+                        <AdminRoute>
+                            <PaymentHistoryPage/>
+                        </AdminRoute>
                     }/>
                 </Routes>
             </Box>
