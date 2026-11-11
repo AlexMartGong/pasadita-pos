@@ -1,14 +1,15 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
-    Box, Card, CardContent, Chip, Divider,
-    FormControl, FormHelperText, Grid, IconButton, InputLabel,
-    MenuItem, Select, TextField, Tooltip, Typography
+    Box, Button, Collapse, FormControl, FormHelperText, InputLabel,
+    MenuItem, Select, TextField, Typography
 } from '@mui/material';
-import {Person, PointOfSale, ReceiptLong} from '@mui/icons-material';
+import {Add} from '@mui/icons-material';
 import {PAYMENT_METHODS} from '../../utils/paymentMethods.js';
+import {saleFormStyles, touchMenuProps} from '../../styles/js/SaleFormStyles';
 
+// Datos de la venta dentro del panel de ticket: cliente, método de pago y nota opcional.
+// Compacto a propósito: el alto que no usa se lo lleva el carrito.
 export const SaleInfo = ({
-                             user,
                              customers,
                              formData,
                              selectedCustomer,
@@ -17,120 +18,109 @@ export const SaleInfo = ({
                              errors,
                              onInputChange,
                              onPaymentMethodChange,
-                             onNotesChange,
-                             canOpenDrawer,
-                             onOpenDrawer
+                             onNotesChange
                          }) => {
+    // La nota se oculta tras "+ Agregar nota": el campo solo aparece mientras se edita o si ya
+    // tiene texto. Al limpiar la venta (`notes` vuelve a '') se oculta solo.
+    const [isEditingNotes, setIsEditingNotes] = useState(false);
+    const showNotes = isEditingNotes || Boolean(notes);
+    const hasCustomerDiscount = Boolean(selectedCustomer && selectedCustomer.customDiscount > 0);
+
     return (
-        <Card sx={{flexShrink: 0, border: '1px solid rgba(46, 125, 50, 0.15)'}}>
-            <Box sx={{
-                background: 'linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%)',
-                px: 2, py: 1.5,
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-            }}>
-                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                    <ReceiptLong sx={{color: 'white', fontSize: 22}}/>
-                    <Typography variant="h6" sx={{color: 'white', fontWeight: 600, fontSize: '1rem'}}>
-                        Información de Venta
-                    </Typography>
-                </Box>
-                <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                    <Chip
-                        icon={<Person fontSize="small"/>}
-                        label={user || ''}
-                        size="small"
-                        sx={{backgroundColor: 'rgba(255,255,255,0.9)', fontWeight: 500}}
-                    />
-                    {canOpenDrawer && (
-                        <Tooltip title="Abrir Caja">
-                            <IconButton
-                                onClick={onOpenDrawer}
-                                aria-label="Abrir caja"
-                                size="small"
-                                sx={{
-                                    width: 44,
-                                    height: 44,
-                                    backgroundColor: 'rgba(255,255,255,0.9)',
-                                    color: '#2e7d32',
-                                    '&:hover': {backgroundColor: '#ffffff'}
-                                }}
-                            >
-                                <PointOfSale fontSize="small"/>
-                            </IconButton>
-                        </Tooltip>
+        <Box sx={saleFormStyles.panelSection}>
+            <Box sx={saleFormStyles.fieldRow}>
+                <FormControl
+                    size="small"
+                    color="success"
+                    error={Boolean(errors.customerId)}
+                    sx={{...saleFormStyles.touchField, ...saleFormStyles.customerField}}
+                >
+                    <InputLabel id="customer-select-label">Cliente</InputLabel>
+                    <Select
+                        labelId="customer-select-label"
+                        id="customer-select"
+                        variant="outlined"
+                        label="Cliente"
+                        value={formData.customerId || ''}
+                        onChange={onInputChange('customerId')}
+                        MenuProps={touchMenuProps}
+                    >
+                        <MenuItem value="">
+                            <em>Seleccione un cliente</em>
+                        </MenuItem>
+                        {customers.map((customer) => (
+                            <MenuItem key={customer.id} value={customer.id}>
+                                {customer.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    {errors.customerId && (
+                        <FormHelperText>{errors.customerId}</FormHelperText>
                     )}
-                </Box>
+                </FormControl>
+
+                <FormControl
+                    size="small"
+                    color="success"
+                    sx={{...saleFormStyles.touchField, ...saleFormStyles.paymentField}}
+                >
+                    <InputLabel id="payment-method-label">Método de pago</InputLabel>
+                    <Select
+                        labelId="payment-method-label"
+                        id="payment-method-select"
+                        variant="outlined"
+                        label="Método de pago"
+                        value={paymentMethodId}
+                        onChange={(e) => onPaymentMethodChange(parseInt(e.target.value))}
+                        MenuProps={touchMenuProps}
+                    >
+                        {PAYMENT_METHODS.map((method) => (
+                            <MenuItem key={method.value} value={method.value}>
+                                {method.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </Box>
-            <CardContent sx={{pb: 2}}>
-                <Grid container spacing={2}>
-                    <Grid size={{xs: 12}}>
-                        <FormControl fullWidth size="small" error={Boolean(errors.customerId)}>
-                            <InputLabel id="customer-select-label">Cliente</InputLabel>
-                            <Select
-                                labelId="customer-select-label"
-                                id="customer-select"
-                                variant="outlined"
-                                label="Cliente"
-                                value={formData.customerId || ''}
-                                onChange={onInputChange('customerId')}
-                            >
-                                <MenuItem value="">
-                                    <em>Seleccione un cliente</em>
-                                </MenuItem>
-                                {customers.map((customer) => (
-                                    <MenuItem key={customer.id} value={customer.id}>
-                                        {customer.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            {errors.customerId && (
-                                <FormHelperText>{errors.customerId}</FormHelperText>
-                            )}
-                        </FormControl>
-                    </Grid>
 
-                    <Grid size={{xs: 12}}>
-                        <FormControl fullWidth size="small">
-                            <InputLabel id="payment-method-label">Método de pago</InputLabel>
-                            <Select
-                                labelId="payment-method-label"
-                                id="payment-method-select"
-                                variant="outlined"
-                                label="Método de pago"
-                                value={paymentMethodId}
-                                onChange={(e) => onPaymentMethodChange(parseInt(e.target.value))}
-                            >
-                                {PAYMENT_METHODS.map((method) => (
-                                    <MenuItem key={method.value} value={method.value}>
-                                        {method.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                </Grid>
-
-                {selectedCustomer && selectedCustomer.customDiscount > 0 && (
-                    <Box sx={{mt: 1.5}}>
-                        <Divider/>
-                        <Typography variant="body2" sx={{mt: 1}}>
+            {(hasCustomerDiscount || !showNotes) && (
+                <Box sx={saleFormStyles.saleInfoMeta}>
+                    {hasCustomerDiscount && (
+                        <Typography variant="body2" sx={saleFormStyles.customerDiscount}>
                             <strong>Descuento:</strong> {selectedCustomer.customDiscount}
                         </Typography>
-                    </Box>
-                )}
-
-                <Box sx={{mt: 2}}>
-                    <TextField
-                        fullWidth
-                        size="small"
-                        label="Notas (opcional)"
-                        value={notes}
-                        onChange={(e) => onNotesChange(e.target.value)}
-                        multiline
-                        rows={2}
-                    />
+                    )}
+                    {!showNotes && (
+                        <Button
+                            size="small"
+                            color="success"
+                            startIcon={<Add/>}
+                            onClick={() => setIsEditingNotes(true)}
+                            sx={saleFormStyles.noteButton}
+                        >
+                            Agregar nota
+                        </Button>
+                    )}
                 </Box>
-            </CardContent>
-        </Card>
+            )}
+
+            <Collapse in={showNotes} unmountOnExit>
+                <TextField
+                    fullWidth
+                    size="small"
+                    color="success"
+                    label="Notas (opcional)"
+                    value={notes}
+                    onChange={(e) => onNotesChange(e.target.value)}
+                    onFocus={() => setIsEditingNotes(true)}
+                    onBlur={() => setIsEditingNotes(false)}
+                    autoFocus={isEditingNotes}
+                    multiline
+                    minRows={1}
+                    maxRows={2}
+                    sx={saleFormStyles.notesField}
+                />
+            </Collapse>
+        </Box>
     );
 };

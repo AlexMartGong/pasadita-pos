@@ -43,7 +43,7 @@ Register any new slice in `src/stores/store.js`.
 ## Routing & Authorization
 - Two-level routing:
   - `src/AppRoutes.jsx` — top-level auth gating (unauthenticated → `/login`)
-  - `src/routes/FruitRoute.jsx` — main app routes inside `Sidebar` layout
+  - `src/routes/FruitRoute.jsx` — main app routes inside `Sidebar` layout (shell `sx` in `src/styles/js/AppShellStyles.js`; main area is `flexGrow: 1; minWidth: 0`). On `md`+ the Sidebar collapses to a 64px icon rail: automatically on the POS routes (`/sale/register`, `/sale/edit/:id`) via `src/hooks/layout/useSidebarCollapse.js`, manually with its header button
 - Route guards:
   - `AdminRoute` — `ROLE_ADMIN` only (users, products, customers, customer types, customer fiscal data)
   - `ProtectedRoute` — any authenticated user (sales, delivery, invoices, tickets, `/customers/:customerId/account`)
@@ -93,7 +93,8 @@ Register any new slice in `src/stores/store.js`.
 - Operation types: `'venta'` (sale) or `'pedido'` (delivery order).
 - Tickets: `src/utils/printTicket.jsx` + `src/components/sale/Ticket.jsx` (80mm thermal width).
 - Deferred-print / post-sale: sales always save with `printTicket: false` (backend never auto-prints). After a successful save, `SaleForm` opens `PostSaleSummaryModal` (shows change + total + cash); "Imprimir Ticket" calls `getTicketBySaleId(saleId, getCachedStationId())` whose backend GET side-effect prints over WebSocket, "Cerrar / No Imprimir" just cleans up. No "print ticket" checkbox in `PaymentModal`.
-- Manual cash drawer: `SaleInfo`'s green header shows an "Abrir Caja" `IconButton` (`PointOfSale`) when `canOpenDrawer` (ADMIN/CAJERO only — PEDIDOS gets 403). `useSaleForm.handleOpenDrawer` calls `saleService.openDrawer(getCachedStationId())` → `POST /api/sales/open-drawer?stationId=...` (backend pops drawer over WebSocket, no sale); toasts "Comando enviado" on success, `useApiErrorHandler` on failure (with `serverMessageStatuses: [503]` so the backend's "station not connected" message reaches the cashier).
+- POS layout (`/sale/register`): `SaleForm` = `ProductCatalog` (search, category chips, `ITEMS_PER_PAGE = 24`, memoized `ProductCard` with a stable `onSelect` chain — keep it) + one ticket `Paper` with sections `SalePanelHeader` (user chip, admin-only `OperationTypeToggle`, "Abrir Caja") → `SaleInfo` → `DeliveryOrder` → `ShoppingCart` (4-column table, pinned footer). Sized to the window on `md`+, no page scroll. Visual rules in `src/styles/js/SaleFormStyles.js` (`posPalette`): one institutional green (= theme `success`), neutral surfaces, `tabular-nums` on amounts, no gradients; red/amber only for states; "Cobrar Venta" is the only saturated block; touch targets ≥44px.
+- Manual cash drawer: `SalePanelHeader` shows an "Abrir Caja" `IconButton` (`PointOfSale`) when `canOpenDrawer` (ADMIN/CAJERO only — PEDIDOS gets 403). `useSaleForm.handleOpenDrawer` calls `saleService.openDrawer(getCachedStationId())` → `POST /api/sales/open-drawer?stationId=...` (backend pops drawer over WebSocket, no sale); toasts "Comando enviado" on success, `useApiErrorHandler` on failure (with `serverMessageStatuses: [503]` so the backend's "station not connected" message reaches the cashier).
 
 ### Customer Account (abonos y crédito)
 - Backend contract: "Customer Account" section of `pasadita-api/CLAUDE.md`. No body carries `employeeId` (taken from the JWT).

@@ -1,7 +1,8 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {Box, Grid} from '@mui/material';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {Box, Grid, Paper} from '@mui/material';
 import {ProductCatalog} from './ProductCatalog';
 import {OperationTypeToggle} from './OperationTypeToggle';
+import {SalePanelHeader} from './SalePanelHeader';
 import {SaleInfo} from './SaleInfo';
 import {DeliveryOrder} from './DeliveryOrder';
 import {AddProductForm} from './AddProductForm';
@@ -70,6 +71,12 @@ export const SaleForm = ({saleSelected}) => {
     const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
     const searchInputRef = useRef(null);
 
+    // Unidad de medida por producto para el carrito ("$25 / kg"): los detalles de venta no la traen.
+    const productUnits = useMemo(
+        () => Object.fromEntries(products.map((product) => [product.id, product.unitMeasure])),
+        [products]
+    );
+
     // Enfoca la barra de búsqueda tras un breve retardo para aguardar el
     // cierre de las transiciones de los diálogos de MUI.
     const focusSearch = useCallback(() => {
@@ -114,9 +121,9 @@ export const SaleForm = ({saleSelected}) => {
 
     return (
         <Box sx={saleFormStyles.pageContainer}>
-            <Grid container spacing={3}>
+            <Grid container spacing={2} sx={saleFormStyles.layoutGrid}>
                 {/* Lado izquierdo (~70%): catálogo de productos */}
-                <Grid size={{xs: 12, md: 8, lg: 8.5}}>
+                <Grid size={{xs: 12, md: 8, lg: 8.5}} sx={saleFormStyles.layoutColumn}>
                     <ProductCatalog
                         products={products}
                         productSearch={productSearch}
@@ -127,17 +134,22 @@ export const SaleForm = ({saleSelected}) => {
                     />
                 </Grid>
 
-                {/* Lado derecho (~30%): panel de ticket */}
-                <Grid size={{xs: 12, md: 4, lg: 3.5}}>
-                    <Box sx={saleFormStyles.rightPanel}>
-                        <OperationTypeToggle
-                            operationType={operationType}
-                            onChange={setOperationType}
-                            isAdmin={isAdmin}
-                        />
+                {/* Lado derecho (~30%): panel de ticket, un solo contenedor con secciones */}
+                <Grid size={{xs: 12, md: 4, lg: 3.5}} sx={saleFormStyles.layoutColumn}>
+                    <Paper variant="outlined" sx={saleFormStyles.rightPanel}>
+                        <SalePanelHeader
+                            user={user}
+                            canOpenDrawer={canOpenDrawer}
+                            onOpenDrawer={handleOpenDrawer}
+                        >
+                            <OperationTypeToggle
+                                operationType={operationType}
+                                onChange={setOperationType}
+                                isAdmin={isAdmin}
+                            />
+                        </SalePanelHeader>
 
                         <SaleInfo
-                            user={user}
                             customers={customers}
                             formData={formData}
                             selectedCustomer={selectedCustomer}
@@ -149,8 +161,6 @@ export const SaleForm = ({saleSelected}) => {
                             onPaymentMethodChange={setPaymentMethodId}
                             onPaidChange={setPaid}
                             onNotesChange={setNotes}
-                            canOpenDrawer={canOpenDrawer}
-                            onOpenDrawer={handleOpenDrawer}
                         />
 
                         {canSaveDeliveryOrder && (
@@ -191,8 +201,9 @@ export const SaleForm = ({saleSelected}) => {
                             onSelectedFiscalIdChange={setSelectedFiscalId}
                             fiscalList={customerFiscalDataList}
                             saveBlocked={creditBlocked}
+                            productUnits={productUnits}
                         />
-                    </Box>
+                    </Paper>
                 </Grid>
             </Grid>
 

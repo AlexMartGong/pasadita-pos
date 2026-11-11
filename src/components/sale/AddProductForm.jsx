@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import {Add} from '@mui/icons-material';
 import {QuantityInput} from './QuantityInput';
+import {saleFormStyles} from '../../styles/js/SaleFormStyles';
 
 export const AddProductForm = ({
                                    open,
@@ -35,28 +36,26 @@ export const AddProductForm = ({
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle sx={{
-                background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
-                color: 'white', fontWeight: 600
-            }}>
+            <DialogTitle sx={saleFormStyles.dialogTitle}>
+                <Add/>
                 Agregar al carrito
             </DialogTitle>
 
-            <DialogContent sx={{pt: 3, pb: 2, mt: 3}}>
-                <Stack spacing={3}>
-                    <Paper
-                        variant="outlined"
-                        sx={{p: 2, borderRadius: 2,bgcolor: '#f8fafc'}}
-                    >
+            <DialogContent sx={saleFormStyles.dialogContent}>
+                <Stack spacing={2.5}>
+                    <Paper variant="outlined" sx={saleFormStyles.productSummary}>
                         <Typography variant="h6" sx={{fontWeight: 700, lineHeight: 1.2}}>
                             {selectedProductData.name}
                         </Typography>
-                        <Typography variant="body2" sx={{color: 'text.secondary', mt: 0.5}}>
+                        <Typography
+                            variant="body2"
+                            sx={{...saleFormStyles.amount, color: 'text.secondary', mt: 0.5, whiteSpace: 'normal'}}
+                        >
                             Precio unitario: {formatCurrency(selectedProductData.price)}
                             {selectedProductData.unitMeasure ? ` / ${selectedProductData.unitMeasure.toLowerCase()}` : ''}
                         </Typography>
                         {selectedProductData.discount > 0 && (
-                            <Typography variant="caption" color="error" sx={{display: 'block', mt: 0.5}}>
+                            <Typography variant="caption" sx={saleFormStyles.productSummaryDiscount}>
                                 Desc. unitario: −{formatCurrency(selectedProductData.discount)}
                                 {' '}(precio normal {formatCurrency(selectedProductData.originalPrice)})
                             </Typography>
@@ -73,41 +72,39 @@ export const AddProductForm = ({
 
                     <Divider/>
 
-                    <Box sx={{
-                        textAlign: 'center',
-                        py: 2,
-                        borderRadius: 2,
-                        bgcolor: '#e8f5e9',
-                        border: '1px solid',
-                        borderColor: 'success.light'
-                    }}>
+                    <Box sx={saleFormStyles.totalHighlight}>
                         <Typography variant="overline" sx={{color: 'text.secondary', letterSpacing: 1}}>
                             Total
                         </Typography>
-                        <Typography variant="h3" sx={{fontWeight: 700, color: 'success.main', lineHeight: 1.1}}>
+                        <Typography variant="h3" sx={saleFormStyles.totalHighlightAmount}>
                             {formatCurrency(selectedProductData.total)}
                         </Typography>
                     </Box>
 
                     {errors.cart && (
-                        <Typography color="error" variant="caption" sx={{display: 'block'}}>
+                        <Typography variant="caption" sx={{display: 'block', color: 'error.main'}}>
                             {errors.cart}
                         </Typography>
                     )}
                 </Stack>
             </DialogContent>
 
-            <DialogActions sx={{px: 3, pb: 2, gap: 1}}>
-                <Button onClick={onClose} variant="outlined" size="large">
+            <DialogActions sx={saleFormStyles.dialogActions}>
+                <Button
+                    onClick={onClose}
+                    variant="outlined"
+                    color="inherit"
+                    sx={{...saleFormStyles.touchButton, px: 3}}
+                >
                     Cancelar
                 </Button>
                 <Button
                     variant="contained"
-                    color="primary"
-                    size="large"
+                    color="success"
                     startIcon={<Add/>}
                     onClick={onAddToCart}
                     disabled={!selectedProductData.id}
+                    sx={{...saleFormStyles.touchButton, px: 3, fontWeight: 700}}
                 >
                     Agregar al carrito
                 </Button>

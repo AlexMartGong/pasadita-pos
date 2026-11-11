@@ -26,25 +26,23 @@ import {InvoicePage} from "../pages/invoice/InvoicePage.jsx";
 import {CustomerAccountPage} from "../pages/customerAccount/CustomerAccountPage.jsx";
 import {CustomerDebtsPage} from "../pages/customerAccount/CustomerDebtsPage.jsx";
 import {PaymentHistoryPage} from "../pages/customerAccount/PaymentHistoryPage.jsx";
+import {useSidebarCollapse} from "../hooks/layout/useSidebarCollapse.js";
+import {appShellStyles} from "../styles/js/AppShellStyles.js";
 
 export const FruitRoute = () => {
     useEffect(() => {
         getStationId();
     }, []);
 
+    // El Sidebar se colapsa solo en la vista POS; el área principal ajusta su aire a la misma ruta.
+    const {isPosRoute, collapsed, toggleCollapsed} = useSidebarCollapse();
+
     return (
-        <Box sx={{display: 'flex'}}>
-            <Sidebar/>
+        <Box sx={appShellStyles.root}>
+            <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapsed}/>
             <Box
                 component="main"
-                sx={{
-                    flexGrow: 1,
-                    p: {xs: 1, sm: 2, md: 3},
-                    pt: {xs: 7, sm: 7, md: 6},
-                    backgroundColor: '#f5f5f5',
-                    minHeight: '100vh',
-                    width: {xs: '100%', md: 'calc(100% - 250px)'},
-                }}
+                sx={appShellStyles.main(isPosRoute)}
             >
                 <Routes>
                     <Route path="dashboard" element={<DashboardPage/>}/>
