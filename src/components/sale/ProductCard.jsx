@@ -1,65 +1,49 @@
 import React from 'react';
-import {Avatar, Box, Card, CardActionArea, CardContent, Chip, Typography} from '@mui/material';
+import {Avatar, Box, Card, CardActionArea, CardContent, Typography} from '@mui/material';
 import {
     categoryColor,
     categoryLabel,
     productInitials,
-    saleFormStyles
+    saleFormStyles,
+    unitLabel
 } from '../../styles/js/SaleFormStyles';
 
 const ProductCardComponent = ({product, onSelect, formatCurrency}) => {
     const color = categoryColor(product.category);
 
     return (
-        <Card sx={saleFormStyles.productCard} elevation={1}>
+        <Card sx={saleFormStyles.productCard} elevation={0}>
             <CardActionArea
                 sx={saleFormStyles.productCardAction}
                 onClick={() => onSelect(product)}
             >
                 <Avatar
-                    variant="rounded"
+                    variant="square"
                     src={product.imageUrl}
                     sx={{...saleFormStyles.productAvatar, backgroundColor: color}}
                 >
                     {productInitials(product.name)}
                 </Avatar>
 
-                <CardContent sx={{width: '100%', textAlign: 'center', p: 1.5}}>
+                <CardContent sx={saleFormStyles.productCardContent}>
                     <Typography
                         variant="subtitle2"
-                        sx={{
-                            fontWeight: 600,
-                            minHeight: '2.4em',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            lineHeight: 1.2,
-                        }}
+                        sx={saleFormStyles.productName}
                         title={product.name}
                     >
                         {product.name}
                     </Typography>
 
-                    <Typography variant="h6" sx={{...saleFormStyles.productPrice, mt: 0.5}}>
+                    <Typography sx={saleFormStyles.productPrice}>
                         {formatCurrency(product.price)}
+                        <Box component="span" sx={saleFormStyles.productUnit}>
+                            {' '}/ {unitLabel(product.unitMeasure)}
+                        </Box>
                     </Typography>
 
-                    <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, mt: 1}}>
-                        <Chip
-                            size="small"
-                            label={categoryLabel(product.category)}
-                            sx={{
-                                backgroundColor: color,
-                                color: 'white',
-                                fontWeight: 600,
-                                height: 20,
-                                fontSize: '0.7rem',
-                            }}
-                        />
-                        <Typography variant="caption" sx={{color: 'text.secondary'}}>
-                            {product.unitMeasure}
-                        </Typography>
+                    <Box sx={saleFormStyles.productMeta}>
+                        <Box component="span" sx={{...saleFormStyles.categoryDot, backgroundColor: color}}/>
+                        {categoryLabel(product.category)}
                     </Box>
                 </CardContent>
             </CardActionArea>

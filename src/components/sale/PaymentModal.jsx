@@ -5,7 +5,7 @@ import {
     MenuItem, Select, Typography
 } from '@mui/material';
 import {AttachMoney, Backspace, RestartAlt} from '@mui/icons-material';
-import {saleFormStyles} from '../../styles/js/SaleFormStyles';
+import {posPalette, saleFormStyles} from '../../styles/js/SaleFormStyles';
 
 const DENOMINATIONS = [
     {value: 50, label: '$50', color: '#e65100'},
@@ -46,11 +46,12 @@ const numpadKeySx = {
     fontSize: '1.5rem',
     fontWeight: 700,
     borderRadius: 2,
-    color: '#283593',
-    borderColor: 'rgba(40, 53, 147, 0.3)',
+    fontVariantNumeric: 'tabular-nums',
+    color: posPalette.ink,
+    borderColor: posPalette.rule,
     '&:hover': {
-        borderColor: '#283593',
-        backgroundColor: '#e8eaf6',
+        borderColor: posPalette.green,
+        backgroundColor: posPalette.greenTint,
     },
 };
 
@@ -125,14 +126,7 @@ export const PaymentModal = ({
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogTitle sx={{
-                background: 'linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%)',
-                color: 'white',
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1
-            }}>
+            <DialogTitle sx={saleFormStyles.dialogTitle}>
                 <AttachMoney/>
                 Cobrar Venta
             </DialogTitle>
@@ -274,7 +268,7 @@ export const PaymentModal = ({
                                 <Typography variant="body2" sx={{color: 'text.secondary'}}>
                                     Total a pagar
                                 </Typography>
-                                <Typography variant="h4" sx={{fontWeight: 700, color: '#283593'}}>
+                                <Typography variant="h4" sx={{...saleFormStyles.amount, fontWeight: 700, color: posPalette.ink}}>
                                     {formatCurrency(total)}
                                 </Typography>
                             </Box>
@@ -289,7 +283,7 @@ export const PaymentModal = ({
                                 <Typography variant="body2" sx={{color: 'text.secondary'}}>
                                     Cantidad recibida
                                 </Typography>
-                                <Typography variant="h4" sx={{fontWeight: 700, color: '#1b5e20'}}>
+                                <Typography variant="h4" sx={{...saleFormStyles.amount, fontWeight: 700, color: posPalette.greenDark}}>
                                     {formatCurrency(parsedAmount)}
                                 </Typography>
                             </Box>
@@ -306,6 +300,7 @@ export const PaymentModal = ({
                                     Cambio
                                 </Typography>
                                 <Typography variant="h4" sx={{
+                                    ...saleFormStyles.amount,
                                     fontWeight: 700,
                                     color: isValid ? '#2e7d32' : '#c62828',
                                 }}>
@@ -323,6 +318,7 @@ export const PaymentModal = ({
                                     <FormControlLabel
                                         control={
                                             <Checkbox
+                                                color="success"
                                                 checked={!!requiresInvoice}
                                                 onChange={(e) => {
                                                     onRequiresInvoiceChange(e.target.checked);
@@ -340,6 +336,7 @@ export const PaymentModal = ({
                                     <FormControl
                                         fullWidth
                                         size="small"
+                                        color="success"
                                         required
                                         error={!selectedFiscalId}
                                         sx={{mt: 1}}
@@ -385,6 +382,7 @@ export const PaymentModal = ({
                 <Button
                     onClick={onClose}
                     variant="outlined"
+                    color="inherit"
                     sx={saleFormStyles.touchButton}
                 >
                     Cancelar

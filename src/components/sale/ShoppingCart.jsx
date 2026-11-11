@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {
-    Box, Button, Card, IconButton,
+    Box, Button, IconButton,
     Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
     Table, TableBody, TableCell, TableContainer, TableHead,
     TableRow, Typography
@@ -8,7 +8,10 @@ import {
 import {Delete, PointOfSale, ShoppingCartOutlined} from '@mui/icons-material';
 import {PaymentModal} from './PaymentModal';
 import {formatQuantity, toNumber} from '../../utils/formatters';
-import {saleFormStyles} from '../../styles/js/SaleFormStyles';
+import {saleFormStyles, unitLabel} from '../../styles/js/SaleFormStyles';
+
+// Unidades por producto (`{[productId]: unitMeasure}`): los detalles del carrito no la traen.
+const NO_PRODUCT_UNITS = {};
 
 export const ShoppingCart = ({
                                  saleDetails,
@@ -30,6 +33,7 @@ export const ShoppingCart = ({
                                  onSelectedFiscalIdChange,
                                  fiscalList,
                                  saveBlocked = false,
+                                 productUnits = NO_PRODUCT_UNITS,
                              }) => {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [paymentOpen, setPaymentOpen] = useState(false);
@@ -49,92 +53,119 @@ export const ShoppingCart = ({
 
     const subtotal = saleDetails.reduce((sum, d) => sum + toNumber(d.subtotal), 0);
     const totalDiscount = saleDetails.reduce((sum, d) => sum + toNumber(d.discount), 0);
+    const itemCount = saleDetails.length;
 
     return (
-        <Card sx={saleFormStyles.cartCard}>
-            <Box sx={{
-                background: 'linear-gradient(135deg, #283593 0%, #5c6bc0 100%)',
-                px: 2, py: 1.5,
-                display: 'flex', alignItems: 'center', gap: 1,
-                flexShrink: 0
-            }}>
-                <ShoppingCartOutlined sx={{color: 'white', fontSize: 22}}/>
-                <Typography variant="h6" sx={{color: 'white', fontWeight: 600, fontSize: '1rem'}}>
-                    Ticket Actual
+        <Box component="section" aria-label="Ticket actual" sx={saleFormStyles.cartSection}>
+            <Box sx={saleFormStyles.cartHeader}>
+                <Typography component="h2" sx={saleFormStyles.sectionLabel}>
+                    Ticket actual
+                </Typography>
+                <Typography variant="caption" sx={saleFormStyles.cartCount}>
+                    {itemCount} {itemCount === 1 ? 'producto' : 'productos'}
                 </Typography>
             </Box>
 
-            {/* Lista del carrito: scroll interno */}
-            <Box sx={saleFormStyles.cartScroll}>
-                <TableContainer>
-                    <Table size="small" stickyHeader>
-                        <TableHead>
-                            <TableRow sx={{'& .MuiTableCell-head': {backgroundColor: '#e8eaf6', color: '#283593', fontWeight: 600}}}>
-                                <TableCell>Producto</TableCell>
-                                <TableCell align="right">Cant.</TableCell>
-                                <TableCell align="right">P. Unit.</TableCell>
-                                <TableCell align="right">Desc.</TableCell>
-                                <TableCell align="right">Total</TableCell>
-                                <TableCell align="center">Acción</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {saleDetails.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={6} align="center">
-                                        <Typography variant="body2" sx={{color: 'text.secondary', py: 2}}>
-                                            Haz clic en un producto del catálogo para agregar
+            {/* Lista del carrito: scroll interno con encabezado pegajoso */}
+            <TableContainer sx={saleFormStyles.cartScroll}>
+                <Table stickyHeader sx={saleFormStyles.cartTable}>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Producto</TableCell>
+                            <TableCell align="right" sx={saleFormStyles.cartQuantityColumn}>Cant.</TableCell>
+                            <TableCell align="right" sx={saleFormStyles.cartTotalColumn}>Total</TableCell>
+                            <TableCell align="center" sx={saleFormStyles.cartActionColumn}>Acción</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {saleDetails.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={4} align="center">
+                                    <Box sx={saleFormStyles.cartEmpty}>
+                                        <ShoppingCartOutlined/>
+                                        <Typography variant="body2">
+                                            Toca un producto del catálogo para agregarlo
                                         </Typography>
+                                    </Box>
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            saleDetails.map((detail) => (
+                                <TableRow key={detail.productId}>
+                                    <TableCell>
+                                        <Typography variant="body2" sx={saleFormStyles.cartProductName}>
+                                            {detail.productName}
+                                        </Typography>
+                                        <Box sx={saleFormStyles.cartProductMeta}>
+                                            <span>
+                                                {formatCurrency(detail.unitPrice)} / {unitLabel(productUnits[detail.productId])}
+                                            </span>
+                                            {toNumber(detail.discount) > 0 && (
+                                                <Box component="span" sx={saleFormStyles.discountTag}>
+                                                    Desc. −{formatCurrency(detail.discount)}
+                                                </Box>
+                                            )}
+                                        </Box>
+                                    </TableCell>
+                                    <TableCell align="right" sx={saleFormStyles.cartQuantity}>
+                                        {formatQuantity(detail.quantity)}
+                                    </TableCell>
+                                    <TableCell align="right" sx={saleFormStyles.cartLineTotal}>
+                                        {formatCurrency(detail.total)}
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <IconButton
+                                            color="error"
+                                            size="medium"
+                                            aria-label={`Eliminar ${detail.productName}`}
+                                            onClick={() => onRemoveProduct(detail.productId)}
+                                            sx={saleFormStyles.deleteButton}
+                                        >
+                                            <Delete/>
+                                        </IconButton>
                                     </TableCell>
                                 </TableRow>
-                            ) : (
-                                saleDetails.map((detail) => (
-                                    <TableRow key={detail.productId}>
-                                        <TableCell>{detail.productName}</TableCell>
-                                        <TableCell align="right">{formatQuantity(detail.quantity)}</TableCell>
-                                        <TableCell align="right">{formatCurrency(detail.unitPrice)}</TableCell>
-                                        <TableCell align="right">{formatCurrency(detail.discount)}</TableCell>
-                                        <TableCell align="right">{formatCurrency(detail.total)}</TableCell>
-                                        <TableCell align="center">
-                                            <IconButton
-                                                color="error"
-                                                size="small"
-                                                onClick={() => onRemoveProduct(detail.productId)}
-                                            >
-                                                <Delete/>
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Box>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </TableContainer>
 
             {/* Footer pinneado: totales + acciones (siempre visibles) */}
             <Box sx={saleFormStyles.ticketFooter}>
                 {saleDetails.length > 0 && (
                     <Box sx={saleFormStyles.totalsBox}>
-                        <Typography variant="subtitle1" sx={{color: 'text.secondary', fontWeight: 500}}>
-                            Subtotal: {formatCurrency(subtotal)}
-                        </Typography>
-                        <Typography variant="subtitle1" color="error" sx={{fontWeight: 500}}>
-                            Descuento: -{formatCurrency(totalDiscount)}
-                        </Typography>
-                        <Typography variant="h5" sx={{color: '#283593', fontWeight: 700}}>
-                            Total: {formatCurrency(formData.total)}
-                        </Typography>
+                        {/* El desglose solo aporta cuando hay descuento; sin él se muestra el total directo. */}
+                        {totalDiscount > 0 && (
+                            <>
+                                <Box sx={saleFormStyles.totalsRow}>
+                                    <span>Subtotal</span>
+                                    <span>{formatCurrency(subtotal)}</span>
+                                </Box>
+                                <Box sx={{...saleFormStyles.totalsRow, ...saleFormStyles.totalsRowDiscount}}>
+                                    <span>Descuento</span>
+                                    <span>−{formatCurrency(totalDiscount)}</span>
+                                </Box>
+                            </>
+                        )}
+                        <Box sx={saleFormStyles.totalRow}>
+                            <Typography component="span" sx={saleFormStyles.totalLabel}>
+                                Total
+                            </Typography>
+                            <Typography component="span" sx={saleFormStyles.totalAmount}>
+                                {formatCurrency(formData.total)}
+                            </Typography>
+                        </Box>
                     </Box>
                 )}
 
                 {errors.saleDetails && (
-                    <Typography color="error" variant="body2" sx={{mb: 1}}>
+                    <Typography variant="body2" sx={saleFormStyles.cartError}>
                         {errors.saleDetails}
                     </Typography>
                 )}
                 {errors.customerId && (
-                    <Typography color="error" variant="body2" sx={{mb: 1}}>
+                    <Typography variant="body2" sx={saleFormStyles.cartError}>
                         {errors.customerId}
                     </Typography>
                 )}
@@ -143,20 +174,18 @@ export const ShoppingCart = ({
                     <Button
                         variant="outlined"
                         color="inherit"
-                        fullWidth
                         onClick={handleCancelClick}
                         disabled={isSubmitting}
-                        sx={saleFormStyles.touchButton}
+                        sx={{...saleFormStyles.touchButton, ...saleFormStyles.cartCancelButton}}
                     >
                         Cancelar
                     </Button>
                     <Button
                         variant="contained"
-                        color="primary"
-                        fullWidth
+                        color="success"
                         startIcon={<PointOfSale/>}
                         disabled={isSubmitting || saveBlocked}
-                        sx={saleFormStyles.touchButton}
+                        sx={{...saleFormStyles.touchButton, ...saleFormStyles.primaryAction}}
                         onClick={() => {
                             if (onValidate()) {
                                 setPaymentOpen(true);
@@ -196,13 +225,20 @@ export const ShoppingCart = ({
                         Se perderán todos los productos del carrito. ¿Deseas continuar?
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setConfirmOpen(false)}>Volver</Button>
-                    <Button onClick={handleConfirmCancel} color="error" variant="contained">
+                <DialogActions sx={saleFormStyles.dialogActions}>
+                    <Button onClick={() => setConfirmOpen(false)} sx={saleFormStyles.touchButton}>
+                        Volver
+                    </Button>
+                    <Button
+                        onClick={handleConfirmCancel}
+                        color="error"
+                        variant="contained"
+                        sx={saleFormStyles.touchButton}
+                    >
                         Cancelar venta
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Card>
+        </Box>
     );
 };

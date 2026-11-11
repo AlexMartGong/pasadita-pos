@@ -18,16 +18,20 @@ import {
     IconButton,
     AppBar,
     Toolbar,
+    Tooltip,
     useMediaQuery,
     useTheme
 } from '@mui/material';
 import {
     Dashboard,
+    Description,
     Inventory,
     People,
     Person,
     Logout,
     Category,
+    LocalShipping,
+    ManageAccounts,
     PointOfSale,
     ReceiptLong,
     Receipt,
@@ -36,11 +40,14 @@ import {
     PriceChange,
     ExpandLess,
     ExpandMore,
-    Menu as MenuIcon
+    Menu as MenuIcon,
+    MenuOpen
 } from '@mui/icons-material';
 import {sidebarStyles} from '../../styles/js/SidebarStyles.js';
 
-export const Sidebar = () => {
+// `collapsed` / `onToggleCollapse` solo afectan al Drawer de escritorio (md+): colapsado se
+// muestra como riel de iconos de 64px. El Drawer móvil siempre usa el menú completo.
+export const Sidebar = ({collapsed = false, onToggleCollapse}) => {
     const location = useLocation();
     const {user, hasLimitedAccess, handlerLogout} = useAuth();
     const theme = useTheme();
@@ -62,18 +69,19 @@ export const Sidebar = () => {
         }
     };
 
+    // Cada destino tiene un icono propio: en el riel no hay etiqueta que los distinga.
     const getIcon = (iconName) => {
         const icons = {
             'bi-speedometer2': <Dashboard/>,
             'bi-box-seam': <Inventory/>,
-            'bi bi-people': <People/>,
+            'bi bi-people': <ManageAccounts/>,
             'bi-people': <People/>,
             'bi-category': <Category/>,
             'bi-receipt': <ReceiptLong/>,
-            'bi-truck': <PointOfSale/>,
+            'bi-truck': <LocalShipping/>,
             'bi-cart-plus': <PointOfSale/>,
             'bi-receipt-fiscal': <Receipt/>,
-            'bi-invoice': <ReceiptLong/>,
+            'bi-invoice': <Description/>,
             'bi-price': <PriceChange/>,
             'bi-debts': <AccountBalanceWallet/>,
             'bi-payment-history': <History/>
@@ -153,7 +161,18 @@ export const Sidebar = () => {
 
     const menuItems = hasLimitedAccess ? limitedMenuItems : fullMenuItems;
 
-    const drawerContent = (
+    // Riel: los grupos se aplanan a sus destinos y se separan con una línea.
+    const railEntries = menuItems.flatMap((item, index) => {
+        const links = item.type === 'group' ? item.items : [item];
+        const entries = links.map((link) => ({kind: 'link', ...link}));
+        return index > 0
+            ? [{kind: 'divider', path: `divider-${item.id || item.path}`}, ...entries]
+            : entries;
+    });
+
+    const userName = user || 'Admin User';
+
+    const renderExpandedContent = (showCollapseToggle) => (
         <>
             {/* Header */}
             <Box sx={sidebarStyles.header}>
@@ -163,6 +182,17 @@ export const Sidebar = () => {
                 >
                     La Pasadita
                 </Typography>
+                {showCollapseToggle && (
+                    <Tooltip title="Colapsar menú">
+                        <IconButton
+                            onClick={onToggleCollapse}
+                            aria-label="Colapsar menú"
+                            sx={{...sidebarStyles.toggleButton, ...sidebarStyles.headerToggle}}
+                        >
+                            <MenuOpen/>
+                        </IconButton>
+                    </Tooltip>
+                )}
             </Box>
 
             {/* Navigation Menu */}
@@ -258,7 +288,7 @@ export const Sidebar = () => {
                         </Avatar>
                         <Box>
                             <Typography variant="body2" sx={sidebarStyles.userName}>
-                                {user || 'Admin User'}
+                                {userName}
                             </Typography>
                             <Typography variant="caption" sx={sidebarStyles.userRole}>
                                 {hasLimitedAccess ? 'Usuario Limitado' : 'Administrador'}
@@ -275,6 +305,70 @@ export const Sidebar = () => {
                         Logout
                     </Button>
                 </Paper>
+            </Box>
+        </>
+    );
+
+    // Riel de iconos: mismo menú, sin etiquetas (tooltip + aria-label por destino).
+    const railContent = (
+        <>
+            <Box sx={sidebarStyles.railHeader}>
+                <Tooltip title="Expandir menú" placement="right">
+                    <IconButton
+                        onClick={onToggleCollapse}
+                        aria-label="Expandir menú"
+                        sx={sidebarStyles.toggleButton}
+                    >
+                        <MenuIcon/>
+                    </IconButton>
+                </Tooltip>
+            </Box>
+
+            <Box sx={sidebarStyles.navigationContainer}>
+                <List disablePadding>
+                    {railEntries.map((entry) => {
+                        if (entry.kind === 'divider') {
+                            return <Divider key={entry.path} component="li" sx={sidebarStyles.railDivider}/>;
+                        }
+
+                        const isSelected = location.pathname === entry.path;
+                        return (
+                            <ListItem key={entry.path} disablePadding sx={sidebarStyles.railListItem}>
+                                <Tooltip title={entry.label} placement="right">
+                                    <ListItemButton
+                                        component={Link}
+                                        to={entry.path}
+                                        selected={isSelected}
+                                        aria-label={entry.label}
+                                        sx={sidebarStyles.railItemButton}
+                                    >
+                                        {getIcon(entry.icon)}
+                                    </ListItemButton>
+                                </Tooltip>
+                            </ListItem>
+                        );
+                    })}
+                </List>
+            </Box>
+
+            <Box sx={sidebarStyles.railProfile}>
+                <Tooltip
+                    title={`${userName} · ${hasLimitedAccess ? 'Usuario Limitado' : 'Administrador'}`}
+                    placement="right"
+                >
+                    <Avatar sx={sidebarStyles.railAvatar}>
+                        <Person/>
+                    </Avatar>
+                </Tooltip>
+                <Tooltip title="Cerrar sesión" placement="right">
+                    <IconButton
+                        onClick={handlerLogout}
+                        aria-label="Cerrar sesión"
+                        sx={sidebarStyles.railLogoutButton}
+                    >
+                        <Logout/>
+                    </IconButton>
+                </Tooltip>
             </Box>
         </>
     );
@@ -328,15 +422,15 @@ export const Sidebar = () => {
                     }}
                     sx={sidebarStyles.drawerMobile}
                 >
-                    {drawerContent}
+                    {renderExpandedContent(false)}
                 </Drawer>
             ) : (
-                /* Desktop Drawer (permanent) */
+                /* Desktop Drawer (permanent): expandido o riel de iconos */
                 <Drawer
                     variant="permanent"
-                    sx={sidebarStyles.drawer}
+                    sx={sidebarStyles.drawer(collapsed)}
                 >
-                    {drawerContent}
+                    {collapsed ? railContent : renderExpandedContent(true)}
                 </Drawer>
             )}
         </>

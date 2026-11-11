@@ -3,7 +3,7 @@ import {
     Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography,
 } from '@mui/material';
 import {CheckCircle, Print} from '@mui/icons-material';
-import {saleFormStyles} from '../../styles/js/SaleFormStyles';
+import {posPalette, saleFormStyles} from '../../styles/js/SaleFormStyles';
 
 export const PostSaleSummaryModal = ({
                                          open,
@@ -16,14 +16,7 @@ export const PostSaleSummaryModal = ({
                                      }) => {
     return (
         <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-            <DialogTitle sx={{
-                background: 'linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%)',
-                color: 'white',
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-            }}>
+            <DialogTitle sx={saleFormStyles.dialogTitle}>
                 <CheckCircle/>
                 Venta Registrada
             </DialogTitle>
@@ -41,7 +34,7 @@ export const PostSaleSummaryModal = ({
                     <Typography variant="body1" sx={{color: 'text.secondary'}}>
                         Cambio a devolver
                     </Typography>
-                    <Typography variant="h3" sx={{fontWeight: 800, color: '#2e7d32'}}>
+                    <Typography variant="h3" sx={{...saleFormStyles.amount, fontWeight: 800, color: posPalette.green}}>
                         {formatCurrency(changeDue)}
                     </Typography>
                 </Box>
@@ -52,7 +45,7 @@ export const PostSaleSummaryModal = ({
                         <Typography variant="caption" sx={{color: 'text.secondary'}}>
                             Total de la venta
                         </Typography>
-                        <Typography variant="h6" sx={{fontWeight: 700, color: '#283593'}}>
+                        <Typography variant="h6" sx={{...saleFormStyles.amount, fontWeight: 700, color: posPalette.ink}}>
                             {formatCurrency(total)}
                         </Typography>
                     </Box>
@@ -60,7 +53,7 @@ export const PostSaleSummaryModal = ({
                         <Typography variant="caption" sx={{color: 'text.secondary'}}>
                             Efectivo recibido
                         </Typography>
-                        <Typography variant="h6" sx={{fontWeight: 700, color: '#1b5e20'}}>
+                        <Typography variant="h6" sx={{...saleFormStyles.amount, fontWeight: 700, color: posPalette.greenDark}}>
                             {formatCurrency(amountTendered)}
                         </Typography>
                     </Box>
