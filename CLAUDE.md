@@ -32,7 +32,7 @@ A Point of Sale (POS) system built with React + Vite frontend. The application m
 
 Requires **Node.js ^20.19 or >=22.13** (dev environment runs Node 24 via nvm): Vite 8 needs ^20.19 / >=22.12 and ESLint 10 needs ^20.19 / ^22.13 / >=24. `pnpm build` fails on Node 18 with `ReferenceError: crypto is not defined` (transitive `serialize-javascript` needs the global `crypto`).
 
-These five scripts are the complete set — there is no type-check script. `package.json` pins `"packageManager": "pnpm@10.34.9"` (the pnpm 10 that last wrote `pnpm-lock.yaml`; it regenerates it byte-identical): corepack, and a newer global pnpm via `manage-package-manager-versions`, run that version, which also matches the pnpm 10 store `node_modules` is linked from. Don't let a pnpm 11 reinstall rewrite the lockfile.
+These five scripts are the complete set — there is no type-check script. `package.json` pins `"packageManager": "pnpm@12.18.0"` (migrated from pnpm 10 on 2026-11-12): `node_modules` is linked from the pnpm 12 store (`~/.local/share/pnpm/store/v11`), and `pnpm-lock.yaml` starts with an extra YAML document (`packageManagerDependencies`) that records the pinned pnpm itself — it is generated, don't hand-edit or strip it. Don't install with pnpm 10 any more (it would relink `node_modules` from the old store and drop that document).
 
 ```bash
 # Start development server with HMR (host 0.0.0.0, port 5173)
