@@ -68,7 +68,8 @@ export const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(([value, lab
 
 // Iniciales para el Avatar (placeholder de imagen futura): hasta 2 palabras del nombre.
 export const productInitials = (name = '') => {
-    const words = name.trim().split(/\s+/).filter(Boolean);
+    // Se descartan paréntesis y símbolos para no mostrar iniciales como "T(".
+    const words = name.replace(/[^\p{L}\p{N}\s]/gu, ' ').trim().split(/\s+/).filter(Boolean);
     if (words.length === 0) return '?';
     if (words.length === 1) return words[0].substring(0, 2).toUpperCase();
     return (words[0][0] + words[1][0]).toUpperCase();
