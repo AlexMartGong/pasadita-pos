@@ -34,15 +34,16 @@ export const FruitRoute = () => {
         getStationId();
     }, []);
 
-    // El Sidebar se colapsa solo en la vista POS; el área principal ajusta su aire a la misma ruta.
-    const {isPosRoute, collapsed, toggleCollapsed} = useSidebarCollapse();
+    // El Sidebar se colapsa solo en las vistas inmersivas (POS y Precios Rápidos); el área
+    // principal ajusta su aire a la misma ruta.
+    const {isImmersiveRoute, collapsed, toggleCollapsed} = useSidebarCollapse();
 
     return (
         <Box sx={appShellStyles.root}>
             <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapsed}/>
             <Box
                 component="main"
-                sx={appShellStyles.main(isPosRoute)}
+                sx={appShellStyles.main(isImmersiveRoute)}
             >
                 <Routes>
                     <Route path="dashboard" element={<DashboardPage/>}/>
