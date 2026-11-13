@@ -19,7 +19,7 @@ pnpm lint     # ESLint 10 only (react-hooks v7 flat config; set-state-in-effect 
 pnpm preview  # Preview production build
 pnpm test     # Vitest (vitest.config.js, node env, src/**/*.test.js) — pure utils only
 ```
-There is no type-check script. `package.json` pins `"packageManager": "pnpm@10.34.9"` (the pnpm 10 that last wrote the lockfile, and the store `node_modules` is linked from); don't let a pnpm 11 reinstall rewrite `pnpm-lock.yaml`.
+There is no type-check script. `package.json` pins `"packageManager": "pnpm@12.18.0"` (migrated from pnpm 10; `node_modules` is linked from the pnpm 12 store). `pnpm-lock.yaml` starts with a generated `packageManagerDependencies` YAML document for the pinned pnpm — don't hand-edit it, and don't install with pnpm 10 any more.
 
 ## Architecture — Strict 3-Layer Pattern
 Every domain MUST follow this separation. Never mix business logic into UI components.
