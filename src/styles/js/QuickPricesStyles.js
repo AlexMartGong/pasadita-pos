@@ -93,8 +93,7 @@ export const quickPricesStyles = {
         color: posPalette.ink,
     },
 
-    // Categoría y unidad a la izquierda, ID a la derecha. El extremo derecho queda libre para sumar
-    // acciones (p. ej. una calculadora) sin reacomodar la tarjeta.
+    // Categoría y unidad a la izquierda, ID a la derecha.
     metaRow: {
         display: 'flex',
         alignItems: 'center',
@@ -122,7 +121,8 @@ export const quickPricesStyles = {
         fontVariantNumeric: 'tabular-nums',
     },
 
-    // Fila de edición de precio: input + botón guardar, pegada al fondo de la tarjeta.
+    // Fila de edición de precio: input + botón guardar (+ calculadora en productos con fórmula),
+    // pegada al fondo de la tarjeta. Todo mide 48px de alto: FOUR_ROWS_CHROME_PX no cambia.
     priceRow: {
         display: 'flex',
         alignItems: 'stretch',
@@ -198,4 +198,19 @@ export const quickPricesStyles = {
             },
         }),
     }),
+
+    // Botón calculadora: mismo tamaño que Guardar pero solo contorno, para distinguirlos de un
+    // vistazo (en táctil el Tooltip no ayuda).
+    calcButton: {
+        flexShrink: 0,
+        width: 48,
+        height: 48,
+        borderRadius: 2,
+        border: `1px solid ${posPalette.green}`,
+        color: posPalette.green,
+        backgroundColor: posPalette.surface,
+        transition: 'transform .12s ease, background-color .12s ease',
+        '&:hover': {backgroundColor: posPalette.greenTint},
+        '&:active': {transform: 'scale(0.94)'},
+    },
 };
