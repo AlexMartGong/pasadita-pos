@@ -1,6 +1,10 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Avatar, Box, Button, Card, CardContent, InputAdornment, TextField, Typography} from '@mui/material';
-import {Check as CheckIcon, Save as SaveIcon} from '@mui/icons-material';
+import {
+    Avatar, Box, Button, Card, CardContent, IconButton, InputAdornment, TextField, Tooltip, Typography
+} from '@mui/material';
+import {Calculate as CalculateIcon, Check as CheckIcon, Save as SaveIcon} from '@mui/icons-material';
+import {PriceFormulaDialog} from './PriceFormulaDialog.jsx';
+import {formulaDefaults} from '../../utils/priceFormula.js';
 import {
     categoryColor,
     categoryLabel,
@@ -31,6 +35,9 @@ const ProductPriceCardComponent = ({product, onSave}) => {
     const [syncedPrice, setSyncedPrice] = useState(product.price);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [calcOpen, setCalcOpen] = useState(false);
+    const hasFormula = Boolean(formulaDefaults(product));
+    const inputRef = useRef(null);
 
     // Guardas síncronas: el estado `saving` no se ve hasta el siguiente render y un blur puede
     // llegar antes; `skipCommit` evita guardar el valor que Escape acaba de descartar.
@@ -48,11 +55,13 @@ const ProductPriceCardComponent = ({product, onSave}) => {
 
     const changed = parseFloat(draft) !== product.price;
 
-    const commit = async () => {
-        if (!changed || inFlightRef.current) return;
+    // Guardado único de la tarjeta: lo usan el borrador (blur / botón) y el diálogo de fórmula, así
+    // comparten la guarda contra envíos dobles y la confirmación visual.
+    const save = async (value) => {
+        if (inFlightRef.current) return false;
         inFlightRef.current = true;
         setSaving(true);
-        const ok = await onSave(product.id, draft);
+        const ok = await onSave(product.id, value);
         inFlightRef.current = false;
         setSaving(false);
         if (ok) {
@@ -60,6 +69,22 @@ const ProductPriceCardComponent = ({product, onSave}) => {
             clearTimeout(savedTimerRef.current);
             savedTimerRef.current = setTimeout(() => setSaved(false), SAVED_FEEDBACK_MS);
         }
+        return ok;
+    };
+
+    const commit = () => {
+        if (changed) save(draft);
+    };
+
+    // Abrir la calculadora descarta el borrador, igual que Escape: el precio saldrá de la fórmula,
+    // así que el blur del input no debe guardar lo que estaba escrito.
+    const handleOpenCalculator = () => {
+        if (document.activeElement === inputRef.current) {
+            skipCommitRef.current = true;
+            inputRef.current.blur();
+        }
+        setDraft(String(product.price));
+        setCalcOpen(true);
     };
 
     const handleBlur = () => {
@@ -115,6 +140,7 @@ const ProductPriceCardComponent = ({product, onSave}) => {
                         onFocus={(e) => e.target.select()}
                         onBlur={handleBlur}
                         onKeyDown={handleKeyDown}
+                        inputRef={inputRef}
                         disabled={saving}
                         sx={quickPricesStyles.priceInput(changed)}
                         slotProps={{
@@ -144,8 +170,24 @@ const ProductPriceCardComponent = ({product, onSave}) => {
                     >
                         {saved ? <CheckIcon/> : <SaveIcon/>}
                     </Button>
+                    {hasFormula && (
+                        <Tooltip title="Calcular precio">
+                            <IconButton
+                                // Sin esto el input pierde el foco antes del click y su blur guarda el borrador.
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={handleOpenCalculator}
+                                sx={quickPricesStyles.calcButton}
+                                aria-label={`Calcular precio de ${product.name}`}
+                            >
+                                <CalculateIcon/>
+                            </IconButton>
+                        </Tooltip>
+                    )}
                 </Box>
             </CardContent>
+            {calcOpen && (
+                <PriceFormulaDialog product={product} onSave={save} onClose={() => setCalcOpen(false)}/>
+            )}
         </Card>
     );
 };

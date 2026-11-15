@@ -133,7 +133,7 @@ export const ProductPriceEditor = () => {
                     ) : (
                         <Grid container spacing={1.5}>
                             {pageProducts.map((product) => (
-                                <Grid key={product.id} size={{xs: 12, sm: 6, md: 3, lg: 2, xl: 2}}>
+                                <Grid key={product.id} size={{xs: 12, sm: 6, md: 4, lg: 3, xl: 2}}>
                                     <ProductPriceCard product={product} onSave={handleSavePrice}/>
                                 </Grid>
                             ))}
