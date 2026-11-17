@@ -10,7 +10,7 @@ import {CustomerDebtsTable} from "../../components/customerAccount/CustomerDebts
 import {useCustomerDebts} from "../../hooks/customerAccount/useCustomerDebts.js";
 import {formatMoney} from "../../utils/money.js";
 
-// 5.9 Clientes con saldo (ADMIN).
+// 5.9 Clientes con saldo (todos los roles): de aquí se entra al estado de cuenta para registrar el abono.
 export const CustomerDebtsPage = () => {
     const navigate = useNavigate();
     const {debts, totalReceivable, loading} = useCustomerDebts();

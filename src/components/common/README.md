@@ -14,6 +14,7 @@ Componente para mostrar tarjetas de estadísticas con un valor numérico, etique
 | `value` | `string \| number` | Sí | Valor a mostrar (puede ser formateado) |
 | `icon` | `React.Component` | No | Icono de Material-UI a mostrar |
 | `color` | `string` | No | Color del tema: 'primary', 'success', 'warning', 'error', 'info' (default: 'primary') |
+| `caption` | `string` | No | Línea de apoyo bajo el valor (p. ej. "Faltan $120.00 de hoy") |
 
 ### Ejemplo de uso
 

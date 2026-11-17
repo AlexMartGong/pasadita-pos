@@ -1,11 +1,11 @@
 import {useEffect, useMemo, useState, useCallback} from "react";
 import {userTableStyles} from "../../styles/js/UserTable.js";
-import {Box, IconButton, Tooltip, useMediaQuery, useTheme} from "@mui/material";
+import {Box, IconButton, Tooltip, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {
     AccountBalanceWalletOutlined, CancelOutlined, DocumentScanner, Edit, PaymentsOutlined, RequestQuoteOutlined
 } from "@mui/icons-material";
 import {useSale} from "../sale/useSale.js";
-import {formatDate} from "../../utils/formatters.js";
+import {formatDate, formatShortDate} from "../../utils/formatters.js";
 import {formatMoney, toCents} from "../../utils/money.js";
 import {useAuth} from "../../auth/hooks/useAuth.js";
 import {OrderStatusChip} from "../../components/customerAccount/OrderStatusChip.jsx";
@@ -119,10 +119,19 @@ export const useDeliveryOrderTable = (deliveryOrders, {
             {
                 field: "status",
                 headerName: "Estado",
-                width: 190,
+                width: 250,
                 sortable: true,
+                // Va en Estado y no en la fecha: es la columna que sigue visible en el celular.
                 renderCell: (params) => (
-                    <OrderStatusChip status={params.value} balance={toCents(params.row.balance)}/>
+                    <Box component="span" sx={{display: 'inline-flex', alignItems: 'center', gap: 1}}>
+                        <OrderStatusChip status={params.value} balance={toCents(params.row.balance)}/>
+                        {params.row.requestedToday === false && (
+                            <Typography component="span" variant="caption"
+                                        sx={{color: 'warning.dark', fontWeight: 600, whiteSpace: 'nowrap'}}>
+                                desde {formatShortDate(params.row.requestDate)}
+                            </Typography>
+                        )}
+                    </Box>
                 ),
             },
             {

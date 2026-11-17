@@ -103,6 +103,16 @@ export const Sidebar = ({collapsed = false, onToggleCollapse}) => {
         },
         {
             type: 'group',
+            id: 'cobranza',
+            label: 'Cobranza',
+            icon: 'bi-debts',
+            items: [
+                {path: '/customers/debts', icon: 'bi-debts', label: 'Clientes con saldo'},
+                {path: '/customers', icon: 'bi-people', label: 'Clientes'},
+            ]
+        },
+        {
+            type: 'group',
             id: 'facturacion',
             label: 'Facturación',
             icon: 'bi-invoice',

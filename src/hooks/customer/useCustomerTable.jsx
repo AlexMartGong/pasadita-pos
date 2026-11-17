@@ -5,6 +5,7 @@ import {useCustomer} from "./useCustomer.js";
 import {Box, Chip, IconButton, Tooltip} from "@mui/material";
 import {AccountBalanceWalletOutlined, Edit, ToggleOn, ToggleOff} from "@mui/icons-material";
 import {formatMoney, toCents} from "../../utils/money.js";
+import {useAuth} from "../../auth/hooks/useAuth.js";
 
 const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -26,6 +27,7 @@ export const useCustomerTable = (customers) => {
     const [searchText, setSearchText] = useState("");
     const debouncedSearchText = useDebounce(searchText, 300);
     const {handleCustomerEdit, handleCustomerToggleStatus} = useCustomer();
+    const {isAdmin} = useAuth();
     const navigate = useNavigate();
 
     const filteredCustomers = useMemo(() => {
@@ -126,22 +128,27 @@ export const useCustomerTable = (customers) => {
             filterable: false,
             renderCell: (params) => (
                 <Box sx={userTableStyles.actionsContainer}>
-                    <Tooltip title="Editar">
-                        <IconButton
-                            size="small"
-                            color="primary"
-                            onClick={() => handleCustomerEdit(params.row.id)}>
-                            <Edit/> Editar
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title={params.row.active ? "Desactivar" : "Activar"}>
-                        <IconButton
-                            size="small"
-                            color={params.row.active ? "success" : "default"}
-                            onClick={() => handleCustomerToggleStatus(params.row.id, params.row.active)}>
-                            {params.row.active ? <ToggleOn/> : <ToggleOff/>} Estado
-                        </IconButton>
-                    </Tooltip>
+                    {/* Editar y activar/desactivar son de ADMIN (el backend los rechaza para los demás roles). */}
+                    {isAdmin && (
+                        <Tooltip title="Editar">
+                            <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={() => handleCustomerEdit(params.row.id)}>
+                                <Edit/> Editar
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                    {isAdmin && (
+                        <Tooltip title={params.row.active ? "Desactivar" : "Activar"}>
+                            <IconButton
+                                size="small"
+                                color={params.row.active ? "success" : "default"}
+                                onClick={() => handleCustomerToggleStatus(params.row.id, params.row.active)}>
+                                {params.row.active ? <ToggleOn/> : <ToggleOff/>} Estado
+                            </IconButton>
+                        </Tooltip>
+                    )}
                     {!params.row.walkIn && (
                         <Tooltip title="Estado de cuenta">
                             <IconButton
@@ -155,7 +162,7 @@ export const useCustomerTable = (customers) => {
                 </Box>
             ),
         },
-    ], [handleCustomerEdit, handleCustomerToggleStatus, navigate]);
+    ], [handleCustomerEdit, handleCustomerToggleStatus, isAdmin, navigate]);
 
     return {
         searchText,

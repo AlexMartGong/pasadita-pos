@@ -87,10 +87,11 @@ export const FruitRoute = () => {
                             <ProductPriceEditor/>
                         </AdminRoute>
                     }/>
+                    {/* Lista de solo lectura para CAJERO/PEDIDOS: alta y edición siguen siendo de ADMIN. */}
                     <Route path="customers" element={
-                        <AdminRoute>
+                        <ProtectedRoute>
                             <CustomerPage/>
-                        </AdminRoute>
+                        </ProtectedRoute>
                     }/>
                     <Route path="customer/register" element={
                         <AdminRoute>
@@ -170,9 +171,9 @@ export const FruitRoute = () => {
                         </ProtectedRoute>
                     }/>
                     <Route path="customers/debts" element={
-                        <AdminRoute>
+                        <ProtectedRoute>
                             <CustomerDebtsPage/>
-                        </AdminRoute>
+                        </ProtectedRoute>
                     }/>
                     <Route path="payments/history" element={
                         <AdminRoute>
