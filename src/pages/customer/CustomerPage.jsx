@@ -4,8 +4,12 @@ import {pageHeaderStyles} from "../../styles/js/PageHeader.js";
 import {Box, Button, Card, CardContent, Container, Paper, Typography} from "@mui/material";
 import {Add, People} from "@mui/icons-material";
 import {CustomerTable} from "../../components/customer/CustomerTable.jsx";
+import {useAuth} from "../../auth/hooks/useAuth.js";
 
+// CAJERO y PEDIDOS entran en solo lectura (buscar y abrir el estado de cuenta); alta y edición son de ADMIN.
 export const CustomerPage = () => {
+    const {isAdmin} = useAuth();
+
     return (
         <Container maxWidth="xl" sx={pageContainerStyles.main}>
             <Paper elevation={2} sx={pageHeaderStyles.container}>
@@ -22,17 +26,19 @@ export const CustomerPage = () => {
                         </Box>
                     </Box>
 
-                    <Box sx={pageHeaderStyles.buttonContainer}>
-                        <Button
-                            component={NavLink}
-                            to="/customer/register"
-                            variant="contained"
-                            size="large"
-                            startIcon={<Add/>}
-                            sx={pageHeaderStyles.actionButton}>
-                            Agregar Nuevo Cliente
-                        </Button>
-                    </Box>
+                    {isAdmin && (
+                        <Box sx={pageHeaderStyles.buttonContainer}>
+                            <Button
+                                component={NavLink}
+                                to="/customer/register"
+                                variant="contained"
+                                size="large"
+                                startIcon={<Add/>}
+                                sx={pageHeaderStyles.actionButton}>
+                                Agregar Nuevo Cliente
+                            </Button>
+                        </Box>
+                    )}
                 </Box>
             </Paper>
 
