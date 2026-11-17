@@ -22,6 +22,13 @@ export const statsCardStyles = {
     fontWeight: 'bold'
   },
 
+  caption: {
+    display: 'block',
+    mt: 0.5,
+    fontWeight: 500,
+    fontVariantNumeric: 'tabular-nums'
+  },
+
   // Colores específicos para diferentes tipos de métricas
   colors: {
     primary: 'primary.main',

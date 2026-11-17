@@ -2,7 +2,9 @@ import {NavLink} from "react-router-dom";
 import {pageContainerStyles} from "../../styles/js/PageContainer.js";
 import {pageHeaderStyles} from "../../styles/js/PageHeader.js";
 import {Box, Button, Card, CardContent, Container, Paper, Typography} from "@mui/material";
-import {Add, LocalShipping, ShoppingCart, AttachMoney, AccountBalanceWalletOutlined} from "@mui/icons-material";
+import {
+    Add, LocalShipping, ShoppingCart, AttachMoney, AccountBalanceWalletOutlined, PaidOutlined
+} from "@mui/icons-material";
 import {DeliveryTable} from "../../components/delivery/deliveryTable.jsx";
 import {useDeliveryOrder} from "../../hooks/deliveryOrder/useDeliveryOrder.js";
 import {useDeliveryOrderStats} from "../../hooks/deliveryOrder/useDeliveryOrderStats.js";
@@ -11,8 +13,9 @@ import {StatsCard} from "../../components/common/StatsCard.jsx";
 import {StatsCardContainer} from "../../components/common/StatsCardContainer.jsx";
 
 export const DeliveryPage = () => {
-    const {deliveryOrders, totalOrders} = useDeliveryOrder();
-    const {soldToday, receivable} = useDeliveryOrderStats(deliveryOrders);
+    const {deliveryOrders} = useDeliveryOrder();
+    const {ordersToday, soldToday, receivableToday, collectedToday, receivable} = useDeliveryOrderStats(deliveryOrders);
+    const receivableEarlier = receivable - receivableToday;
 
     return (
         <Container maxWidth="xl" sx={pageContainerStyles.main}>
@@ -46,8 +49,8 @@ export const DeliveryPage = () => {
 
             <StatsCardContainer>
                 <StatsCard
-                    label="Total de Órdenes"
-                    value={totalOrders}
+                    label="Órdenes de hoy"
+                    value={ordersToday}
                     icon={ShoppingCart}
                     color="primary"
                 />
@@ -55,13 +58,23 @@ export const DeliveryPage = () => {
                     label="Vendido hoy"
                     value={formatMoney(soldToday)}
                     icon={AttachMoney}
+                    color="info"
+                />
+                <StatsCard
+                    label="Cobrado hoy"
+                    value={formatMoney(collectedToday)}
+                    icon={PaidOutlined}
                     color="success"
+                    caption={receivableToday > 0 ? `Faltan ${formatMoney(receivableToday)} de hoy` : undefined}
                 />
                 <StatsCard
                     label="Por cobrar"
                     value={formatMoney(receivable)}
                     icon={AccountBalanceWalletOutlined}
                     color="warning"
+                    caption={receivableEarlier > 0
+                        ? `Incluye ${formatMoney(receivableEarlier)} de días anteriores`
+                        : undefined}
                 />
             </StatsCardContainer>
 
@@ -71,7 +84,7 @@ export const DeliveryPage = () => {
                         Lista de Órdenes de Entrega
                     </Typography>
                     <Typography variant="body2" sx={{color: 'text.secondary', ...pageContainerStyles.contentSubtitle}}>
-                        Pedidos de hoy. Los saldos de días anteriores están en el estado de cuenta de cada cliente
+                        Pedidos de hoy y notas con saldo de días anteriores
                     </Typography>
                 </Box>
 

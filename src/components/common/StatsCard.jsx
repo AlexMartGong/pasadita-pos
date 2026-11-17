@@ -7,8 +7,9 @@ import {statsCardStyles} from "../../styles/js/StatsCards.js";
  * @param {string|number} value - Valor a mostrar
  * @param {React.Component} icon - Icono de MUI a mostrar
  * @param {string} color - Color del borde y del icono ('primary', 'success', 'warning', 'error', 'info')
+ * @param {string} [caption] - Línea de apoyo bajo el valor
  */
-export const StatsCard = ({label, value, icon: Icon, color = 'primary'}) => {
+export const StatsCard = ({label, value, icon: Icon, color = 'primary', caption}) => {
     const colorValue = statsCardStyles.colors[color] || statsCardStyles.colors.primary;
 
     return (
@@ -22,6 +23,11 @@ export const StatsCard = ({label, value, icon: Icon, color = 'primary'}) => {
                         <Typography variant="h4" sx={{...statsCardStyles.value, color: colorValue}}>
                             {value}
                         </Typography>
+                        {caption && (
+                            <Typography variant="caption" sx={{color: 'text.secondary', ...statsCardStyles.caption}}>
+                                {caption}
+                            </Typography>
+                        )}
                     </Box>
                     {Icon && <Icon sx={{fontSize: 48, color: colorValue, opacity: 0.3}}/>}
                 </Box>

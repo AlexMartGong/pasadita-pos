@@ -16,6 +16,12 @@ export const formatDate = (dateString) => {
     });
 };
 
+// Día y mes cortos ("14 nov"), para marcar de qué día viene un pedido.
+export const formatShortDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(normalizeDateString(dateString)).toLocaleDateString('es-MX', {day: 'numeric', month: 'short'});
+};
+
 // Fecha local en formato yyyy-MM-dd (no usa toISOString, que la pasaría a UTC).
 export const toLocalIsoDate = (date) => {
     const year = date.getFullYear();
