@@ -57,7 +57,7 @@ const CollectionPreview = ({preview}) => {
 // 5.1 Registrar cobro de un pedido ACTIVO sin abonos: Captura → Revisar → Resultado.
 export const CollectionDialog = ({order, onClose, onCompleted}) => {
     const orderTotal = toCents(order.total);
-    const {customerId, account, loading} = useCollectionContext(order.saleId);
+    const {customerId, account, loading} = useCollectionContext(order.saleId, order.customerId);
     const {findCustomer} = useCustomerLookup();
     const {registerCollection} = useRegisterCollection();
     const flow = useMoneyDialogFlow();

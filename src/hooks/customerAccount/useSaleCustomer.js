@@ -3,17 +3,20 @@ import {useNavigate} from "react-router-dom";
 import {useAccountRequest} from "./useAccountRequest.js";
 import {customerAccountService} from "../../services/customerAccountService.js";
 
-// Los pedidos no traen customerId: se lee de su nota para abrir el estado de cuenta del cliente.
+// Abre el estado de cuenta del cliente de un pedido. El pedido ya trae `customerId`; solo si falta se lee de
+// su nota.
 export const useSaleCustomer = () => {
     const {runRequest} = useAccountRequest();
     const navigate = useNavigate();
 
-    const openCustomerAccountForSale = useCallback(async (saleId) => {
-        const outcome = await runRequest(() => customerAccountService.getNoteInfo(saleId));
-        if (outcome.ok && outcome.data.customerId) {
-            navigate(`/customers/${outcome.data.customerId}/account`);
+    const openCustomerAccountForOrder = useCallback(async (order) => {
+        let customerId = order.customerId;
+        if (!customerId) {
+            const outcome = await runRequest(() => customerAccountService.getNoteInfo(order.saleId));
+            customerId = outcome.ok ? outcome.data.customerId : null;
         }
+        if (customerId) navigate(`/customers/${customerId}/account`);
     }, [runRequest, navigate]);
 
-    return {openCustomerAccountForSale};
+    return {openCustomerAccountForOrder};
 };

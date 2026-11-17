@@ -1,5 +1,5 @@
 import {useDeliveryOrder} from "../../hooks/deliveryOrder/useDeliveryOrder.js";
-import {useCallback, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router-dom";
 import {useDeliveryOrderTable} from "../../hooks/deliveryOrder/useDeliveryOrderTable.jsx";
 import {useSaleCustomer} from "../../hooks/customerAccount/useSaleCustomer.js";
@@ -17,7 +17,7 @@ const BALANCE_FILTER = 'saldo';
 
 export const DeliveryTable = () => {
     const {deliveryOrders, handleGetDeliveryOrders, handleChangeDeliveryOrderStatus} = useDeliveryOrder();
-    const {openCustomerAccountForSale} = useSaleCustomer();
+    const {openCustomerAccountForOrder} = useSaleCustomer();
     const [searchParams, setSearchParams] = useSearchParams();
     const onlyWithBalance = searchParams.get('filtro') === BALANCE_FILTER;
     const [collectionOrder, setCollectionOrder] = useState(null);
@@ -25,15 +25,13 @@ export const DeliveryTable = () => {
     const [cancelTarget, setCancelTarget] = useState(null);
     const [isCancelling, setIsCancelling] = useState(false);
 
-    const handleOpenAccount = useCallback((order) => openCustomerAccountForSale(order.saleId), [openCustomerAccountForSale]);
-
     const {
         searchText, handleSearchChange, rows, columns, columnVisibilityModel, handleColumnVisibilityModelChange,
     } = useDeliveryOrderTable(deliveryOrders, {
         onlyWithBalance,
         onRegisterCollection: setCollectionOrder,
         onViewPayments: setPaymentsOrder,
-        onOpenAccount: handleOpenAccount,
+        onOpenAccount: openCustomerAccountForOrder,
         onCancelOrder: setCancelTarget,
     });
 

@@ -1,15 +1,15 @@
 import {useAccountQuery} from "./useAccountQuery.js";
 import {customerAccountService} from "../../services/customerAccountService.js";
 
-// Datos para la vista previa del cobro de un pedido: el pedido no trae customerId, así que primero se lee
-// de la nota (`/sales/{saleId}/details`) y luego se carga el estado de cuenta de ese cliente.
-export const useCollectionContext = (saleId) => {
+// Datos para la vista previa del cobro de un pedido: el estado de cuenta de su cliente. El pedido ya trae
+// `customerId`; solo si falta se lee de la nota (`/sales/{saleId}/details`).
+export const useCollectionContext = (saleId, knownCustomerId) => {
     const {data, loading, failed} = useAccountQuery(
         saleId ? `collection:${saleId}` : null,
         async () => {
-            const note = await customerAccountService.getNoteInfo(saleId);
-            const account = await customerAccountService.getAccount(note.customerId);
-            return {customerId: note.customerId, account};
+            const customerId = knownCustomerId ?? (await customerAccountService.getNoteInfo(saleId)).customerId;
+            const account = await customerAccountService.getAccount(customerId);
+            return {customerId, account};
         }
     );
 
