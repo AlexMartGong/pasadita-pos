@@ -14,7 +14,9 @@ export const useSessionKeeper = () => {
         const renewAt = expiresAt - RENEW_BEFORE_MS;
         // Un 401 ya cerró la sesión en sessionService; sin red, el siguiente 401 reintenta.
         const renew = () => refreshSession().catch(() => {});
-        const timer = setTimeout(renew, Math.max(0, renewAt - Date.now()));
+        // Piso de 1 min: expiresAt viene del reloj del servidor; con el del equipo adelantado el retraso daría ≤ 0
+        // y cada renovación dispararía la siguiente al instante (bucle de rotaciones).
+        const timer = setTimeout(renew, Math.max(60_000, renewAt - Date.now()));
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible' && Date.now() >= renewAt) renew();
         };

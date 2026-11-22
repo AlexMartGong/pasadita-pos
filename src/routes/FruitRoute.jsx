@@ -48,6 +48,8 @@ export const FruitRoute = () => {
                 sx={appShellStyles.main(isImmersiveRoute)}
             >
                 <Routes>
+                    {/* Sesión recuperada en una pestaña abierta en /login: AdminRoute manda a Nueva Venta a CAJERO/PEDIDOS */}
+                    <Route path="login" element={<Navigate to="/products/quick-prices" replace/>}/>
                     <Route path="dashboard" element={<DashboardPage/>}/>
                     <Route path="users" element={
                         <AdminRoute>

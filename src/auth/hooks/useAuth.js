@@ -2,8 +2,8 @@ import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {toast} from "react-toastify";
 import {onInitLogin, onLogout} from "../../stores/slices/auth/authSlice.js";
-import {loginValidation, logoutSession} from "../services/authService.js";
-import {endSession, saveSession} from "../services/sessionService.js";
+import {loginValidation} from "../services/authService.js";
+import {endSession, revokeSession, saveSession} from "../services/sessionService.js";
 
 export const useAuth = () => {
     const {isAuth, user, isAdmin, isLoginLoading, role, employeeId} = useSelector(state => state.auth);
@@ -39,9 +39,10 @@ export const useAuth = () => {
         }
     };
 
-    // Revoca la cookie en el backend antes de limpiar; si falla (sin red) se limpia igual.
+    // Revoca la cookie en el backend antes de limpiar; si falla (sin red) se limpia igual y el próximo arranque
+    // reintenta la revocación en vez de restaurar la sesión.
     const handlerLogout = async (message = "Has cerrado sesión correctamente") => {
-        await logoutSession().catch(() => {});
+        await revokeSession();
         endSession();
         toast.info(message);
         navigate("/login");
