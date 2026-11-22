@@ -308,7 +308,7 @@ export const Sidebar = ({collapsed = false, onToggleCollapse}) => {
 
                     <Button
                         fullWidth
-                        onClick={handlerLogout}
+                        onClick={() => handlerLogout()}
                         startIcon={<Logout/>}
                         sx={sidebarStyles.logoutButton}
                     >
@@ -372,7 +372,7 @@ export const Sidebar = ({collapsed = false, onToggleCollapse}) => {
                 </Tooltip>
                 <Tooltip title="Cerrar sesión" placement="right">
                     <IconButton
-                        onClick={handlerLogout}
+                        onClick={() => handlerLogout()}
                         aria-label="Cerrar sesión"
                         sx={sidebarStyles.railLogoutButton}
                     >

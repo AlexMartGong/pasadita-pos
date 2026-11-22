@@ -28,11 +28,13 @@ import {CustomerDebtsPage} from "../pages/customerAccount/CustomerDebtsPage.jsx"
 import {PaymentHistoryPage} from "../pages/customerAccount/PaymentHistoryPage.jsx";
 import {useSidebarCollapse} from "../hooks/layout/useSidebarCollapse.js";
 import {appShellStyles} from "../styles/js/AppShellStyles.js";
+import {useSessionKeeper} from "../auth/hooks/useSessionKeeper.js";
 
 export const FruitRoute = () => {
     useEffect(() => {
         getStationId();
     }, []);
+    useSessionKeeper();
 
     // El Sidebar se colapsa solo en las vistas inmersivas (POS y Precios Rápidos); el área
     // principal ajusta su aire a la misma ruta.

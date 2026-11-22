@@ -11,10 +11,12 @@ import {changePassword, changeStatus, getAllEmployees, saveEmployee, updateEmplo
 import {toast} from "react-toastify";
 import {useNavigate} from "react-router-dom";
 import {useApiErrorHandler} from "../useApiErrorHandler.js";
+import {useAuth} from "../../auth/hooks/useAuth.js";
 
 export const useUser = () => {
     const {users, userSelected} = useSelector(state => state.user);
     const {handleApiError} = useApiErrorHandler();
+    const {employeeId, handlerLogout} = useAuth();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -76,7 +78,10 @@ export const useUser = () => {
     const handleChangePassword = useCallback(async (userId, newPassword) => {
         try {
             const result = await changePassword(userId, {password: newPassword});
-            if (result.status === 200) {
+            if (result.status === 200 && Number(userId) === employeeId) {
+                // El backend revoca todas las sesiones del empleado al cambiar su contraseña, la de este equipo incluida.
+                await handlerLogout('Cambiaste tu contraseña: se cerró tu sesión en todos tus dispositivos. Entra con la nueva.');
+            } else if (result.status === 200) {
                 toast.success('Contraseña actualizada exitosamente.');
             } else {
                 toast.error('Error al actualizar la contraseña.');
@@ -85,7 +90,7 @@ export const useUser = () => {
             console.log(error);
             handleApiError(error);
         }
-    }, [handleApiError]);
+    }, [employeeId, handlerLogout, handleApiError]);
 
     const handleEditPassword = useCallback((userId) => {
         navigate(`/users/edit-password/${userId}`);
