@@ -29,12 +29,14 @@ import {PaymentHistoryPage} from "../pages/customerAccount/PaymentHistoryPage.js
 import {useSidebarCollapse} from "../hooks/layout/useSidebarCollapse.js";
 import {appShellStyles} from "../styles/js/AppShellStyles.js";
 import {useSessionKeeper} from "../auth/hooks/useSessionKeeper.js";
+import {useAuth} from "../auth/hooks/useAuth.js";
 
 export const FruitRoute = () => {
     useEffect(() => {
         getStationId();
     }, []);
     useSessionKeeper();
+    const {homePath} = useAuth();
 
     // El Sidebar se colapsa solo en las vistas inmersivas (POS y Precios Rápidos); el área
     // principal ajusta su aire a la misma ruta.
@@ -48,8 +50,9 @@ export const FruitRoute = () => {
                 sx={appShellStyles.main(isImmersiveRoute)}
             >
                 <Routes>
-                    {/* Sesión recuperada en una pestaña abierta en /login: AdminRoute manda a Nueva Venta a CAJERO/PEDIDOS */}
-                    <Route path="login" element={<Navigate to="/products/quick-prices" replace/>}/>
+                    {/* Sesión recuperada en la raíz (inicio de la PWA) o en /login: a la pantalla de inicio del rol */}
+                    <Route index element={<Navigate to={homePath} replace/>}/>
+                    <Route path="login" element={<Navigate to={homePath} replace/>}/>
                     <Route path="dashboard" element={<DashboardPage/>}/>
                     <Route path="users" element={
                         <AdminRoute>

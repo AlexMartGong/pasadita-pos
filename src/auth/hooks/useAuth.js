@@ -5,6 +5,10 @@ import {onInitLogin, onLogout} from "../../stores/slices/auth/authSlice.js";
 import {loginValidation} from "../services/authService.js";
 import {endSession, revokeSession, saveSession} from "../services/sessionService.js";
 
+// Pantalla de inicio por rol: CAJERO/PEDIDOS sin ADMIN → Nueva Venta; el resto → Precios Rápidos.
+const homePathFor = ({role, isAdmin}) =>
+    (role?.includes("ROLE_CAJERO") || role?.includes("ROLE_PEDIDOS")) && !isAdmin ? "/sale/register" : "/products/quick-prices";
+
 export const useAuth = () => {
     const {isAuth, user, isAdmin, isLoginLoading, role, employeeId} = useSelector(state => state.auth);
     const dispatch = useDispatch();
@@ -19,15 +23,7 @@ export const useAuth = () => {
 
             toast.success(`¡Bienvenido ${login.user}!`);
 
-            // Redirigir según el rol
-            const isCajeroRole = login.role.includes("ROLE_CAJERO");
-            const isPedidosRole = login.role.includes("ROLE_PEDIDOS");
-
-            if ((isCajeroRole || isPedidosRole) && !login.isAdmin) {
-                navigate("/sale/register");
-            } else {
-                navigate("/products/quick-prices");
-            }
+            navigate(homePathFor(login));
 
         } catch (error) {
             console.error("Error in handlerLogin:", error);
@@ -63,6 +59,7 @@ export const useAuth = () => {
         isPedidos,
         hasLimitedAccess,
         role,
+        homePath: homePathFor({role, isAdmin}),
         employeeId,
         isLoginLoading,
         handlerLogin,
