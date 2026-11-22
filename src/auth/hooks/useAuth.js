@@ -1,8 +1,13 @@
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {toast} from "react-toastify";
-import {onInitLogin, onLogin, onLogout} from "../../stores/slices/auth/authSlice.js";
+import {onInitLogin, onLogout} from "../../stores/slices/auth/authSlice.js";
 import {loginValidation} from "../services/authService.js";
+import {endSession, revokeSession, saveSession} from "../services/sessionService.js";
+
+// Pantalla de inicio por rol: CAJERO/PEDIDOS sin ADMIN → Nueva Venta; el resto → Precios Rápidos.
+const homePathFor = ({role, isAdmin}) =>
+    (role?.includes("ROLE_CAJERO") || role?.includes("ROLE_PEDIDOS")) && !isAdmin ? "/sale/register" : "/products/quick-prices";
 
 export const useAuth = () => {
     const {isAuth, user, isAdmin, isLoginLoading, role, employeeId} = useSelector(state => state.auth);
@@ -14,33 +19,11 @@ export const useAuth = () => {
 
         try {
             const response = await loginValidation({username, password});
-            const token = response.data.token;
-            const isAdmin = response.data.authorities?.some(auth => auth.authority === "ROLE_ADMIN") || false;
-            const role = response.data.authorities?.map(auth => auth.authority).join(", ") || "";
+            const login = saveSession(response.data);
 
-            const login = {
-                isAuth: true,
-                isAdmin: isAdmin,
-                role: role,
-                user: response.data.username,
-                employeeId: response.data.id || response.data.employeeId || 0
-            };
+            toast.success(`¡Bienvenido ${login.user}!`);
 
-            dispatch(onLogin(login));
-            sessionStorage.setItem("login", JSON.stringify(login));
-            sessionStorage.setItem("token", `Bearer ${token}`);
-
-            toast.success(`¡Bienvenido ${response.data.username}!`);
-
-            // Redirigir según el rol
-            const isCajeroRole = role.includes("ROLE_CAJERO");
-            const isPedidosRole = role.includes("ROLE_PEDIDOS");
-
-            if ((isCajeroRole || isPedidosRole) && !isAdmin) {
-                navigate("/sale/register");
-            } else {
-                navigate("/products/quick-prices");
-            }
+            navigate(homePathFor(login));
 
         } catch (error) {
             console.error("Error in handlerLogin:", error);
@@ -52,12 +35,12 @@ export const useAuth = () => {
         }
     };
 
-    const handlerLogout = () => {
-        dispatch(onLogout());
-        sessionStorage.removeItem("login");
-        sessionStorage.removeItem("token");
-        sessionStorage.clear();
-        toast.info("Has cerrado sesión correctamente");
+    // Revoca la cookie en el backend antes de limpiar; si falla (sin red) se limpia igual y el próximo arranque
+    // reintenta la revocación en vez de restaurar la sesión.
+    const handlerLogout = async (message = "Has cerrado sesión correctamente") => {
+        await revokeSession();
+        endSession();
+        toast.info(message);
         navigate("/login");
     };
 
@@ -76,6 +59,7 @@ export const useAuth = () => {
         isPedidos,
         hasLimitedAccess,
         role,
+        homePath: homePathFor({role, isAdmin}),
         employeeId,
         isLoginLoading,
         handlerLogin,

@@ -40,9 +40,8 @@ export const useQuickPrices = () => {
         );
     }, [products, debouncedSearch, selectedCategory]);
 
-    // handleUpdatePriceProduct cambia de identidad en cada render (depende de useApiErrorHandler,
-    // que no es estable). Se guarda la última versión en un ref para que handleSavePrice no
-    // cambie nunca y el React.memo de ProductPriceCard sea efectivo.
+    // Se guarda la última versión de handleUpdatePriceProduct en un ref para que handleSavePrice
+    // no dependa de su identidad y el React.memo de ProductPriceCard siga siendo efectivo.
     const updatePriceRef = useRef(handleUpdatePriceProduct);
     useEffect(() => {
         updatePriceRef.current = handleUpdatePriceProduct;

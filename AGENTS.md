@@ -25,8 +25,8 @@ There is no type-check script. `package.json` pins `"packageManager": "pnpm@12.1
 Every domain MUST follow this separation. Never mix business logic into UI components.
 
 1. **API Layer** — `src/apis/{domain}Api.js`
-   - Axios instance with `baseURL: import.meta.env.VITE_API_BASE_URL`
-   - Request interceptor injects JWT from `sessionStorage.getItem("token")`
+   - One line: `export const xApi = createApiClient('/api/x')` (`src/apis/apiClient.js`, optional `{timeout}`). The factory owns both interceptors: it injects `Authorization: Bearer <token>` (`getAccessToken()`, raw JWT in `sessionStorage.token`) and, on a 401, runs one single-flight refresh and retries the request once (see Sessions). Never call `axios.create` in a domain API
+   - `src/apis/authApi.js` (login, `/api/auth/refresh`, `/api/auth/logout`) is a plain instance with `withCredentials: true` and **no** interceptors, so the session endpoints never carry a Bearer or trigger a refresh. `scaleApi` (local agent) stays outside the factory
 2. **Service Layer** — `src/services/{domain}Service.js`
    - Business logic, CRUD wrappers, domain-specific lookups
    - File uploads use `multipart/form-data` via the same axios instance (`FormData` with a `file` part; never hand-set `Content-Type` — the browser adds the boundary). E.g. `productService.uploadProductImage(id, file)` → `POST /{id}/image`, returns the updated DTO.
@@ -51,13 +51,15 @@ Register any new slice in `src/stores/store.js`.
   - Sidebar group "Cobranza": admin menu = "Clientes con saldo" + "Historial de abonos"; limited menu (CAJERO/PEDIDOS) = "Clientes con saldo" + "Clientes"
   - `/pending` was retired: it redirects to `/delivery?filtro=saldo`
 - Multi-word domains use kebab-case in URLs: `customerFiscalData` → `/customer-fiscal-data`
+- **Sessions (refresh tokens; backend contract in "Refresh Tokens" of `pasadita-api/CLAUDE.md`):** short access JWT + httpOnly `refresh_token` cookie (60 days, rotated on each use). `src/auth/services/sessionService.js` (no React) owns `saveSession(data)` (login and refresh fill the `auth` slice the same way, incl. `expiresAt`), the single-flight `refreshSession()` (a 401 from refresh ends the session inside the shared promise → one toast; a result that lands after a logout is dropped) and the idempotent `endSession(message)` (`sessionStorage.clear()` — `stationId` is in localStorage — + `onLogout`; `AppRoutes` then shows `/login`). Refresh 401 messages: `refresh_token_reused` → "se cerró por seguridad", body `message: "Login failed"` → "usuario inactivo", else "sesión expiró" (silent at startup). Startup: the slice starts with `isRestoring: true` unless this tab holds a token with `expiresAt` in the future; while restoring `AppRoutes` renders only `SessionRestoreScreen` (`useSessionRestore`: refresh; on network/5xx "Reintentar" + "Iniciar sesión"), so no guard redirects and the URL is kept. `useSessionKeeper` (mounted in `FruitRoute`) renews ~5 min before `expiresAt` and on `visibilitychange`. `useAuth.handlerLogout(message?)` calls `POST /api/auth/logout` first and clears anyway (pass a message, never the click event); a failed revocation sets `localStorage.pendingLogout`, and while it exists the next startup retries the revocation and goes to the login instead of restoring (shared terminals). The keeper's delay is floored at 60 s (server-time `expiresAt` vs. client clock). `FruitRoute` maps `/` and `login` → `useAuth().homePath` (same role rule as the login redirect; a restored session keeps the URL). An admin who changes their own password is logged out with a Spanish toast (the backend revoked every session). A successful refresh never unmounts the app, so the POS cart survives; a 401'd request is retried (the backend rejects it before the controller, so a retried `POST /save` can't duplicate a sale)
+- Dev: `http://localhost:5173` → `http://localhost:8080` gets the cookie; testing from the LAN over plain http needs `REFRESH_COOKIE_SECURE=false` on the backend
 - Non-admin users (`CAJERO`, `PEDIDOS`) get `hasLimitedAccess` and a reduced sidebar menu; redirect after login is `/sale/register`. Admin post-login landing is `/products/quick-prices` (not `/dashboard`). Redirect logic lives in `src/auth/hooks/useAuth.js`.
 
 ## API & Environment
 - Dev backend: `.env` → `VITE_API_BASE_URL=http://localhost:8080`
 - Prod backend: `.env.production` → `https://api.lapasadita.app`
 - Scale hardware proxy (Vite only): `/api/scale` → `http://localhost:8081`
-- All API errors MUST go through `useApiErrorHandler` (Spanish toasts, auto-logout on 401). Optional 3rd arg `{serverMessageStatuses: [...]}` shows the backend's `response.data.error` for those statuses only (falls back to the default text); keep it per-status — Spring's 403/500 bodies are English. `handleApiError` is **not referentially stable** (it depends on the unmemoized `useAuth().handlerLogout`), so never put it or domain-hook callbacks built on it (`getAllUsers`, `handleGetCustomers`, …) in effect deps — use `[]` or `useEffectEvent`. It also **returns** `{status, message, fieldErrors, isNetworkError}` (`fieldErrors` = Spring `@Valid` 400 body `{field: msg}`), so dialogs can mark fields or offer "Reintentar"
+- All API errors MUST go through `useApiErrorHandler` (Spanish toasts). It no longer logs out: a 401 only reaches it after the refresh already failed and `endSession` showed its own toast, so it stays silent on 401. Optional 3rd arg `{serverMessageStatuses: [...]}` shows the backend's `response.data.error` for those statuses only (falls back to the default text); keep it per-status — Spring's 403/500 bodies are English. `handleApiError` itself is now stable (`useCallback([])`), but not every domain-hook callback is memoized (e.g. `useCustomerType.handleGetCustomerTypes`), so keep domain callbacks out of effect deps — use `[]` or `useEffectEvent`. It also **returns** `{status, message, fieldErrors, isNetworkError}` (`fieldErrors` = Spring `@Valid` 400 body `{field: msg}`), so dialogs can mark fields or offer "Reintentar"
 
 ## PWA
 - `VitePWA` in `vite.config.js`: `registerType: 'prompt'`, `injectRegister: false`, `workbox: {cleanupOutdatedCaches: true}`. A new SW waits until the user clicks "Actualizar" — no auto-reload (it would lose a half-built cart). Don't go back to `autoUpdate` or set `skipWaiting`/`clientsClaim` by hand; `updateServiceWorker(true)` does it.
@@ -119,7 +121,7 @@ Register any new slice in `src/stores/store.js`.
 
 ## Adding a New Domain Entity
 Follow this exact order:
-1. `src/apis/{domain}Api.js`
+1. `src/apis/{domain}Api.js` (`createApiClient('/api/{path}')`)
 2. `src/services/{domain}Service.js`
 3. `src/stores/slices/{domain}/{domain}Slice.js`
 4. Register slice in `src/stores/store.js`

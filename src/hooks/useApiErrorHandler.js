@@ -1,4 +1,3 @@
-import {useAuth} from "../auth/hooks/useAuth.js";
 import {useCallback} from "react";
 import {toast} from "react-toastify";
 
@@ -20,8 +19,6 @@ const getFieldErrors = (status, data) => {
 };
 
 export const useApiErrorHandler = () => {
-    const {handlerLogout} = useAuth();
-
     // Muestra el toast y devuelve {status, message, fieldErrors, isNetworkError} para que la vista que lo
     // necesite marque campos u ofrezca "Reintentar".
     const handleApiError = useCallback((error, customMessages = {}, {serverMessageStatuses = []} = {}) => {
@@ -49,10 +46,9 @@ export const useApiErrorHandler = () => {
                 ? getServerErrorMessage(error.response.data)
                 : null;
             const message = serverMessage || customMessages[status] || defaultMessages[status] || defaultMessages.default;
-            toast.error(message);
-
-            if (status === 401) {
-                handlerLogout();
+            // Un 401 solo llega aquí cuando el refresh ya falló: la sesión ya se cerró con su propio aviso.
+            if (status !== 401) {
+                toast.error(message);
             }
 
             outcome = {
@@ -73,7 +69,7 @@ export const useApiErrorHandler = () => {
 
         console.error('Error:', error);
         return outcome;
-    }, [handlerLogout]);
+    }, []);
 
     return {
         handleApiError
