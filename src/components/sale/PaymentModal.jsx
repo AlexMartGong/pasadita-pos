@@ -1,59 +1,25 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
-    Alert, Box, Button, Checkbox, Chip, Dialog, DialogActions, DialogContent,
-    DialogTitle, Divider, FormControl, FormControlLabel, FormGroup, Grid, InputLabel,
-    MenuItem, Select, Typography
+    Alert, Box, Button, Checkbox, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
+    FormControl, FormControlLabel, InputLabel, MenuItem, Select, Typography, useMediaQuery, useTheme
 } from '@mui/material';
-import {AttachMoney, Backspace, RestartAlt} from '@mui/icons-material';
-import {posPalette, saleFormStyles} from '../../styles/js/SaleFormStyles';
+import {AttachMoney, Backspace} from '@mui/icons-material';
+import {saleFormStyles} from '../../styles/js/SaleFormStyles';
+import {paymentModalStyles as styles} from '../../styles/js/PaymentModalStyles';
+import {CASH_PAYMENT_METHOD_ID, paymentMethodLabel} from '../../utils/paymentMethods';
+import {fromCents, toCents} from '../../utils/money';
 
 const DENOMINATIONS = [
-    {value: 50, label: '$50', color: '#e65100'},
-    {value: 100, label: '$100', color: '#c62828'},
-    {value: 200, label: '$200', color: '#2e7d32'},
-    {value: 500, label: '$500', color: '#4527a0'},
-    {value: 1000, label: '$1,000', color: '#0d47a1'},
+    {value: 50, label: '$50'},
+    {value: 100, label: '$100'},
+    {value: 200, label: '$200'},
+    {value: 500, label: '$500'},
+    {value: 1000, label: '$1,000'},
 ];
 
-const QUICK_AMOUNTS = [
-    {value: 20, label: '$20'},
-    {value: 10, label: '$10'},
-    {value: 5, label: '$5'},
-    {value: 2, label: '$2'},
-    {value: 1, label: '$1'},
-];
+const DIGIT_KEYS = ['7', '8', '9', '4', '5', '6', '1', '2', '3'];
 
-// Estilo compartido de "moneda": chip circular/ovalado táctil.
-const coinChipSx = {
-    width: 56,
-    height: 56,
-    borderRadius: '50%',
-    border: '2px solid #b08d57',
-    backgroundColor: '#fff8e1',
-    color: '#8d6e63',
-    fontWeight: 700,
-    fontSize: '0.85rem',
-    cursor: 'pointer',
-    '& .MuiChip-label': {px: 0},
-    '&:hover': {backgroundColor: '#ffecb3'},
-};
-
-const NUMPAD_KEYS = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '00', '0', '.'];
-
-// Estilo compartido de tecla del numpad: grande y táctil. Vía prop sx (sin CSS file).
-const numpadKeySx = {
-    py: 2,
-    fontSize: '1.5rem',
-    fontWeight: 700,
-    borderRadius: 2,
-    fontVariantNumeric: 'tabular-nums',
-    color: posPalette.ink,
-    borderColor: posPalette.rule,
-    '&:hover': {
-        borderColor: posPalette.green,
-        backgroundColor: posPalette.greenTint,
-    },
-};
+const TITLE_ID = 'payment-modal-title';
 
 export const PaymentModal = ({
                                  open,
@@ -72,324 +38,261 @@ export const PaymentModal = ({
                                  onSelectedFiscalIdChange,
                                  fiscalList,
                              }) => {
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
     const [localAmount, setLocalAmount] = useState('');
+    // pristine: el monto no se ha editado desde que se abrió o se pulsó Exacto; el primer toque lo reemplaza.
+    const [pristine, setPristine] = useState(true);
+    const [wasOpen, setWasOpen] = useState(false);
 
-    useEffect(() => {
+    const totalCents = toCents(total);
+
+    // Ajuste de estado durante el render (sin efecto): solo al abrir, para no reiniciar a medio guardar.
+    if (open !== wasOpen) {
+        setWasOpen(open);
         if (open) {
-            setLocalAmount(amountTendered !== '' ? String(amountTendered) : '');
+            setLocalAmount(amountTendered !== '' ? String(amountTendered) : String(fromCents(totalCents)));
+            setPristine(true);
         }
-    }, [open, amountTendered]);
+    }
 
-    const parsedAmount = parseFloat(localAmount) || 0;
-    const changeDue = parsedAmount - total;
-    const isValid = parsedAmount >= total && parsedAmount > 0;
+    const isCash = paymentMethodId === CASH_PAYMENT_METHOD_ID;
+    const methodLabel = paymentMethodLabel(paymentMethodId);
+
+    const tenderedCents = toCents(localAmount);
+    const changeCents = tenderedCents - totalCents;
+    const isValid = isCash ? tenderedCents > 0 && changeCents >= 0 : totalCents > 0;
+
+    // Mientras se teclean centavos se muestra lo escrito ("$93." o "$93.0"), que el formato numérico ocultaría.
+    const [intPart, decPart] = localAmount.split('.');
+    const tenderedLabel = pristine || decPart === undefined
+        ? formatCurrency(fromCents(tenderedCents))
+        : `${formatCurrency(Number(intPart) || 0)}.${decPart}`;
 
     const activeFiscalList = (fiscalList || []).filter((f) => f.active);
     const invoiceInvalid = requiresInvoice && !selectedFiscalId;
-    const showSatWarning =
-        requiresInvoice && total > 2000 && paymentMethodId === 1;
+    const showSatWarning = requiresInvoice && total > 2000 && paymentMethodId === CASH_PAYMENT_METHOD_ID;
     const saveDisabled = !isValid || isSubmitting || invoiceInvalid;
 
-    // Numpad: concatena caracteres como string (calculadora).
-    const handleNumpadPress = (key) => {
-        setLocalAmount((prev) => {
-            if (key === '.') {
-                if (prev.includes('.')) return prev;          // un solo punto decimal
-                return prev === '' ? '0.' : prev + '.';
-            }
-            if (prev === '0') return key === '00' ? '0' : key; // reemplaza cero solitario
-            return prev + key;
-        });
+    const edit = (next) => {
+        setLocalAmount(next);
+        setPristine(false);
     };
 
-    // Billetes/monedas: suma matemática sobre el valor actual.
-    const handleDenominationClick = (value) => {
-        setLocalAmount(String(Math.round((parsedAmount + value) * 100) / 100));
+    // Concatena dígitos, reemplaza el cero solitario y admite a lo más 2 decimales.
+    const handleDigit = (digit) => {
+        if (pristine || localAmount === '0') return edit(digit);
+        if (!/\.\d{2}$/.test(localAmount)) edit(localAmount + digit);
     };
 
-    const handleExactAmount = () => {
-        setLocalAmount(String(total));
+    // Punto decimal (solo teclado físico; el numpad en pantalla es de pesos cerrados).
+    const handleDecimal = () => {
+        if (pristine || localAmount === '') return edit('0.');
+        if (!localAmount.includes('.')) edit(localAmount + '.');
     };
 
-    const handleReset = () => {
-        setLocalAmount('');
+    // Billetes: el primer toque reemplaza el prellenado; los siguientes suman.
+    const handleDenomination = (value) =>
+        edit(String(pristine ? value : fromCents(tenderedCents + value * 100)));
+
+    const handleExact = () => {
+        setLocalAmount(String(fromCents(totalCents)));
+        setPristine(true);
     };
 
-    const handleBackspace = () => {
-        setLocalAmount((prev) => prev.slice(0, -1));
+    const handleClear = () => edit('');
+
+    const handleBackspace = () => edit(localAmount.slice(0, -1));
+
+    // Teclado físico (también el numérico): dígitos, punto (o coma) y Borrar.
+    // Se ignora dentro del selector fiscal y con modificadores, para no romper atajos ni la búsqueda del menú.
+    const handleKeyDown = (e) => {
+        if (!isCash || e.ctrlKey || e.altKey || e.metaKey) return;
+        if (e.target.closest('[role="combobox"], [role="listbox"]')) return;
+        if (/^\d$/.test(e.key)) handleDigit(e.key);
+        else if (e.key === '.' || e.key === ',') handleDecimal();
+        else if (e.key === 'Backspace') handleBackspace();
+        else return;
+        e.preventDefault();
     };
 
     const handleSave = () => {
-        onAmountTenderedChange(localAmount);
-        onSaveSale(parseFloat(localAmount));
+        const amount = fromCents(isCash ? tenderedCents : totalCents);
+        onAmountTenderedChange(String(amount));
+        onSaveSale(amount);
     };
+
+    const invoiceSection = (
+        <>
+            <FormControlLabel
+                control={
+                    <Checkbox
+                        color="success"
+                        checked={!!requiresInvoice}
+                        onChange={(e) => {
+                            onRequiresInvoiceChange(e.target.checked);
+                            if (!e.target.checked) {
+                                onSelectedFiscalIdChange(null);
+                            }
+                        }}
+                    />
+                }
+                label="Requiere Factura"
+            />
+
+            {requiresInvoice && (
+                <FormControl
+                    fullWidth
+                    size="small"
+                    color="success"
+                    required
+                    error={!selectedFiscalId}
+                    sx={{mt: 1}}
+                >
+                    <InputLabel id="fiscal-data-label">Datos Fiscales</InputLabel>
+                    <Select
+                        labelId="fiscal-data-label"
+                        label="Datos Fiscales"
+                        value={selectedFiscalId ?? ''}
+                        variant="outlined"
+                        onChange={(e) => onSelectedFiscalIdChange(e.target.value || null)}
+                    >
+                        {activeFiscalList.length === 0 ? (
+                            <MenuItem value="" disabled>
+                                Sin perfiles fiscales registrados
+                            </MenuItem>
+                        ) : (
+                            activeFiscalList.map((f) => (
+                                <MenuItem key={f.fiscalId} value={f.fiscalId}>
+                                    {f.rfc} - {f.razonSocial}
+                                </MenuItem>
+                            ))
+                        )}
+                    </Select>
+                </FormControl>
+            )}
+
+            {showSatWarning && (
+                <Alert severity="warning" sx={{mt: 1.5}}>
+                    Atención: El SAT no permite deducir impuestos de facturas
+                    mayores a $2,000 MXN pagadas en efectivo. Considere sugerir
+                    otro método de pago.
+                </Alert>
+            )}
+        </>
+    );
 
     return (
         <Dialog
             open={open}
             onClose={(_, reason) => { if (reason !== 'backdropClick' && !isSubmitting) onClose(); }}
-            maxWidth="md"
+            onKeyDown={handleKeyDown}
+            fullScreen={fullScreen}
+            maxWidth={isCash ? 'md' : 'sm'}
             fullWidth
+            aria-labelledby={TITLE_ID}
+            slotProps={{paper: {sx: styles.paper}}}
         >
-            <DialogTitle sx={saleFormStyles.dialogTitle}>
-                <AttachMoney/>
-                Cobrar Venta
+            <DialogTitle component="div" sx={styles.title}>
+                <AttachMoney sx={styles.titleIcon}/>
+                <Typography component="h2" id={TITLE_ID} sx={{font: 'inherit'}}>
+                    Cobrar venta
+                </Typography>
+                {methodLabel && <Chip label={methodLabel} variant="outlined" sx={styles.methodChip}/>}
             </DialogTitle>
-            <DialogContent sx={{pt: 3}}>
-                <Grid container spacing={2} sx={{mt: 3}}>
-                    {/* ── Columna izquierda: numpad + billetes ─────────────── */}
-                    <Grid size={{xs: 12, md: 7}}>
-                        {/* Numpad */}
-                        <Box sx={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(3, 1fr)',
-                            gap: 1,
-                            mb: 1
-                        }}>
-                            {NUMPAD_KEYS.map((key) => (
-                                <Button
-                                    key={key}
-                                    variant="outlined"
-                                    onClick={() => handleNumpadPress(key)}
-                                    sx={numpadKeySx}
-                                >
-                                    {key}
-                                </Button>
-                            ))}
-                        </Box>
 
-                        {/* Borrar (Backspace) */}
-                        <Button
-                            fullWidth
-                            variant="outlined"
-                            color="inherit"
-                            startIcon={<Backspace/>}
-                            onClick={handleBackspace}
-                            sx={{
-                                py: 1.5,
-                                mb: 2,
-                                fontWeight: 600,
-                                borderRadius: 2,
-                                color: '#757575',
-                                borderColor: 'rgba(0,0,0,0.23)',
-                            }}
-                        >
-                            Borrar
-                        </Button>
+            <DialogContent sx={saleFormStyles.dialogContent}>
+                {isCash ? (
+                    <Box sx={styles.cashLayout}>
+                        <Box sx={styles.summaryArea}>
+                            <Box sx={styles.summaryRow}>
+                                <Typography sx={saleFormStyles.sectionLabel}>Total a pagar</Typography>
+                                <Typography sx={styles.totalValue}>{formatCurrency(total)}</Typography>
+                            </Box>
 
-                        {/* Billetes */}
-                        <Typography variant="subtitle2" sx={{color: 'text.secondary', mb: 1}}>
-                            Billetes
-                        </Typography>
-                        <Box sx={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            justifyContent: 'center',
-                            gap: 1.5,
-                            mb: 2
-                        }}>
-                            {DENOMINATIONS.map((denom) => (
-                                <Button
-                                    key={denom.value}
-                                    variant="contained"
-                                    onClick={() => handleDenominationClick(denom.value)}
-                                    sx={{
-                                        flexBasis: 'calc(33.333% - 12px)',
-                                        py: 1.5,
-                                        fontSize: '1rem',
-                                        fontWeight: 700,
-                                        backgroundColor: denom.color,
-                                        '&:hover': {
-                                            backgroundColor: denom.color,
-                                            filter: 'brightness(1.15)',
-                                        },
-                                        borderRadius: 2,
-                                        textTransform: 'none',
-                                    }}
-                                >
-                                    {denom.label}
-                                </Button>
-                            ))}
-                        </Box>
-
-                        {/* Monedas + Exacto + Limpiar */}
-                        <Typography variant="subtitle2" sx={{color: 'text.secondary', mb: 1}}>
-                            Monedas
-                        </Typography>
-                        <Box sx={{display: 'flex', gap: 1.5, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center'}}>
-                            {QUICK_AMOUNTS.map((item) => (
-                                <Chip
-                                    key={item.value}
-                                    label={item.label}
-                                    onClick={() => handleDenominationClick(item.value)}
-                                    variant="outlined"
-                                    sx={coinChipSx}
-                                />
-                            ))}
-                            <Chip
-                                label="Exacto"
-                                icon={<AttachMoney sx={{fontSize: 18}}/>}
-                                onClick={handleExactAmount}
-                                color="success"
-                                variant="outlined"
-                                sx={{
-                                    fontWeight: 600,
-                                    fontSize: '0.9rem',
-                                    py: 2,
-                                    cursor: 'pointer',
-                                }}
-                            />
-                            <Chip
-                                label="Limpiar"
-                                icon={<RestartAlt sx={{fontSize: 18}}/>}
-                                onClick={handleReset}
-                                color="default"
-                                variant="outlined"
-                                sx={{
-                                    fontWeight: 600,
-                                    fontSize: '0.9rem',
-                                    py: 2,
-                                    cursor: 'pointer',
-                                }}
-                            />
-                        </Box>
-                    </Grid>
-
-                    {/* ── Columna derecha: resumen + facturación ───────────── */}
-                    <Grid size={{xs: 12, md: 5}}>
-                        <Box sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 1.5,
-                            height: '100%',
-                        }}>
-                            {/* Total a pagar */}
-                            <Box sx={{
-                                textAlign: 'center',
-                                p: 2,
-                                backgroundColor: '#f5f5f5',
-                                borderRadius: 2,
-                            }}>
-                                <Typography variant="body2" sx={{color: 'text.secondary'}}>
-                                    Total a pagar
-                                </Typography>
-                                <Typography variant="h4" sx={{...saleFormStyles.amount, fontWeight: 700, color: posPalette.ink}}>
-                                    {formatCurrency(total)}
+                            <Box sx={styles.tenderedBox}>
+                                <Typography sx={saleFormStyles.sectionLabel}>Recibido</Typography>
+                                <Typography aria-live="polite" sx={styles.tenderedValue(pristine && localAmount !== '')}>
+                                    {tenderedLabel}
                                 </Typography>
                             </Box>
 
-                            {/* Cantidad recibida (en tiempo real) */}
-                            <Box sx={{
-                                textAlign: 'center',
-                                p: 2,
-                                backgroundColor: '#f5f5f5',
-                                borderRadius: 2,
-                            }}>
-                                <Typography variant="body2" sx={{color: 'text.secondary'}}>
-                                    Cantidad recibida
-                                </Typography>
-                                <Typography variant="h4" sx={{...saleFormStyles.amount, fontWeight: 700, color: posPalette.greenDark}}>
-                                    {formatCurrency(parsedAmount)}
+                            <Box sx={styles.changeBox(isValid)}>
+                                <Typography sx={styles.changeLabel}>{isValid ? 'Cambio' : 'Faltan'}</Typography>
+                                <Typography sx={styles.changeValue}>
+                                    {formatCurrency(fromCents(Math.abs(changeCents)))}
                                 </Typography>
                             </Box>
+                        </Box>
 
-                            {/* Cambio */}
-                            <Box sx={{
-                                textAlign: 'center',
-                                p: 2,
-                                borderRadius: 2,
-                                backgroundColor: isValid ? '#e8f5e9' : '#ffebee',
-                                border: `2px solid ${isValid ? '#2e7d32' : '#c62828'}`,
-                            }}>
-                                <Typography variant="body2" sx={{color: 'text.secondary'}}>
-                                    Cambio
-                                </Typography>
-                                <Typography variant="h4" sx={{
-                                    ...saleFormStyles.amount,
-                                    fontWeight: 700,
-                                    color: isValid ? '#2e7d32' : '#c62828',
-                                }}>
-                                    {isValid
-                                        ? formatCurrency(changeDue)
-                                        : `Faltan ${formatCurrency(Math.abs(changeDue))}`}
-                                </Typography>
-                            </Box>
-
-                            <Divider sx={{my: 0.5}}/>
-
-                            {/* Facturación + impresión */}
-                            <Box>
-                                <FormGroup>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                color="success"
-                                                checked={!!requiresInvoice}
-                                                onChange={(e) => {
-                                                    onRequiresInvoiceChange(e.target.checked);
-                                                    if (!e.target.checked) {
-                                                        onSelectedFiscalIdChange(null);
-                                                    }
-                                                }}
-                                            />
-                                        }
-                                        label="Requiere Factura"
-                                    />
-                                </FormGroup>
-
-                                {requiresInvoice && (
-                                    <FormControl
-                                        fullWidth
-                                        size="small"
-                                        color="success"
-                                        required
-                                        error={!selectedFiscalId}
-                                        sx={{mt: 1}}
+                        <Box sx={styles.keysArea}>
+                            <Box sx={styles.keyGrid}>
+                                {DENOMINATIONS.map((denom) => (
+                                    <Button
+                                        key={denom.value}
+                                        variant="outlined"
+                                        onClick={() => handleDenomination(denom.value)}
+                                        sx={styles.denominationKey}
                                     >
-                                        <InputLabel id="fiscal-data-label">Datos Fiscales</InputLabel>
-                                        <Select
-                                            labelId="fiscal-data-label"
-                                            label="Datos Fiscales"
-                                            value={selectedFiscalId ?? ''}
-                                            variant="outlined"
-                                            onChange={(e) =>
-                                                onSelectedFiscalIdChange(e.target.value || null)
-                                            }
-                                        >
-                                            {activeFiscalList.length === 0 ? (
-                                                <MenuItem value="" disabled>
-                                                    Sin perfiles fiscales registrados
-                                                </MenuItem>
-                                            ) : (
-                                                activeFiscalList.map((f) => (
-                                                    <MenuItem key={f.fiscalId} value={f.fiscalId}>
-                                                        {f.rfc} - {f.razonSocial}
-                                                    </MenuItem>
-                                                ))
-                                            )}
-                                        </Select>
-                                    </FormControl>
-                                )}
+                                        {denom.label}
+                                    </Button>
+                                ))}
+                                <Button variant="outlined" onClick={handleExact} sx={styles.exactKey}>
+                                    Exacto
+                                </Button>
+                            </Box>
 
-                                {showSatWarning && (
-                                    <Alert severity="warning" sx={{mt: 1.5}}>
-                                        Atención: El SAT no permite deducir impuestos de facturas
-                                        mayores a $2,000 MXN pagadas en efectivo. Considere sugerir
-                                        otro método de pago.
-                                    </Alert>
-                                )}
+                            <Box sx={styles.keyGrid}>
+                                {DIGIT_KEYS.map((digit) => (
+                                    <Button
+                                        key={digit}
+                                        variant="outlined"
+                                        onClick={() => handleDigit(digit)}
+                                        sx={styles.numpadKey}
+                                    >
+                                        {digit}
+                                    </Button>
+                                ))}
+                                <Button variant="outlined" onClick={handleClear} sx={styles.numpadAuxKey}>
+                                    Limpiar
+                                </Button>
+                                <Button variant="outlined" onClick={() => handleDigit('0')} sx={styles.numpadKey}>
+                                    0
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    onClick={handleBackspace}
+                                    aria-label="Borrar último dígito"
+                                    sx={styles.numpadAuxKey}
+                                >
+                                    <Backspace/>
+                                </Button>
                             </Box>
                         </Box>
-                    </Grid>
-                </Grid>
+
+                        <Box sx={styles.invoiceArea}>{invoiceSection}</Box>
+                    </Box>
+                ) : (
+                    <Box sx={styles.nonCashLayout}>
+                        <Box sx={styles.totalOnly}>
+                            <Typography sx={styles.methodLine}>Pago con {methodLabel}</Typography>
+                            <Typography sx={saleFormStyles.sectionLabel}>Total a cobrar</Typography>
+                            <Typography sx={styles.totalOnlyValue}>{formatCurrency(total)}</Typography>
+                        </Box>
+
+                        <Box sx={styles.nonCashInvoice}>{invoiceSection}</Box>
+                    </Box>
+                )}
             </DialogContent>
+
             <DialogActions sx={saleFormStyles.dialogActions}>
                 <Button
                     onClick={onClose}
                     variant="outlined"
                     color="inherit"
                     disabled={isSubmitting}
-                    sx={saleFormStyles.touchButton}
+                    sx={saleFormStyles.cartCancelButton}
                 >
                     Cancelar
                 </Button>
@@ -398,7 +301,7 @@ export const PaymentModal = ({
                     color="success"
                     onClick={handleSave}
                     disabled={saveDisabled}
-                    sx={{...saleFormStyles.touchButton, fontWeight: 600}}
+                    sx={saleFormStyles.primaryAction}
                 >
                     {isSubmitting ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar Venta')}
                 </Button>
