@@ -64,6 +64,12 @@ export const PaymentModal = ({
     const changeCents = tenderedCents - totalCents;
     const isValid = isCash ? tenderedCents > 0 && changeCents >= 0 : totalCents > 0;
 
+    // Mientras se teclean centavos se muestra lo escrito ("$93." o "$93.0"), que el formato numérico ocultaría.
+    const [intPart, decPart] = localAmount.split('.');
+    const tenderedLabel = pristine || decPart === undefined
+        ? formatCurrency(fromCents(tenderedCents))
+        : `${formatCurrency(Number(intPart) || 0)}.${decPart}`;
+
     const activeFiscalList = (fiscalList || []).filter((f) => f.active);
     const invoiceInvalid = requiresInvoice && !selectedFiscalId;
     const showSatWarning = requiresInvoice && total > 2000 && paymentMethodId === CASH_PAYMENT_METHOD_ID;
@@ -74,8 +80,17 @@ export const PaymentModal = ({
         setPristine(false);
     };
 
-    // Numpad de pesos cerrados: concatena dígitos y reemplaza el cero solitario.
-    const handleDigit = (digit) => edit(pristine || localAmount === '0' ? digit : localAmount + digit);
+    // Concatena dígitos, reemplaza el cero solitario y admite a lo más 2 decimales.
+    const handleDigit = (digit) => {
+        if (pristine || localAmount === '0') return edit(digit);
+        if (!/\.\d{2}$/.test(localAmount)) edit(localAmount + digit);
+    };
+
+    // Punto decimal (solo teclado físico; el numpad en pantalla es de pesos cerrados).
+    const handleDecimal = () => {
+        if (pristine || localAmount === '') return edit('0.');
+        if (!localAmount.includes('.')) edit(localAmount + '.');
+    };
 
     // Billetes: el primer toque reemplaza el prellenado; los siguientes suman.
     const handleDenomination = (value) =>
@@ -88,9 +103,19 @@ export const PaymentModal = ({
 
     const handleClear = () => edit('');
 
-    // Los centavos solo llegan por Exacto o el prellenado; Borrar los quita completos porque el numpad no los captura.
-    const handleBackspace = () =>
-        edit(localAmount.includes('.') ? localAmount.split('.')[0] : localAmount.slice(0, -1));
+    const handleBackspace = () => edit(localAmount.slice(0, -1));
+
+    // Teclado físico (también el numérico): dígitos, punto (o coma) y Borrar.
+    // Se ignora dentro del selector fiscal y con modificadores, para no romper atajos ni la búsqueda del menú.
+    const handleKeyDown = (e) => {
+        if (!isCash || e.ctrlKey || e.altKey || e.metaKey) return;
+        if (e.target.closest('[role="combobox"], [role="listbox"]')) return;
+        if (/^\d$/.test(e.key)) handleDigit(e.key);
+        else if (e.key === '.' || e.key === ',') handleDecimal();
+        else if (e.key === 'Backspace') handleBackspace();
+        else return;
+        e.preventDefault();
+    };
 
     const handleSave = () => {
         const amount = fromCents(isCash ? tenderedCents : totalCents);
@@ -162,6 +187,7 @@ export const PaymentModal = ({
         <Dialog
             open={open}
             onClose={(_, reason) => { if (reason !== 'backdropClick' && !isSubmitting) onClose(); }}
+            onKeyDown={handleKeyDown}
             fullScreen={fullScreen}
             maxWidth={isCash ? 'md' : 'sm'}
             fullWidth
@@ -188,7 +214,7 @@ export const PaymentModal = ({
                             <Box sx={styles.tenderedBox}>
                                 <Typography sx={saleFormStyles.sectionLabel}>Recibido</Typography>
                                 <Typography aria-live="polite" sx={styles.tenderedValue(pristine && localAmount !== '')}>
-                                    {formatCurrency(fromCents(tenderedCents))}
+                                    {tenderedLabel}
                                 </Typography>
                             </Box>
 
