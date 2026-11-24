@@ -111,7 +111,7 @@ const sectionLabel = {
 };
 
 // Retroalimentación táctil (el ripple está desactivado en el tema).
-const pressFeedback = {
+export const pressFeedback = {
     transition: 'transform .12s ease, background-color .12s ease, border-color .12s ease, box-shadow .12s ease',
     '&:active': {transform: 'scale(0.97)'},
 };
