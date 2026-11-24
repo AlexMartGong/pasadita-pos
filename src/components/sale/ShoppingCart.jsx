@@ -203,9 +203,9 @@ export const ShoppingCart = ({
                 total={formData.total}
                 amountTendered={amountTendered}
                 onAmountTenderedChange={onAmountTenderedChange}
-                onSaveSale={(amount) => {
-                    setPaymentOpen(false);
-                    onSaveSale(amount);
+                // Abierto y bloqueado durante guardado + timbrado; si falla queda abierto para reintentar.
+                onSaveSale={async (amount) => {
+                    if (await onSaveSale(amount)) setPaymentOpen(false);
                 }}
                 isSubmitting={isSubmitting}
                 isEditMode={isEditMode}
@@ -218,7 +218,10 @@ export const ShoppingCart = ({
                 fiscalList={fiscalList}
             />
 
-            <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+            <Dialog
+                open={confirmOpen}
+                onClose={(_, reason) => { if (reason !== 'backdropClick') setConfirmOpen(false); }}
+            >
                 <DialogTitle>¿Cancelar la venta?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
@@ -226,7 +229,12 @@ export const ShoppingCart = ({
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions sx={saleFormStyles.dialogActions}>
-                    <Button onClick={() => setConfirmOpen(false)} sx={saleFormStyles.touchButton}>
+                    <Button
+                        onClick={() => setConfirmOpen(false)}
+                        variant="outlined"
+                        color="inherit"
+                        sx={saleFormStyles.touchButton}
+                    >
                         Volver
                     </Button>
                     <Button

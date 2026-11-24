@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useSale} from './useSale';
 import {useCustomer} from '../customer/useCustomer';
@@ -75,6 +75,8 @@ export const useSaleForm = (saleSelected) => {
 
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    // El modal de cobro sigue abierto mientras guarda: este ref evita un segundo POST por doble toque.
+    const submittingRef = useRef(false);
     const [formData, setFormData] = useState(() => !isEditMode ? activeDraft.formData : initialSaleForm);
     const [setDeliveryOrderId] = useState(null);
     const [saleDetails, setSaleDetails] = useState(() => !isEditMode ? activeDraft.saleDetails : []);
@@ -396,11 +398,14 @@ export const useSaleForm = (saleSelected) => {
     }, [customers, initialSaleForm, dispatch]);
 
 
+    // Devuelve true solo si la venta se guardó (el modal de cobro se cierra con eso).
     const handleSubmit = useCallback(async (amountTenderedValue) => {
         if (creditBlocked) {
             toast.error(CREDIT_BLOCKED_MESSAGE);
-            return;
+            return false;
         }
+        if (submittingRef.current) return false;
+        submittingRef.current = true;
         setIsSubmitting(true);
 
         try {
@@ -470,10 +475,14 @@ export const useSaleForm = (saleSelected) => {
                     amountTendered: tendered,
                     changeDue: formatToTwoDecimals(tendered - total),
                 });
+                return true;
             }
+            return false;
         } catch (error) {
             console.error('Error submitting form:', error);
+            return false;
         } finally {
+            submittingRef.current = false;
             setIsSubmitting(false);
         }
     }, [
