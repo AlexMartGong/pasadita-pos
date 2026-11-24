@@ -35,7 +35,13 @@ export const AddProductForm = ({
     }, [open]);
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+        // Tocar fuera no cierra: un "Agregar" fallido por centímetros no debe parecer agregado.
+        <Dialog
+            open={open}
+            onClose={(_, reason) => { if (reason !== 'backdropClick') onClose(); }}
+            maxWidth="sm"
+            fullWidth
+        >
             <DialogTitle sx={saleFormStyles.dialogTitle}>
                 <Add/>
                 Agregar al carrito

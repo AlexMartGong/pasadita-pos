@@ -15,7 +15,13 @@ export const PostSaleSummaryModal = ({
                                          formatCurrency,
                                      }) => {
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+        // Tocar fuera no cierra: equivaldría a "No Imprimir" y limpiaría el carrito. Escape sí.
+        <Dialog
+            open={open}
+            onClose={(_, reason) => { if (reason !== 'backdropClick') onClose(); }}
+            maxWidth="xs"
+            fullWidth
+        >
             <DialogTitle sx={saleFormStyles.dialogTitle}>
                 <CheckCircle/>
                 Venta Registrada

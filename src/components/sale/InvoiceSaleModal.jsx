@@ -6,6 +6,7 @@ import {
 import {ReceiptLong} from '@mui/icons-material';
 import {useCustomerFiscalData} from '../../hooks/customerFiscalData/useCustomerFiscalData';
 import {useInvoice} from '../../hooks/invoice/useInvoice';
+import {saleFormStyles} from '../../styles/js/SaleFormStyles';
 
 export const InvoiceSaleModal = ({open, onClose, saleId}) => {
     const {customerFiscalDataList, handleGetAllFiscalData} = useCustomerFiscalData();
@@ -30,7 +31,12 @@ export const InvoiceSaleModal = ({open, onClose, saleId}) => {
     };
 
     return (
-        <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth="sm" fullWidth>
+        <Dialog
+            open={open}
+            onClose={(_, reason) => { if (reason !== 'backdropClick' && !loading) onClose(); }}
+            maxWidth="sm"
+            fullWidth
+        >
             <DialogTitle sx={{
                 background: 'linear-gradient(135deg, #283593 0%, #5c6bc0 100%)',
                 color: 'white',
@@ -79,8 +85,13 @@ export const InvoiceSaleModal = ({open, onClose, saleId}) => {
                     </Alert>
                 )}
             </DialogContent>
-            <DialogActions sx={{px: 3, pb: 2}}>
-                <Button onClick={onClose} variant="outlined" disabled={loading}>
+            <DialogActions sx={saleFormStyles.dialogActions}>
+                <Button
+                    onClick={onClose}
+                    variant="outlined"
+                    disabled={loading}
+                    sx={saleFormStyles.touchButton}
+                >
                     Cancelar
                 </Button>
                 <Button
@@ -88,7 +99,7 @@ export const InvoiceSaleModal = ({open, onClose, saleId}) => {
                     color="primary"
                     onClick={handleTimbrar}
                     disabled={loading || !selectedFiscalId}
-                    sx={{fontWeight: 600}}
+                    sx={{...saleFormStyles.touchButton, fontWeight: 600}}
                 >
                     {loading ? 'Timbrando...' : 'Timbrar'}
                 </Button>

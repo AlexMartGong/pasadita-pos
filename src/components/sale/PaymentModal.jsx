@@ -125,7 +125,12 @@ export const PaymentModal = ({
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <Dialog
+            open={open}
+            onClose={(_, reason) => { if (reason !== 'backdropClick' && !isSubmitting) onClose(); }}
+            maxWidth="md"
+            fullWidth
+        >
             <DialogTitle sx={saleFormStyles.dialogTitle}>
                 <AttachMoney/>
                 Cobrar Venta
@@ -383,6 +388,7 @@ export const PaymentModal = ({
                     onClick={onClose}
                     variant="outlined"
                     color="inherit"
+                    disabled={isSubmitting}
                     sx={saleFormStyles.touchButton}
                 >
                     Cancelar
